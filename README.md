@@ -75,11 +75,13 @@ Từ <b>zero</b> đến <b>hero</b> — đúng cách build agent &amp; tự đ�
 
 ## 🚀 Quick Start
 
+> 📺 **Detailed guide:** [Watch the video walkthrough on YouTube](https://www.youtube.com/watch?v=V08-8KLmbnA)
+
 ```bash
 git clone https://github.com/huytranvan2010/AI-auto-generate-video.git
 cd AI-auto-generate-video
 npm install
-# start your local OmniVoice server, then ↓
+# start your local OmniVoice server, then generate video
 ```
 
 <table>

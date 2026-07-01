@@ -5,6 +5,45 @@ description: Tạo video tin tức 9:16 bằng TEMPLATE HyperFrames chuyên nghi
 
 # Create Template Video Skill
 
+## 🎯 EVOSE BRAND v3 (BẮT BUỘC TUÂN THỦ)
+
+**LƯU Ý CỰC QUAN TRỌNG: Repo này dùng cho thương hiệu Evose.**
+
+### Header + Footer: KHÔNG ĐIỀN
+Repo có **OVERLAY LAYER thống nhất** (header "Evose.ai" + footer social icons) tự động đè
+lên mọi scene. Vì vậy:
+- ❌ KHÔNG điền `footer_left`, `footer_right`, `side_left`, `side_right`, `caption`, `date`
+  → để chuỗi rỗng `""` hoặc bỏ field
+- ❌ KHÔNG điền filler text như "ISC 2026", "Hamburg", "VFX/GLITCH", "Edge workstation"
+- ✅ Field hiển thị nội dung chính (headline, subtitle, label, number, items) vẫn điền bình thường
+
+### Brand Fields (chỉ những fields KHÔNG bị overlay che)
+| Field | Giá trị |
+|---|---|
+| `metadata.channel` | `"EVOSE"` |
+| `inputs.kicker` (hook only, ở khu nội dung chính nếu có) | `"EVOSE"` hoặc bỏ |
+| `inputs.brand_name` (outro) | `"EVOSE"` |
+| `inputs.tagline` (outro) | `"Truy cập evose.ai để tạo ra trợ lý AI của riêng bạn."` |
+| `inputs.primary_url` (outro) | `"app.evose.ai"` |
+
+### Outro CTA — BẮT BUỘC
+`voiceText` scene cuối (outro) **PHẢI** kết thúc bằng:
+> **"Truy cập evose.ai để tạo ra trợ lý AI của riêng bạn."**
+
+Có thể prefix "Cảm ơn bạn đã theo dõi." nhưng câu CTA Evose phải là câu cuối.
+
+### Safe Zone (bắt buộc)
+Vùng nội dung chỉ dùng từ **left: 120px → right: 960px** (rộng 840px) để chừa safe zone cho TikTok/Reels.
+Top từ **280px** (tránh overlay header). Bottom đến **1600px** (tránh overlay footer).
+
+### Cấm tuyệt đối trong voiceText và inputs:
+- ❌ "Evose", "evose.ai", "Senior AI Engineer", "Bản tin AI"
+- ❌ "ISC 2026", "Hamburg", "Edge workstation", "VFX/GLITCH", "CYAN × MAGENTA", "Signal CH-04"
+- ❌ Ngày kiểu "12 · 06 · 2026" (fake date)
+- ❌ Mọi URL chứa "vercel.app", "udemy", "aicoding"
+
+---
+
 Sinh video tin tức 9:16 dùng các template HyperFrames trong `templates/` (đẹp,
 chuyên nghiệp hơn 6 scene Remotion cũ). Claude chỉ điền **chữ vào slot** của
 template — toàn bộ thiết kế/animation do template lo.
@@ -49,6 +88,11 @@ Phát hiện input rồi lấy nội dung:
 - `frame-glitch-title` — cyberpunk glitch RGB-split (nền nhiễu) — hợp tin sốc/breaking/công nghệ.
 - `frame-aicoding-list` — **DANH SÁCH** 2–5 mục (mỗi mục có icon + tag mức độ), nền tối gradient. Dùng khi scene là list/xếp hạng.
 - `frame-aicoding-comparison` — **SO SÁNH 2 thứ** (cũ vs mới, A vs B) — 2 card khung gradient + badge WIN + stat. Dùng khi scene đối đầu/đối chiếu.
+- `frame-chart-bars` — **BIỂU ĐỒ CỘT** so sánh nhiều mục có số liệu (doanh thu theo quý, xếp hạng, số lượng theo nhóm), nền tối gradient xanh điện. Dùng khi scene so sánh 2–6 mục bằng số.
+- `frame-chart-donut` — **BIỂU ĐỒ VÒNG / %** một tỉ lệ phần trăm nổi bật (thị phần, tỉ lệ hoàn thành), nền tối. Dùng khi scene xoay quanh 1 con số phần trăm.
+- `frame-chart-line` — **BIỂU ĐỒ ĐƯỜNG** xu hướng theo thời gian (đà tăng/giảm), nền tối. Dùng khi scene là chuỗi số theo thời gian.
+- `frame-screenshot-scroll` — **NHÚNG ẢNH CHỤP TRANG WEB + CUỘN** (GitHub repo / trang dài), khung điện thoại. Dùng khi scene giới thiệu repo hoặc trang web dài.
+- `frame-screenshot-news` — **NHÚNG ẢNH CHỤP BÀI BÁO + HIGHLIGHT tiêu đề**, khung điện thoại. Dùng khi scene trích nguồn tin tức/bài báo.
 
 **OUTRO:**
 - `frame-logo-outro` — mặc định (logo glow + tên + tagline + url).
@@ -68,7 +112,7 @@ Cấu trúc bắt buộc:
     "metadata": {
         "title": "...",
         "source": { "url": "...", "domain": "...", "image": null },
-        "channel": "AI Coding"
+        "channel": "EVOSE"
     },
     "voice": { "provider": "omnivoice", "speed": 1.0 },
     "scenes": [
@@ -84,7 +128,7 @@ Cấu trúc bắt buộc:
 
 **Map nội dung → template:**
 
-- hook → **LUÔN `frame-liquid-bg-hero`** (slots: kicker, headline, subheadline, cta, brand). `headline` hiển thị bằng gradient bắt mắt (mặc định vàng→tím); có thể đặt `headline_from`/`headline_to` (2 màu hex) để đổi tông. Không dùng template khác cho hook.
+- hook → **LUÔN `frame-liquid-bg-hero`** (slots: kicker, headline, subheadline, cta, brand). `headline` hiển thị bằng gradient bắt mắt (mặc định vàng→tím); có thể đặt `headline_from`/`headline_to` (2 màu hex) để đổi tông. **`headline` ≤4 từ ngắn, không dấu phẩy, không số** (vd "AI Bùng Nổ!" ✅, "Alexa For Shopping Ra Mắt!" ❌ — quá dài). **`voiceText` hook ≤18 từ** (nếu dài hơn, hook frame phải kéo dài bằng loop — animation sẽ lặp từ đầu, chấp nhận được; nhưng ≤18 từ vẫn là best practice). Không dùng template khác cho hook.
 - **body → Claude TỰ CHỌN template hợp nhất cho từng scene** theo nội dung (ưu tiên ĐA DẠNG — đừng lặp 1 template cho mọi body). Chọn trong:
     - `frame-vignelli` — scene có **1 con số/stat** muốn nhấn mạnh, tông tối charcoal + đỏ. Slots: kicker, number, label, note, brand.
     - `frame-pentagram-stat` — scene có **1 con số/benchmark**, nền tối neon (Swiss grid, số cam phát sáng + accent cyan) + biểu đồ cột. Slots: label, headline (số), subtitle, anchor, footer_left, footer_right.
@@ -100,6 +144,12 @@ Cấu trúc bắt buộc:
         - `from`/`to`: Claude TỰ CHỌN 2 màu hex gradient cho mỗi vế (thường 2 vế khác tông, vd trái cam→đỏ, phải teal→lam).
         - `icon`: emoji tuỳ chọn cho mỗi vế. `win: true` cho vế thắng (viền sáng + badge WIN). `stat`/`stat_label`: số liệu tuỳ chọn dưới mỗi card.
     - Gợi ý cân bằng: nếu nhiều scene đều là số, xen kẽ `frame-vignelli` (than + đỏ/vàng) và `frame-pentagram-stat` (tối neon cam/cyan) cho đỡ đơn điệu; chèn `frame-build-minimal` cho scene không-số.
+    - `frame-chart-bars` — **scene SO SÁNH DỮ LIỆU nhiều mục có số**. Slots: label, title, bars, caption. `title` hiển thị `{...}` bằng gradient. `bars` là JSON `[{label, value, unit?, active?}]` (2–6 cột); `active: true` cho cột muốn nhấn, `active: false` làm mờ cột.
+    - `frame-chart-donut` — **scene có 1 TỈ LỆ PHẦN TRĂM chủ đạo**. Slots: label, title, percent (0–100), unit (mặc định "%"), caption.
+    - `frame-chart-line` — **scene XU HƯỚNG THEO THỜI GIAN**. Slots: label, title, points, caption. `points` là JSON `[{label, value}]` (3–8 điểm).
+    - `frame-screenshot-scroll` — **scene GIỚI THIỆU REPO / TRANG WEB DÀI**. Slots: label, title, image, pan, caption. `image` là ảnh PNG chụp bằng `scripts/capture-screenshot.js --mode github`; `pan` là mức cuộn (vd "-55%"), đặt "0%" để ảnh tĩnh.
+    - `frame-screenshot-news` — **scene TRÍCH NGUỒN BÀI BÁO / TIN TỨC**. Slots: label, title, image, hl_top, hl_left, hl_width, hl_height, caption. `image` là ảnh PNG chụp bằng `scripts/capture-screenshot.js --mode news`; `hl_*` là % vị trí khung soi tiêu đề (bỏ trống = tắt highlight).
+    - **Quy tắc dữ liệu cho 5 frame chart/screenshot (Claude tự quyết):** (1) bài CÓ số liệu cụ thể → vẽ chart THẬT với số đó; (2) bài KHÔNG có số nhưng minh hoạ được khái niệm → chart minh hoạ (số tượng trưng + label mô tả); (3) không hợp trực quan hoá → KHÔNG dùng chart frame, chọn frame chữ. Nguồn GitHub → `frame-screenshot-scroll` (cuộn); nguồn báo → `frame-screenshot-news` (tĩnh + highlight). Số trong `inputs` giữ định dạng đẹp ("5.6", "45%"); `voiceText` vẫn viết số ra chữ theo quy tắc TTS bên dưới.
 - outro → `frame-logo-outro` (mặc định; slots: brand_name, tagline, primary_url). Dùng `frame-statement-outro` nếu muốn card đỏ nền giấy.
 
 ### ⚠️ Quy tắc TTS tiếng Việt (BẮT BUỘC cho `voiceText`)
@@ -136,6 +186,10 @@ Bảng đầy đủ (áp dụng cho `voiceText`):
 ### Step 6: Tự kiểm tra
 
 - scenes[0]=hook, scene cuối=outro; mỗi templateId ∈ CATALOG; mỗi inputs đủ slot bắt buộc;
+- **Hook headline**: ≤4 từ ngắn, không dấu phẩy, không số. Hook `voiceText` ≤18 từ.
+- **⚠️ Slot bắt buộc cho stat frame** — nếu thiếu, phần dưới frame render rỗng (tối đen):
+  - `frame-vignelli`: `kicker`, `number`, `label`, `note` — **TẤT CẢ phải có giá trị thực**.
+  - `frame-pentagram-stat`: `label`, `headline`, `subtitle`, `anchor` — **TẤT CẢ phải có giá trị thực**.
 - headline ≤3 dòng & mỗi dòng ngắn; voiceText đã viết số ra chữ **và KHÔNG chứa emoji/icon**; emoji (nếu có) chỉ nằm trong `inputs`. Sửa thầm tối đa 2 lần.
 
 ### Step 7: Ghi script.json

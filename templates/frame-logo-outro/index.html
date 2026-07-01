@@ -9,6 +9,33 @@
             rel="stylesheet"
         />
         <style>
+
+/* === EVOSE BRAND BASE === */
+:root {
+    --evose-navy: #0A1532;
+    --evose-deep: #050D1F;
+    --evose-white: #FFFFFF;
+    --evose-accent: #3B82F6;
+    --evose-cyan: #60A5FA;
+    --evose-lavender: #A5B4FC;
+}
+@keyframes evoseFadeUp {
+    0% { opacity: 0; transform: translateY(36px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes evoseFadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+@keyframes evoseScaleIn {
+    0% { opacity: 0; transform: scale(0.92); }
+    100% { opacity: 1; transform: scale(1); }
+}
+.evose-fade-up { animation: evoseFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.evose-fade-in { animation: evoseFadeIn 0.6s ease-out both; }
+.evose-scale-in { animation: evoseScaleIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+
             /*
    * frame-logo-outro — segmented logo assembly + glow bloom + tagline reveal.
    * Vendored from nexu-io/html-video (Apache-2.0), adapted to HyperFrames 0.6
@@ -207,7 +234,7 @@
             data-duration="5"
             data-width="1920"
             data-height="1080"
-            data-composition-variables='{"brand_name":"AI Coding","tagline":"Bản tin mới mỗi ngày","primary_url":"https://aicodingvn.vercel.app/"}'
+            data-composition-variables='{"brand_name": "EVOSE", "tagline": "AI NEWS", "primary_url": "app.evose.ai"}'
         >
             <div class="ribbon"></div>
 
@@ -244,7 +271,7 @@
             <p class="tagline"></p>
             <div class="meta"><span class="meta-url"></span></div>
 
-            <div class="corner left">AI Coding</div>
+            <div class="corner left">Evose</div>
             <div class="corner right">Bye Các Con Vợ</div>
         </div>
 

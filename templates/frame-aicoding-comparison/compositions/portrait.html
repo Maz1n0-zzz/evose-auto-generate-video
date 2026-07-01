@@ -3,9 +3,36 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=1080, height=1920" />
-<title>AI Coding Comparison · Portrait 9:16</title>
+<title>Evose Comparison · Portrait 9:16</title>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 <style>
+
+/* === EVOSE BRAND BASE === */
+:root {
+    --evose-navy: #0A1532;
+    --evose-deep: #050D1F;
+    --evose-white: #FFFFFF;
+    --evose-accent: #3B82F6;
+    --evose-cyan: #60A5FA;
+    --evose-lavender: #A5B4FC;
+}
+@keyframes evoseFadeUp {
+    0% { opacity: 0; transform: translateY(36px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes evoseFadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+@keyframes evoseScaleIn {
+    0% { opacity: 0; transform: scale(0.92); }
+    100% { opacity: 1; transform: scale(1); }
+}
+.evose-fade-up { animation: evoseFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.evose-fade-in { animation: evoseFadeIn 0.6s ease-out both; }
+.evose-scale-in { animation: evoseScaleIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+
   /*
    * frame-aicoding-comparison — original template for this repo. A dark "head to
    * head" comparison: teal gradient glow on a near-black canvas, a pill badge, a
@@ -70,7 +97,24 @@
   .stat.right { animation-delay: 1.05s; }
   .stat .sv { font-size: 46px; font-weight: 800; line-height: 1; }
   .stat .sl { margin-top: 6px; font-size: 20px; font-weight: 500; color: rgba(238,243,244,0.5); }
-</style>
+
+            /* === EVOSE SAFE ZONE (840x1320) === */
+            .wrap {
+                left: 120px !important;
+                right: 120px !important;
+                max-width: 840px !important;
+            }
+            .cards {
+                left: 120px !important;
+                right: 120px !important;
+                max-width: 840px !important;
+            }
+        /* EVOSE-OVERRIDE-frame-aicoding-comparison */
+
+        /* EVOSE: chữ label card không bị cắt */
+        .side .label, [class*="label"] { word-break: keep-all !important; overflow: visible !important; }
+    
+        </style>
 </head>
 <body>
   <div
@@ -80,7 +124,7 @@
     data-duration="5"
     data-width="1080"
     data-height="1920"
-    data-composition-variables='{"badge":"Đối đầu","pre":"Truyền thống","vs":"vs","post":"học tập","left":{"label":"LMS","from":"#ffb020","to":"#ff7a3d","bullets":["Khoá cố định / lộ trình tuyến tính","Một kiểu cho tất cả / tiếp thu thụ động"],"stat":"88%","stat_label":"Ưa nền tảng mới"},"right":{"label":"AI","from":"#34e0c0","to":"#22d3ee","win":true,"bullets":["Hỏi tức thì / đào sâu theo nhu cầu","Cá nhân hoá / chủ động khám phá"],"stat":"42%","stat_label":"Đang chuyển đổi"}}'
+    data-composition-variables='{"badge": "Đối đầu", "pre": "Truyền thống", "vs": "vs", "post": "học tập", "left": {"label": "LMS", "from": "#ffb020", "to": "#ff7a3d", "bullets": ["Khoá cố định / lộ trình tuyến tính", "Một kiểu cho tất cả / tiếp thu thụ động"], "stat": "88%", "stat_label": "Ưa nền tảng mới"}, "right": {"label": "AI", "from": "#34e0c0", "to": "#22d3ee", "win": true, "bullets": ["Hỏi tức thì / đào sâu theo nhu cầu", "Cá nhân hoá / chủ động khám phá"], "stat": "42%", "stat_label": "Đang chuyển đổi"}}'
   >
     <div class="bg"></div>
     <div class="grid"></div>
@@ -180,8 +224,8 @@
           var sl = document.createElement("div"); sl.className = "sl"; sl.textContent = data.stat_label != null ? String(data.stat_label) : "";
           st.appendChild(sv); st.appendChild(sl); return st;
         };
-        statsEl.appendChild(buildStat("left", L, LF, LT));
-        statsEl.appendChild(buildStat("right", R, RF, RT));
+        if (L.stat) statsEl.appendChild(buildStat("left", L, LF, LT));
+        if (R.stat) statsEl.appendChild(buildStat("right", R, RF, RT));
       } else if (statsEl) {
         statsEl.style.display = "none";
       }

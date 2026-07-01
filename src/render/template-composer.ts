@@ -1,7 +1,7 @@
 import { spawn } from "node:child_process";
-import { existsSync, mkdtempSync, writeFileSync } from "node:fs";
+import { copyFileSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, isAbsolute, join, resolve } from "node:path";
+import { basename, dirname, isAbsolute, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { log } from "../utils/logger.js";
 
@@ -36,6 +36,96 @@ export interface ComposeArgs {
 }
 
 /**
+ * HyperFrames serves HTML via a local HTTP server rooted at templateDir.
+ * Requests for "assets/x.png" resolve to templateDir/assets/x.png — NOT
+ * templateDir/compositions/assets/x.png. Copy images to templateDir/assets/
+ * so the browser can load them over the local HTTP server.
+ */
+function resolveImageAssets(
+    inputs: Record<string, unknown>,
+    templateDir: string,
+): Record<string, unknown> {
+    const assetsDir = join(templateDir, "assets");
+    const resolved: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(inputs)) {
+        if (typeof value === "string") {
+            let filePath = value;
+            if (filePath.startsWith("file://")) {
+                filePath = fileURLToPath(filePath);
+            }
+            if (!isAbsolute(filePath)) {
+                const cwdAbsolute = resolve(process.cwd(), filePath);
+                if (existsSync(cwdAbsolute)) filePath = cwdAbsolute;
+            }
+            if (
+                isAbsolute(filePath) &&
+                /\.(png|jpe?g|webp|gif|svg)$/i.test(filePath) &&
+                existsSync(filePath)
+            ) {
+                mkdirSync(assetsDir, { recursive: true });
+                const filename = basename(filePath);
+                copyFileSync(filePath, join(assetsDir, filename));
+                log.info(`Asset resolved: ${filename} → assets/`);
+                resolved[key] = `assets/${filename}`;
+                continue;
+            }
+        }
+        resolved[key] = value;
+    }
+    return resolved;
+}
+
+/** Dimensions for each aspect ratio (px). */
+const ASPECT_DIMS: Record<Aspect, [number, number]> = {
+    "9:16": [1080, 1920],
+    "16:9": [1920, 1080],
+    "1:1": [1080, 1080],
+};
+
+/**
+ * CSS-only frames (no GSAP, no window.__timelines) cause HyperFrames@0.6.94
+ * to exit with code 1 ("zero duration"). Inject the required HyperFrames
+ * metadata attributes into a temp copy so the original template stays pristine.
+ */
+function ensureHyperframesMeta(
+    templateDir: string,
+    entryFile: string,
+    aspect: Aspect | undefined,
+): { renderDir: string; cleanup: () => void } {
+    const html = readFileSync(join(templateDir, entryFile), "utf8");
+    if (html.includes("data-composition-id")) {
+        return { renderDir: templateDir, cleanup: () => {} };
+    }
+
+    const [w, h] = ASPECT_DIMS[aspect ?? "9:16"];
+    const attrs = `data-composition-id="main" data-width="${w}" data-height="${h}" data-duration="15"`;
+
+    let patched = html.replace(
+        /(<div\b[^>]*\bid="root")/,
+        `$1 ${attrs}`,
+    );
+    if (patched === html) {
+        // Fallback: first <div immediately after <body
+        patched = html.replace(/(<body[^>]*>[\s\S]*?<div)/, `$1 ${attrs}`);
+    }
+
+    // mkdtempSync creates an existing dir; cpSync(src, existingDir) would nest src
+    // inside dest on POSIX. Use a child path so cpSync creates it fresh as a copy.
+    const tempParent = mkdtempSync(join(tmpdir(), "hf-inject-"));
+    const renderDir = join(tempParent, "tpl");
+    cpSync(templateDir, renderDir, { recursive: true });
+    writeFileSync(join(renderDir, entryFile), patched, "utf8");
+    log.info(`CSS-only frame detected — injected data-duration=15 into temp dir`);
+
+    return {
+        renderDir,
+        cleanup: () => {
+            try { rmSync(tempParent, { recursive: true, force: true }); } catch {}
+        },
+    };
+}
+
+/**
  * Render one vendored HyperFrames template into an MP4, injecting `inputs`
  * as composition variables. This is the deterministic "fill the slots" step:
  * the agent only supplies text, the template owns all the visual design.
@@ -57,21 +147,25 @@ export async function composeTemplate(args: ComposeArgs): Promise<string> {
         ? args.outputPath
         : resolve(process.cwd(), args.outputPath);
 
+    // For CSS-only frames, work from a temp dir with injected HyperFrames attrs.
+    const { renderDir, cleanup } = ensureHyperframesMeta(templateDir, entryFile, aspect);
+
     // Pass variables via a temp file, NOT --variables: a JSON arg through
     // npx + shell:true on Windows mangles quotes/Unicode (em-dash, Vietnamese)
     // and the render silently no-ops. A file is shell-safe and UTF-8 clean.
+    const resolvedInputs = resolveImageAssets(inputs, renderDir);
     const varsFile = join(
         mkdtempSync(join(tmpdir(), "hf-vars-")),
         "variables.json",
     );
-    writeFileSync(varsFile, JSON.stringify(inputs), "utf8");
+    writeFileSync(varsFile, JSON.stringify(resolvedInputs), "utf8");
 
     const spawnArgs = [
         // -y: never prompt to install. Pinned version → deterministic renders.
         "-y",
         "hyperframes@0.6.94",
         "render",
-        templateDir,
+        renderDir,
         "--composition",
         entryFile,
         "--output",
@@ -86,18 +180,22 @@ export async function composeTemplate(args: ComposeArgs): Promise<string> {
 
     log.info(`Compose ${templateId} (${entryFile}) → ${outputPath}`);
 
-    await new Promise<void>((resolve, reject) => {
-        const proc = spawn("npx", spawnArgs, {
-            stdio: ["ignore", "inherit", "inherit"],
-            shell: true,
+    try {
+        await new Promise<void>((resolve, reject) => {
+            const proc = spawn("npx", spawnArgs, {
+                stdio: ["ignore", "inherit", "inherit"],
+                shell: true,
+            });
+            proc.on("close", (code) =>
+                code === 0
+                    ? resolve()
+                    : reject(new Error(`hyperframes render failed (exit ${code})`)),
+            );
+            proc.on("error", reject);
         });
-        proc.on("close", (code) =>
-            code === 0
-                ? resolve()
-                : reject(new Error(`hyperframes render failed (exit ${code})`)),
-        );
-        proc.on("error", reject);
-    });
+    } finally {
+        cleanup();
+    }
 
     log.info(`Rendered: ${outputPath}`);
     return outputPath;
@@ -111,14 +209,14 @@ if (
     import.meta.url === pathToFileURL(process.argv[1]).href
 ) {
     const inputs = {
-        kicker: "AI Coding",
+        kicker: "Evose",
         date: "12 · 06 · 2026",
         figure: "5.5",
         headline: ["GPT 5.5", "ra mắt.", "Mạnh nhất."],
         standfirst:
             "OpenAI vừa công bố mô hình mạnh nhất từ trước tới nay — nhanh hơn, rẻ hơn, hiểu tiếng Việt tốt hơn.",
-        footer_left: "AI Coding",
-        footer_right: "https://aicodingvn.vercel.app/",
+        footer_left: "Evose",
+        footer_right: "https://evose.ai/",
     };
     (async () => {
         await composeTemplate({

@@ -1,4 +1,11 @@
-# Template Catalog (HyperFrames, renderer: "hyperframes")
+# Template Catalog
+
+> ⚠️ **EVOSE BRAND OVERLAY**: Repo này dùng OVERLAY LAYER thống nhất cho header+footer.
+> KHÔNG ĐIỀN các slot footer (`footer_left`, `footer_right`, `side_left`, `side_right`,
+> `caption`, `date`) — overlay sẽ tự động thêm "Evose.ai" header + social icons footer
+> lên mọi scene.
+
+ (HyperFrames, renderer: "hyperframes")
 
 Each scene in a template-mode `script.json` names a `templateId` below and fills
 `inputs` with the listed slots. The template owns all visual design; you only
@@ -22,7 +29,7 @@ Render aspect is set once per script (`"aspect": "9:16"` for TikTok/Shorts).
 
 | slot           | type     | limit                    | notes                                                |
 | -------------- | -------- | ------------------------ | ---------------------------------------------------- |
-| `kicker`       | string   | ≤24                      | small uppercase label, top-left (e.g. "AI Coding")   |
+| `kicker`       | string   | ≤24                      | small uppercase label, top-left (e.g. "Evose")   |
 | `date`         | string   | ≤24                      | top-right metadata (e.g. "12 · 06 · 2026")           |
 | `figure`       | string   | ≤4                       | giant red figure — a number/stat (e.g. "5.5", "200") |
 | `headline`     | string[] | ≤3 lines, ≤14 chars/line | line 2 renders red                                   |
@@ -114,7 +121,7 @@ sweep, tagline, and a footer URL.
 | ------------- | ------ | ----- | ----------------------------------------------------------- |
 | `brand_name`  | string | ≤60   | channel/brand name (big, shimmering)                        |
 | `tagline`     | string | ≤120  | one line under the name                                     |
-| `primary_url` | string | ≤40   | footer URL / source (e.g. "https://aicodingvn.vercel.app/") |
+| `primary_url` | string | ≤40   | footer URL / source (e.g. "https://evose.ai/") |
 
 ---
 
@@ -127,7 +134,7 @@ subheadline and a rounded CTA pill.
 
 | slot          | type   | limit | notes                                              |
 | ------------- | ------ | ----- | -------------------------------------------------- |
-| `kicker`        | string | ≤24  | small uppercase label, top-left (e.g. "AI Coding")            |
+| `kicker`        | string | ≤24  | small uppercase label, top-left (e.g. "Evose")            |
 | `headline`      | string | ≤60  | the hook line (keep punchy, ~2 short lines) — shown in a vivid gradient |
 | `headline_from` | string | hex  | headline gradient start (optional; default vivid gold→purple) |
 | `headline_to`   | string | hex  | headline gradient end (optional)                              |
@@ -229,3 +236,59 @@ Drop a folder `templates/<id>/` with `index.html` (16:9 root, `data-composition-
 `compositions/portrait.html` (9:16), `hyperframes.json`, `meta.json`, and a
 `NOTICE.md` if vendored. Use a Vietnamese-capable font stack (Alfa Slab One /
 Lora / Be Vietnam Pro are known-good). Then add a row here.
+
+---
+
+## frame-chart-bars
+**Role:** trực quan hoá dữ liệu — bar chart. So sánh nhiều mục/hạng mục.
+**Best for:** doanh thu theo quý, xếp hạng, số lượng theo nhóm.
+| slot | type | limit | notes |
+|---|---|---|---|
+| label | text | ~24 | eyebrow mono trên cùng |
+| title | text | ~40 | tiêu đề; `{...}` = gradient |
+| bars | json | 2–6 cột | `[{label,value,unit?,active?}]` |
+| caption | text | ~60 | dòng chốt dưới cùng |
+
+## frame-chart-donut
+**Role:** trực quan hoá dữ liệu — 1 tỷ lệ % nổi bật.
+**Best for:** thị phần, tỷ lệ hoàn thành, 1 con số phần trăm chủ đạo.
+| slot | type | limit | notes |
+|---|---|---|---|
+| label | text | ~24 | eyebrow mono |
+| title | text | ~34 | tiêu đề; `{...}` = gradient |
+| percent | number | 0–100 | phần trăm chính |
+| unit | text | ~3 | mặc định "%" |
+| caption | text | ~50 | dòng chốt |
+
+## frame-chart-line
+**Role:** trực quan hoá dữ liệu — xu hướng theo thời gian.
+**Best for:** đà tăng/giảm, chuỗi thời gian.
+| slot | type | limit | notes |
+|---|---|---|---|
+| label | text | ~24 | eyebrow mono |
+| title | text | ~40 | tiêu đề; `{...}` = gradient |
+| points | json | 3–8 điểm | `[{label,value}]` |
+| caption | text | ~60 | dòng chốt |
+
+## frame-screenshot-scroll
+**Role:** nhúng ảnh chụp trang web (GitHub repo / trang dài) + pan/scroll dọc.
+**Best for:** giới thiệu repo, trang dài cần cuộn.
+| slot | type | limit | notes |
+|---|---|---|---|
+| label | text | ~24 | eyebrow mono |
+| title | text | ~36 | tiêu đề; `{...}` = gradient |
+| image | asset | — | PNG từ capture-screenshot.js --mode github |
+| pan | text | — | mức cuộn, VD "-55%"; "0%" = tĩnh |
+| caption | text | ~60 | dòng chốt |
+
+## frame-screenshot-news
+**Role:** nhúng ảnh chụp bài báo (tĩnh) + khung highlight tiêu đề.
+**Best for:** trích nguồn tin tức, soi headline.
+| slot | type | limit | notes |
+|---|---|---|---|
+| label | text | ~24 | eyebrow mono |
+| title | text | ~36 | tiêu đề; `{...}` = gradient |
+| image | asset | — | PNG từ capture-screenshot.js --mode news |
+| hl_top/hl_left/hl_width/hl_height | text | — | % vị trí khung highlight; bỏ trống = tắt |
+| caption | text | ~50 | dòng chốt |
+

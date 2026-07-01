@@ -15,6 +15,9 @@ import { indexSfxLibrary, pickSfxForScene, defaultPlayback } from "../assets/sfx
 import { composeTemplate } from "./template-composer.js";
 import { fitClipToDuration, concatVideos, muxAudioOntoVideo } from "./video-tools.js";
 import { log } from "../utils/logger.js";
+import { spawn as evoseSpawn } from "node:child_process";
+import { existsSync as evoseExists } from "node:fs";
+
 
 const TOTAL_STEPS = 8;
 const SCENE_GAP_SEC = 0.3;
@@ -27,6 +30,64 @@ const TYPE_TO_SFX: Record<string, string> = {
   body: "callout",
   outro: "outro",
 };
+
+
+// ============================================================
+// EVOSE BRAND: overlay header/footer + background music (auto)
+// ============================================================
+async function evoseFinalize(outputDir: string, videoPath: string, voiceMp3: string, durationSec: number): Promise<void> {
+  const path = await import("node:path");
+  const repoRoot = path.resolve(outputDir, "..", "..");
+  const kitDir = path.join(repoRoot, "evose-brand-kit");
+  const overlayPng = path.join(kitDir, "overlays", "overlay-frame.png");
+  const musicMp3 = path.join(kitDir, "music", "background.mp3");
+  const finalOut = path.join(outputDir, "video-evose.mp4");
+
+  const hasOverlay = evoseExists(overlayPng);
+  const hasMusic = evoseExists(musicMp3);
+
+  console.log(`\n[evose] Finalize: overlay=${hasOverlay} music=${hasMusic}`);
+  if (!hasOverlay && !hasMusic) {
+    console.log("[evose] Skipping finalize (no overlay/music found).");
+    return;
+  }
+
+  const args: string[] = ["-y", "-loglevel", "warning"];
+  args.push("-i", videoPath);
+  if (hasOverlay) args.push("-i", overlayPng);
+  if (hasMusic) args.push("-stream_loop", "-1", "-i", musicMp3);
+
+  const filters: string[] = [];
+  let vmap = "0:v";
+  if (hasOverlay) {
+    filters.push("[0:v][1:v]overlay=0:0:format=auto[vovr]");
+    vmap = "[vovr]";
+  }
+  let amap = "0:a";
+  if (hasMusic) {
+    const mi = hasOverlay ? 2 : 1;
+    filters.push(
+      `[${mi}:a]volume=0.28[mus];` +
+      `[0:a]asplit=2[vm][vs];` +
+      `[mus][vs]sidechaincompress=threshold=0.04:ratio=10:attack=80:release=400[md];` +
+      `[vm][md]amix=inputs=2:duration=first:dropout_transition=0[ao]`
+    );
+    amap = "[ao]";
+  }
+  if (filters.length) args.push("-filter_complex", filters.join(";"));
+  args.push("-map", vmap, "-map", amap);
+  args.push("-c:v", "libx264", "-preset", "fast", "-crf", "20", "-pix_fmt", "yuv420p");
+  args.push("-c:a", "aac", "-b:a", "192k");
+  args.push("-t", String(durationSec));
+  args.push(finalOut);
+
+  await new Promise<void>((resolve, reject) => {
+    const proc = evoseSpawn("ffmpeg", args, { stdio: ["ignore", "inherit", "inherit"], shell: false });
+    proc.on("close", (code) => code === 0 ? resolve() : reject(new Error(`evose finalize ffmpeg exit ${code}`)));
+    proc.on("error", reject);
+  });
+  console.log(`[evose] OK Final video: ${finalOut}`);
+}
 
 export async function runTemplatePipeline(scriptPath: string): Promise<void> {
   const cfg = loadConfig();
@@ -134,7 +195,17 @@ export async function runTemplatePipeline(scriptPath: string): Promise<void> {
         fps: RENDER_FPS,
       });
     }
-    await fitClipToDuration(rawClip, visualDur, fitClip, RENDER_FPS);
+    let needFit = true;
+    if (existsSync(fitClip)) {
+      const existingDur = await getDurationSec(fitClip);
+      if (Math.abs(existingDur - visualDur) < 0.05) {
+        log.info(`  scene ${scene.id}: REUSE fit clip (${existingDur.toFixed(2)}s)`);
+        needFit = false;
+      }
+    }
+    if (needFit) {
+      await fitClipToDuration(rawClip, visualDur, fitClip, RENDER_FPS, scene.type === "hook");
+    }
     log.info(`  scene ${scene.id}: ${scene.templateId} → ${visualDur.toFixed(2)}s`);
     fittedClips.push(fitClip);
   }
@@ -146,10 +217,19 @@ export async function runTemplatePipeline(scriptPath: string): Promise<void> {
   await concatVideos(fittedClips, silentVideo);
   await muxAudioOntoVideo(silentVideo, voiceMp3, videoPath);
 
+  // EVOSE: auto overlay + music
+  try {
+    const videoDurationSec = await getDurationSec(silentVideo);
+    await evoseFinalize(outputDir, videoPath, voiceMp3, videoDurationSec);
+  } catch (e) {
+    console.error("[evose] finalize failed (video.mp4 still OK):", e);
+  }
+
   // STEP 8 — done
   log.step(8, TOTAL_STEPS, "Done");
   console.log("\n=== Result ===");
   console.log(`Video:  ${videoPath}`);
+  console.log(`Video (Evose, FINAL):  ${join(outputDir, "video-evose.mp4")}  ← DÙNG FILE NÀY`);
   console.log(`Audio:  ${voiceMp3}  (cho CapCut)`);
   console.log(`Script: ${join(outputDir, "script.txt")}  (cho CapCut auto-caption)`);
   console.log(`Tong thoi luong: ${totalAudioSec.toFixed(2)}s`);

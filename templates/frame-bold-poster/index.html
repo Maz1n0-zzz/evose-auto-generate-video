@@ -6,6 +6,33 @@
 <title>Bold Poster · Editorial Statement Frame</title>
 <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Be+Vietnam+Pro:wght@500;700&family=Lora:ital@1&display=swap" rel="stylesheet" />
 <style>
+
+/* === EVOSE BRAND BASE === */
+:root {
+    --evose-navy: #0A1532;
+    --evose-deep: #050D1F;
+    --evose-white: #FFFFFF;
+    --evose-accent: #3B82F6;
+    --evose-cyan: #60A5FA;
+    --evose-lavender: #A5B4FC;
+}
+@keyframes evoseFadeUp {
+    0% { opacity: 0; transform: translateY(36px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes evoseFadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+@keyframes evoseScaleIn {
+    0% { opacity: 0; transform: scale(0.92); }
+    100% { opacity: 1; transform: scale(1); }
+}
+.evose-fade-up { animation: evoseFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.evose-fade-in { animation: evoseFadeIn 0.6s ease-out both; }
+.evose-scale-in { animation: evoseScaleIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+
   /*
    * frame-bold-poster — 1970s European editorial poster, in motion.
    * Vendored from nexu-io/html-video (Apache-2.0) and adapted into a native
@@ -46,14 +73,14 @@
 
   /* giant red figure — the poster's loudest move, rotates + drops in */
   .figure { position: absolute; top: 150px; right: 96px; font-family: 'Alfa Slab One', cursive;
-    font-size: 300px; line-height: 0.8; color: #D8000F; letter-spacing: 1px;
+    font-size: 300px; line-height: 1.12; color: #D8000F; letter-spacing: 1px;
     opacity: 0; transform: translateY(-60px) rotate(-14deg);
     animation: figureIn 0.9s cubic-bezier(0.16,1,0.3,1) 0.7s forwards; }
   @keyframes figureIn { to { opacity: 1; transform: translateY(0) rotate(-6deg); } }
 
   /* three-line headline, each line its own tilt, rising in sequence */
   .head { position: absolute; left: 110px; bottom: 300px; font-family: 'Alfa Slab One', cursive;
-    line-height: 0.92; }
+    line-height: 1.12; }
   .head .ln { display: block; font-size: 132px; opacity: 0; transform: translateY(40px); }
   .head .ln1 { color: #1C1410; transform-origin: left bottom; animation: lineUp 0.7s cubic-bezier(0.16,1,0.3,1) 1.15s forwards; }
   .head .ln2 { color: #D8000F; animation: lineUpTilt 0.7s cubic-bezier(0.16,1,0.3,1) 1.35s forwards; }
@@ -79,7 +106,41 @@
   .footer .meta .red { color: #D8000F; }
 
   @keyframes fade { to { opacity: 1; } }
-</style>
+
+            /* === EVOSE: hide built-in chrome (replaced by overlay) === */
+            .kicker, .footer { display: none !important; visibility: hidden !important; }
+        
+            /* === EVOSE SAFE ZONE (840x1320) === */
+            .poster {
+                left: 120px !important;
+                right: 120px !important;
+                max-width: 840px !important;
+            }
+            .headline-wrap {
+                left: 120px !important;
+                right: 120px !important;
+                max-width: 840px !important;
+            }
+        /* EVOSE-OVERRIDE-frame-bold-poster */
+
+        /* EVOSE: tắt animation nghiêng của figure */
+        .figure { animation: evFigStraight 0.9s cubic-bezier(0.16,1,0.3,1) 0.7s forwards !important; }
+        @keyframes evFigStraight { 0% { opacity: 0; transform: translateY(-40px); } 100% { opacity: 1; transform: translateY(0) rotate(0deg); } }
+        /* EVOSE: số figure căn giữa ngang + thẳng (không nghiêng) */
+        .figure {
+            left: 0 !important; right: 0 !important;
+            top: 300px !important;
+            text-align: center !important;
+            transform: translateY(0) rotate(0deg) !important;
+            margin: 0 auto !important;
+        }
+        /* EVOSE: headline thẳng lại (không nghiêng) */
+        .head .ln1 { animation: evLineStraight 0.7s cubic-bezier(0.16,1,0.3,1) 1.15s forwards !important; }
+        .head .ln2 { animation: evLineStraight 0.7s cubic-bezier(0.16,1,0.3,1) 1.35s forwards !important; }
+        .head .ln3 { animation: evLineStraight 0.7s cubic-bezier(0.16,1,0.3,1) 1.55s forwards !important; }
+        @keyframes evLineStraight { 0% { opacity: 0; transform: translateY(40px); } 100% { opacity: 1; transform: translateY(0) rotate(0deg); } }
+    
+        </style>
 </head>
 <body>
   <div
@@ -89,7 +150,7 @@
     data-duration="5"
     data-width="1920"
     data-height="1080"
-    data-composition-variables='{"kicker":"Manifesto","date":"Vol. 04 · 2026","figure":"03","headline":["Make it","loud.","Make it last."],"standfirst":"Every slide should land like a printed page — set in heavy type, locked to one red accent, ruled in ink.","footer_left":"Bold Poster","footer_right":"html-video"}'
+    data-composition-variables='{"kicker": "EVOSE", "date": "", "figure": "03", "headline": ["Make it", "loud.", "Make it last."], "standfirst": "Every slide should land like a printed page — set in heavy type, locked to one red accent, ruled in ink.", "footer_left": "", "footer_right": ""}'
   >
     <div class="sheet"></div>
 

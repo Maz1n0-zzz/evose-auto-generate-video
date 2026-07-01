@@ -6,6 +6,33 @@
 <title>Creative Voltage · Portrait 9:16</title>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@700;800;900&family=Dancing+Script:wght@600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
 <style>
+
+/* === EVOSE BRAND BASE === */
+:root {
+    --evose-navy: #0A1532;
+    --evose-deep: #050D1F;
+    --evose-white: #FFFFFF;
+    --evose-accent: #3B82F6;
+    --evose-cyan: #60A5FA;
+    --evose-lavender: #A5B4FC;
+}
+@keyframes evoseFadeUp {
+    0% { opacity: 0; transform: translateY(36px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes evoseFadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+@keyframes evoseScaleIn {
+    0% { opacity: 0; transform: scale(0.92); }
+    100% { opacity: 1; transform: scale(1); }
+}
+.evose-fade-up { animation: evoseFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.evose-fade-in { animation: evoseFadeIn 0.6s ease-out both; }
+.evose-scale-in { animation: evoseScaleIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+
   /*
    * frame-creative-voltage — electric-blue / dark split with a hand-drawn script
    * accent. Vendored from nexu-io/html-video (Apache-2.0) and adapted to
@@ -16,14 +43,14 @@
    */
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { width: 1080px; height: 1920px; overflow: hidden; }
-  #root { position: relative; width: 1080px; height: 1920px; background: #0a1628; color: #fff;
+  #root { position: relative; width: 1080px; height: 1920px; background: #0A1532; color: #fff;
     font-family: 'Be Vietnam Pro', sans-serif; }
 
   /* offset split panels (purple-slate top, dark bottom) */
   .panel-t { position: absolute; left: 0; right: 0; top: 0; height: 46%;
     background: linear-gradient(145deg, #120730 0%, #1e0d4e 40%, #2a1265 70%, #1a0a3d 100%);
     transform: translateY(-100%); animation: slideT 0.85s cubic-bezier(0.16,1,0.3,1) 0.1s forwards; }
-  .panel-b { position: absolute; left: 0; right: 0; bottom: 0; height: 54%; background: #0a1628;
+  .panel-b { position: absolute; left: 0; right: 0; bottom: 0; height: 54%; background: #0A1532;
     transform: translateY(100%); animation: slideB 0.85s cubic-bezier(0.16,1,0.3,1) 0.25s forwards; }
   @keyframes slideT { to { transform: translateY(0); } }
   @keyframes slideB { to { transform: translateY(0); } }
@@ -34,15 +61,15 @@
   @keyframes fade { to { opacity: 1; } }
 
   /* meta line (top-left, on purple panel) */
-  .meta { position: absolute; left: 80px; top: 90px; z-index: 4; font-family: 'Be Vietnam Pro', sans-serif;
+  .meta { position: absolute; left: 120px; top: 90px; z-index: 4; font-family: 'Be Vietnam Pro', sans-serif;
     font-size: 26px; font-weight: 800; letter-spacing: 4px;
     background: linear-gradient(90deg, #e9d5ff 0%, #a78bfa 60%, #7c3aed 100%);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     opacity: 0; animation: fade 0.6s ease-out 1.0s forwards; }
 
   /* handwritten script accent (purple panel) */
-  .script { position: absolute; left: 80px; top: 470px; z-index: 4; font-family: 'Dancing Script', cursive;
-    font-weight: 700; font-size: 168px; line-height: 0.9; opacity: 0; transform: rotate(-7deg);
+  .script { position: absolute; left: 120px; top: 470px; z-index: 4; font-family: 'Dancing Script', cursive; line-height: 1.4; padding: 8px 0;
+    font-weight: 700; font-size: 140px; line-height: 1.12; opacity: 0; transform: rotate(-7deg);
     background: linear-gradient(135deg, #ffffff 0%, #ddd6fe 35%, #c4b5fd 65%, #a78bfa 100%);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     animation: scriptIn 0.8s ease-out 1.4s forwards; }
@@ -54,14 +81,14 @@
   @keyframes draw { to { stroke-dashoffset: 0; } }
 
   /* display title (bottom, dark) */
-  .display { position: absolute; left: 80px; right: 80px; top: 1010px; z-index: 4;
+  .display { position: absolute; left: 120px; right: 120px; top: 1010px; z-index: 4;
     font-weight: 900; font-size: 130px; line-height: 1.0; letter-spacing: -3px; }
   .display .ln { display: block; opacity: 0; transform: translateY(34px);
     animation: up 0.7s cubic-bezier(0.16,1,0.3,1) forwards;
     background: linear-gradient(135deg, #ffffff 0%, #bfdbfe 55%, #93c5fd 100%);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
   .display .volt {
-    background: linear-gradient(135deg, #67e8f9 0%, #38bdf8 30%, #6366f1 70%, #a855f7 100%);
+    background: linear-gradient(135deg, #67e8f9 0%, #3B82F6 30%, #6366f1 70%, #a855f7 100%);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
   @keyframes up { to { opacity: 1; transform: translateY(0); } }
 
@@ -79,10 +106,32 @@
   }
 
   /* mono caption bottom-right (on dark) */
-  .caption { position: absolute; right: 80px; bottom: 90px; z-index: 4; font-family: 'Space Mono', monospace;
+  .caption { position: absolute; right: 120px; bottom: 90px; z-index: 4; font-family: 'Space Mono', monospace;
     font-size: 24px; font-weight: 400; letter-spacing: 2px; color: rgba(255,255,255,0.55);
     opacity: 0; animation: fade 0.6s ease-out 2.2s forwards; }
-</style>
+
+            /* === EVOSE: hide built-in chrome (replaced by overlay) === */
+            .caption { display: none !important; visibility: hidden !important; }
+        
+            /* === EVOSE SAFE ZONE (840x1320) === */
+            .panel-b {
+                left: 120px !important;
+                right: 120px !important;
+                max-width: 840px !important;
+            }
+            .display {
+                left: 120px !important;
+                right: 120px !important;
+                max-width: 840px !important;
+            }
+        /* EVOSE-OVERRIDE-frame-creative-voltage */
+
+        /* EVOSE: chữ viết tay không bị cắt dấu */
+        .script, [class*="script"] { line-height: 1.4 !important; padding: 0.15em 0 !important; overflow: visible !important; }
+        /* EVOSE: dời meta (SAM ALTMAN) xuống khỏi header overlay */
+        .meta { top: 230px !important; }
+    
+        </style>
 </head>
 <body>
   <div
@@ -92,7 +141,7 @@
     data-duration="5"
     data-width="1080"
     data-height="1920"
-    data-composition-variables='{"meta":"// CHE_DO_SANG_TAO · ON","display_lines":["Dựng","mọi","video."],"accent_index":1,"script":"làm nó chạy","caption":"AI Coding · creative voltage"}'
+    data-composition-variables='{"meta": "// CHE_DO_SANG_TAO · ON", "display_lines": ["Dựng", "mọi", "video."], "accent_index": 1, "script": "làm nó chạy", "caption": ""}'
   >
     <div class="panel-t"></div>
     <div class="panel-b"></div>
@@ -193,6 +242,22 @@
           span.style.animationDelay = (1.0 + i * 0.18).toFixed(2) + "s";
           disp.appendChild(span);
         });
+        // === EVOSE auto-fit: GIAM FONT NHE theo so ky tu cua TU dai nhat ===
+        // Khong dung scrollWidth (do sai trong render headless -> thu nho qua). Chi dung so ky tu.
+        var lns = disp.querySelectorAll(".ln");
+        for (var k = 0; k < lns.length; k++) { lns[k].style.whiteSpace = "nowrap"; }
+        var BASE = 130;
+        var maxLen = 0;
+        for (var li = 0; li < lines.length; li++) {
+          var L = String(lines[li]).length;
+          if (L > maxLen) maxLen = L;
+        }
+        // <=8 ky tu giu nguyen 130px (goc). Moi ky tu vuot qua 8 giam ~9px.
+        // VD: 9kt->121, 10kt(GOVERNANCE)->112, 11kt->103, 12kt->94. Chi nho hon goc 1 chut.
+        var dispFont = BASE;
+        if (maxLen > 8) { dispFont = BASE - (maxLen - 8) * 9; }
+        if (dispFont < 88) dispFont = 88;   // san duoi cao: van TO, dep
+        disp.style.fontSize = dispFont + "px";
       }
     })();
     window.__timelines = window.__timelines || {};

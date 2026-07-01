@@ -9,6 +9,33 @@
             rel="stylesheet"
         />
         <style>
+
+/* === EVOSE BRAND BASE === */
+:root {
+    --evose-navy: #0A1532;
+    --evose-deep: #050D1F;
+    --evose-white: #FFFFFF;
+    --evose-accent: #3B82F6;
+    --evose-cyan: #60A5FA;
+    --evose-lavender: #A5B4FC;
+}
+@keyframes evoseFadeUp {
+    0% { opacity: 0; transform: translateY(36px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes evoseFadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+@keyframes evoseScaleIn {
+    0% { opacity: 0; transform: scale(0.92); }
+    100% { opacity: 1; transform: scale(1); }
+}
+.evose-fade-up { animation: evoseFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.evose-fade-in { animation: evoseFadeIn 0.6s ease-out both; }
+.evose-scale-in { animation: evoseScaleIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+
             /*
    * frame-statement-outro — closing card (Bold Poster design system).
    * Original work for this repo. Landscape 16:9 (1920×1080). The 9:16 layout
@@ -124,6 +151,16 @@
                     transform: translateY(0);
                 }
             }
+        
+            /* === EVOSE: hide built-in chrome (replaced by overlay) === */
+            .channel, .source { display: none !important; visibility: hidden !important; }
+        
+            /* === EVOSE SAFE ZONE (840x1320) === */
+            .card {
+                left: 120px !important;
+                right: 120px !important;
+                max-width: 840px !important;
+            }
         </style>
     </head>
     <body>
@@ -134,7 +171,7 @@
             data-duration="5"
             data-width="1920"
             data-height="1080"
-            data-composition-variables='{"cta":"Theo dõi để xem bản tin mới mỗi ngày","channel":"AI Coding","source":"Nguồn: https://aicodingvn.vercel.app/"}'
+            data-composition-variables='{"cta": "Theo dõi ngay", "channel": "EVOSE", "source": "Nguồn: evose.ai"}'
         >
             <div class="sheet"></div>
             <div class="rule-top"></div>

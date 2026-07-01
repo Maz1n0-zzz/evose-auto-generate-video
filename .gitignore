@@ -9,3 +9,13 @@ coverage/
 
 # Big SFX library (downloaded by `npm run sfx:download` — too large to commit)
 SFX/
+
+# Backup folders
+.evose-backup-*/
+
+# Temp screenshots
+assets/screenshot.png
+assets/screenshot-*.png
+
+# Claude Code local settings (may contain secrets)
+.claude/settings.local.json

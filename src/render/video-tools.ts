@@ -29,8 +29,10 @@ const ENCODE = (fps: number) => [
 
 /**
  * Re-encode `inPath` to exactly `targetSec` seconds (video only):
- * - longer target → freeze the last frame (tpad clone) to fill the remainder,
+ * - longer target, loop=false → freeze the last frame (tpad clone) to fill the remainder,
  *   so a 5s poster animation holds while the scene's narration continues;
+ * - longer target, loop=true → loop the input clip from the beginning instead of freezing,
+ *   used for hook scenes so background animations keep cycling rather than showing a static frame;
  * - shorter target → trim. Output is normalized for concat.
  */
 export async function fitClipToDuration(
@@ -38,11 +40,16 @@ export async function fitClipToDuration(
   targetSec: number,
   outPath: string,
   fps = 30,
+  loop = false,
 ): Promise<void> {
   const inDur = await getDurationSec(inPath);
   const target = Math.max(0.1, targetSec);
-  const args = ["-y", "-i", inPath];
-  if (target > inDur + 0.02) {
+  const args = ["-y"];
+  if (loop && target > inDur + 0.02) {
+    args.push("-stream_loop", "-1");
+  }
+  args.push("-i", inPath);
+  if (!loop && target > inDur + 0.02) {
     const ext = target - inDur;
     args.push("-vf", `tpad=stop_mode=clone:stop_duration=${ext.toFixed(3)}`);
   }

@@ -9,6 +9,33 @@
             rel="stylesheet"
         />
         <style>
+
+/* === EVOSE BRAND BASE === */
+:root {
+    --evose-navy: #0A1532;
+    --evose-deep: #050D1F;
+    --evose-white: #FFFFFF;
+    --evose-accent: #3B82F6;
+    --evose-cyan: #60A5FA;
+    --evose-lavender: #A5B4FC;
+}
+@keyframes evoseFadeUp {
+    0% { opacity: 0; transform: translateY(36px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes evoseFadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+@keyframes evoseScaleIn {
+    0% { opacity: 0; transform: scale(0.92); }
+    100% { opacity: 1; transform: scale(1); }
+}
+.evose-fade-up { animation: evoseFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.evose-fade-in { animation: evoseFadeIn 0.6s ease-out both; }
+.evose-scale-in { animation: evoseScaleIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+
             /*
    * frame-build-minimal — luxury-minimal whitespace statement. Vendored from
    * nexu-io/html-video (Apache-2.0) and adapted to HyperFrames 0.6: content in
@@ -26,14 +53,14 @@
             body {
                 width: 1920px;
                 height: 1080px;
-                overflow: hidden;
-                background: #0b0a09;
+                overflow: visible;
+                background: #0A1532;
             }
             #root {
                 position: relative;
                 width: 1920px;
                 height: 1080px;
-                background: #0b0a09;
+                background: #0A1532;
                 color: #f5efe4;
                 font-family: "Inter", sans-serif;
             }
@@ -138,7 +165,7 @@
             }
             .hero {
                 font-weight: 800;
-                font-size: 240px;
+                font-size: 150px;
                 letter-spacing: -5px;
                 color: #fbf6ec;
                 line-height: 0.96;
@@ -247,6 +274,26 @@
                 z-index: 2;
                 animation: fade 1.2s ease-out 2.6s forwards;
             }
+        
+            /* === EVOSE: hide built-in chrome (replaced by overlay) === */
+            .corner, .side-label { display: none !important; visibility: hidden !important; }
+        
+            /* === EVOSE SAFE ZONE (840x1320) === */
+            .stage {
+                left: 120px !important;
+                right: 120px !important;
+                max-width: 840px !important;
+            }
+            .hero-wrap {
+                left: 120px !important;
+                right: 120px !important;
+                max-width: 840px !important;
+            }
+            .desc-wrap {
+                left: 120px !important;
+                right: 120px !important;
+                max-width: 840px !important;
+            }
         </style>
     </head>
     <body>
@@ -257,7 +304,7 @@
             data-duration="5"
             data-width="1920"
             data-height="1080"
-            data-composition-variables='{"eyebrow":"Đột Phá","hero":"Vượt trội","desc":"Nhanh hơn, thông minh hơn, và hiểu tiếng Việt tốt hơn hẳn.","side_left":"AI Coding","side_right":"Bản tin AI"}'
+            data-composition-variables='{"eyebrow": "Đột Phá", "hero": "Vượt trội", "desc": "Nhanh hơn, thông minh hơn, và hiểu tiếng Việt tốt hơn hẳn.", "side_left": "", "side_right": ""}'
         >
             <div class="wash"></div>
 
@@ -364,25 +411,44 @@
                 var hero = document.getElementById("hero");
                 if (hero && v.hero != null) {
                     hero.textContent = "";
-                    var chars = Array.from(String(v.hero));
-                    chars.forEach(function (c, i) {
-                        var span = document.createElement("span");
-                        span.className = "ch";
-                        span.textContent = c === " " ? " " : c;
-                        span.style.animationDelay =
-                            (0.6 + i * 0.06).toFixed(2) + "s";
-                        hero.appendChild(span);
-                    });
-
-                    /* Auto-scale hero to fit container width */
-                    var maxPx = 240, minPx = 60;
-                    hero.style.whiteSpace = "nowrap";
-                    hero.style.fontSize = maxPx + "px";
-                    if (hero.scrollWidth > hero.offsetWidth) {
-                        var sized = Math.max(minPx, Math.floor(maxPx * hero.offsetWidth / hero.scrollWidth));
-                        hero.style.fontSize = sized + "px";
+                    // === EVOSE auto-fit dùng API HyperFrames (đồng bộ, chạy đúng khi render) ===
+                    var heroText = String(v.hero);
+                    var BOX = 820;
+                    var chosen = 150;
+                    if (window.__hyperframes && typeof window.__hyperframes.fitTextFontSize === "function") {
+                        // Fit theo TỪNG TỪ dài nhất (mỗi từ phải vừa 1 dòng, không cắt không bẻ)
+                        var ws = heroText.split(String.fromCharCode(32));
+                        for (var wi2 = 0; wi2 < ws.length; wi2++) {
+                            var res = window.__hyperframes.fitTextFontSize(ws[wi2], {
+                                baseFontSize: 150, minFontSize: 36, step: 2,
+                                fontWeight: 800, fontFamily: "Inter, sans-serif", maxWidth: BOX
+                            });
+                            if (res && res.fontSize < chosen) chosen = res.fontSize;
+                        }
                     }
-                    hero.style.whiteSpace = "";
+                    // Render từng ký tự (mỗi TỪ bọc nowrap để không bẻ giữa từ)
+                    var wordsArr = heroText.split(String.fromCharCode(32));
+                    var ci2 = 0;
+                    wordsArr.forEach(function (word, wIdx) {
+                        var wrap = document.createElement("span");
+                        wrap.className = "word";
+                        wrap.style.display = "inline-block";
+                        wrap.style.whiteSpace = "nowrap";
+                        Array.from(word).forEach(function (c) {
+                            var span = document.createElement("span");
+                            span.className = "ch";
+                            span.textContent = c;
+                            span.style.animationDelay = (0.6 + ci2 * 0.06).toFixed(2) + "s";
+                            wrap.appendChild(span);
+                            ci2++;
+                        });
+                        hero.appendChild(wrap);
+                        if (wIdx < wordsArr.length - 1) hero.appendChild(document.createTextNode(" "));
+                    });
+                    hero.style.fontSize = chosen + "px";
+                    hero.style.maxWidth = BOX + "px";
+                    hero.style.whiteSpace = "normal";
+                    hero.style.wordBreak = "keep-all";
                 }
             })();
             window.__timelines = window.__timelines || {};

@@ -1,0 +1,70 @@
+<!doctype html><html lang="en"><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=1080, height=1920"/><title>Screenshot Scroll · 9:16</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--navy:#0A1532;--accent:#3B82F6;--cyan:#67E8F9;--violet:#A855F7;--lav:#A5B4FC;--dim:#8A96AD;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:1080px;height:1920px;overflow:hidden;color:#fff;font-family:'Be Vietnam Pro',sans-serif;
+ background:radial-gradient(120% 80% at 84% 8%,rgba(59,130,246,.22),transparent 52%),radial-gradient(90% 70% at 10% 0%,rgba(168,85,247,.16),transparent 55%),#0A1532;}
+#root{position:relative;width:1080px;height:1920px;}
+.c-label{position:absolute;left:120px;top:290px;font-family:'JetBrains Mono',monospace;font-size:26px;letter-spacing:4px;color:var(--lav);text-transform:uppercase;opacity:0;animation:fi .6s .2s forwards;}
+.c-title{position:absolute;left:120px;right:120px;top:335px;font-weight:900;font-size:64px;line-height:1.05;letter-spacing:-2px;opacity:0;transform:translateY(30px);animation:fu .7s cubic-bezier(.16,1,.3,1) .35s forwards;}
+.c-title .hl{background:linear-gradient(135deg,#67E8F9,#3B82F6 40%,#6366F1 75%,#A855F7);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+.device{position:absolute;left:190px;top:500px;width:700px;height:950px;border-radius:52px;background:#0d1424;border:14px solid #1c2540;box-shadow:0 40px 120px -30px rgba(0,0,0,.7),0 0 0 1px rgba(103,232,249,.2);overflow:hidden;opacity:0;transform:scale(.94);animation:pop .8s cubic-bezier(.16,1,.3,1) .8s forwards;}
+.device::after{content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);width:180px;height:34px;background:#1c2540;border-radius:0 0 20px 20px;z-index:3;}
+.screen{position:absolute;inset:0;overflow:hidden;background:#fff;border-radius:38px;}
+.shot{position:absolute;top:0;left:0;width:100%;display:block;will-change:transform;}
+/* Cuộn CHẬM & ĐỀU suốt thời lượng: dùng biến --dur do JS set theo thời lượng frame */
+.shot.run{animation:scrollDown var(--dur,8s) linear var(--delay,1s) both;}
+@keyframes scrollDown{
+  0%{transform:translateY(0);}
+  8%{transform:translateY(0);}        /* giữ đầu trang 1 nhịp ngắn */
+  92%{transform:translateY(var(--panpx,-800px));}
+  100%{transform:translateY(var(--panpx,-800px));} /* giữ cuối trang 1 nhịp */
+}
+.glow-edge{position:absolute;inset:-2px;border-radius:40px;pointer-events:none;box-shadow:inset 0 0 60px rgba(59,130,246,.15);z-index:2;}
+.c-cap{position:absolute;left:120px;right:120px;top:1500px;text-align:center;font-size:36px;font-weight:600;color:var(--lav);line-height:1.3;opacity:0;transform:translateY(20px);animation:fu .7s cubic-bezier(.16,1,.3,1) 2.2s forwards;}
+@keyframes fi{to{opacity:1;}}@keyframes fu{to{opacity:1;transform:translateY(0);}}@keyframes pop{to{opacity:1;transform:scale(1);}}
+</style></head>
+<body><div id="root"><div class="c-label"></div><h1 class="c-title"></h1>
+<div class="device"><div class="screen"><img class="shot" alt=""/><div class="glow-edge"></div></div></div>
+<div class="c-cap"></div></div>
+<script>(function(){
+var v=(window.__hyperframes&&typeof window.__hyperframes.getVariables==="function")?window.__hyperframes.getVariables():{};
+var set=function(s,t){var e=document.querySelector(s);if(e&&t!=null)e.textContent=String(t);};
+set(".c-label",v.label);set(".c-cap",v.caption);
+document.querySelector(".c-title").innerHTML=(v.title||"").replace(/\{([^}]+)\}/g,'<span class="hl">$1</span>');
+var img=document.querySelector(".shot");
+var DEV_H=950-28;
+
+// Thời lượng cuộn = TỰ ĐỘNG theo thời lượng clip (HyperFrames cấp qua getDuration nếu có),
+// nếu không thì mặc định 8s. Đây là lý do trước bị nhanh: animation cố định 5s bất kể clip dài bao lâu.
+var durSec=8;
+try{
+  if(window.__hyperframes){
+    if(typeof window.__hyperframes.getDurationInSeconds==="function") durSec=window.__hyperframes.getDurationInSeconds()||durSec;
+    else if(typeof window.__hyperframes.getDuration==="function"){ var d=window.__hyperframes.getDuration(); if(d>0) durSec=(d>200? d/1000 : d); }
+  }
+}catch(e){}
+if(v.duration) durSec=parseFloat(v.duration)||durSec; // cho phép override thủ công
+var delay=1; // đợi device pop-in xong rồi mới cuộn
+var animDur=Math.max(3, durSec-delay-0.3); // cuộn gần trọn thời lượng còn lại
+img.style.setProperty("--dur", animDur.toFixed(2)+"s");
+img.style.setProperty("--delay", delay+"s");
+
+function setup(){
+  var screenW=img.parentElement.clientWidth;
+  var natW=img.naturalWidth||960, natH=img.naturalHeight||3200;
+  var scaledH=natH*(screenW/natW);
+  var maxScroll=Math.max(0, scaledH-DEV_H);
+  var pan=v.pan, panpx;
+  if(pan==="0%"||pan===0){ panpx=0; }
+  else if(typeof pan==="string" && pan.indexOf("%")>-1){ var p=Math.abs(parseFloat(pan))/100; panpx=-(maxScroll*Math.min(1,p||0.85)); }
+  else if(pan!=null){ panpx=parseFloat(pan); }
+  else { panpx=-(maxScroll*0.85); }
+  img.style.setProperty("--panpx", Math.round(panpx)+"px");
+  if(panpx!==0) img.classList.add("run");
+}
+if(v.image){ img.onload=setup; img.src=v.image; if(img.complete) setup(); }
+else { setup(); }
+})();</script></body></html>

@@ -1,0 +1,56 @@
+<!doctype html><html lang="en"><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=1080, height=1920"/><title>Chart Donut · 9:16</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--navy:#0A1532;--accent:#3B82F6;--cyan:#67E8F9;--violet:#A855F7;--lav:#A5B4FC;--dim:#8A96AD;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:1080px;height:1920px;overflow:hidden;color:#fff;font-family:'Be Vietnam Pro',sans-serif;
+ background:radial-gradient(120% 80% at 84% 8%,rgba(59,130,246,.22),transparent 52%),radial-gradient(90% 70% at 10% 0%,rgba(168,85,247,.16),transparent 55%),#0A1532;}
+#root{position:relative;width:1080px;height:1920px;}
+.c-label{position:absolute;left:0;right:0;top:300px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:26px;letter-spacing:4px;color:var(--lav);text-transform:uppercase;opacity:0;animation:fi .6s .2s forwards;}
+.c-title{position:absolute;left:120px;right:120px;top:350px;text-align:center;font-weight:900;font-size:66px;line-height:1.05;letter-spacing:-2px;opacity:0;transform:translateY(30px);animation:fu .7s cubic-bezier(.16,1,.3,1) .35s forwards;}
+.c-title .hl{background:linear-gradient(135deg,#67E8F9,#3B82F6 40%,#6366F1 75%,#A855F7);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+/* Vòng to hơn (720px), số căn GIỮA vòng và tự co vừa lòng vòng */
+.donut-wrap{position:absolute;left:0;right:0;top:600px;display:flex;justify-content:center;}
+.donut-box{position:relative;width:720px;height:720px;}
+svg.d{transform:rotate(-90deg);display:block;}
+.track{fill:none;stroke:rgba(165,180,252,.14);stroke-width:64;}
+.prog{fill:none;stroke:url(#grad);stroke-width:64;stroke-linecap:round;stroke-dasharray:var(--circ);stroke-dashoffset:var(--circ);animation:draw 1.4s cubic-bezier(.16,1,.3,1) .8s forwards;filter:drop-shadow(0 0 24px rgba(59,130,246,.5));}
+/* số căn giữa tuyệt đối trong vòng, cỡ vừa phải (không tràn qua stroke) */
+.pct{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;font-weight:900;letter-spacing:-3px;opacity:0;animation:fi .6s 1.1s forwards;line-height:1;white-space:nowrap;}
+.pct .num{font-size:150px;}
+.pct .u{font-size:66px;font-weight:800;}
+.c-cap{position:absolute;left:120px;right:120px;top:1480px;text-align:center;font-size:38px;font-weight:600;color:var(--lav);line-height:1.3;opacity:0;transform:translateY(20px);animation:fu .7s cubic-bezier(.16,1,.3,1) 2s forwards;}
+@keyframes fi{to{opacity:1;}}@keyframes fu{to{opacity:1;transform:translateY(0);}}@keyframes draw{to{stroke-dashoffset:var(--target);}}
+</style></head>
+<body><div id="root"><div class="c-label"></div><h1 class="c-title"></h1>
+<div class="donut-wrap"><div class="donut-box">
+<svg class="d" width="720" height="720" viewBox="0 0 720 720">
+<defs><linearGradient id="grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#67E8F9"/><stop offset=".45" stop-color="#3B82F6"/><stop offset=".8" stop-color="#6366F1"/><stop offset="1" stop-color="#A855F7"/></linearGradient></defs>
+<circle class="track" cx="360" cy="360" r="278"/><circle class="prog" cx="360" cy="360" r="278"/></svg>
+<div class="pct"></div>
+</div></div>
+<div class="c-cap"></div></div>
+<script>(function(){
+var v=(window.__hyperframes&&typeof window.__hyperframes.getVariables==="function")?window.__hyperframes.getVariables():{};
+var set=function(s,t){var e=document.querySelector(s);if(e&&t!=null)e.textContent=String(t);};
+set(".c-label",v.label);set(".c-cap",v.caption);
+document.querySelector(".c-title").innerHTML=(v.title||"").replace(/\{([^}]+)\}/g,'<span class="hl">$1</span>');
+var pct=parseFloat(v.percent!=null?v.percent:64);if(isNaN(pct))pct=64;pct=Math.max(0,Math.min(100,pct));
+var r=278,circ=2*Math.PI*r;var prog=document.querySelector(".prog");
+prog.style.setProperty("--circ",circ.toFixed(1));prog.style.setProperty("--target",(circ*(1-pct/100)).toFixed(1));
+// Tách số và đơn vị: số to, đơn vị nhỏ hơn
+var numTxt=(v.percent!=null?String(v.percent):String(pct));
+var unit=(v.unit!=null?v.unit:"%");
+var pctEl=document.querySelector(".pct");
+pctEl.innerHTML='<span class="num">'+numTxt+'</span><span class="u">'+unit+'</span>';
+// Auto-fit: nếu tổng chiều rộng số vượt lòng trong vòng (đường kính trong ~ 2*(r - stroke/2) = ~ 428px) thì co lại
+requestAnimationFrame(function(){
+  var innerDia = 2*(r - 32) - 40; // lòng trong trừ padding an toàn
+  var num=pctEl.querySelector('.num'), u=pctEl.querySelector('.u');
+  var size=150;
+  while(pctEl.scrollWidth > innerDia && size > 60){
+    size -= 6; num.style.fontSize=size+'px'; u.style.fontSize=(size*0.44)+'px';
+  }
+});
+})();</script></body></html>

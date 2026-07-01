@@ -9,6 +9,33 @@
             rel="stylesheet"
         />
         <style>
+
+/* === EVOSE BRAND BASE === */
+:root {
+    --evose-navy: #0A1532;
+    --evose-deep: #050D1F;
+    --evose-white: #FFFFFF;
+    --evose-accent: #3B82F6;
+    --evose-cyan: #60A5FA;
+    --evose-lavender: #A5B4FC;
+}
+@keyframes evoseFadeUp {
+    0% { opacity: 0; transform: translateY(36px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes evoseFadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+@keyframes evoseScaleIn {
+    0% { opacity: 0; transform: scale(0.92); }
+    100% { opacity: 1; transform: scale(1); }
+}
+.evose-fade-up { animation: evoseFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.evose-fade-in { animation: evoseFadeIn 0.6s ease-out both; }
+.evose-scale-in { animation: evoseScaleIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+
             /*
    * frame-liquid-bg-hero — "Aurora Violet" liquid background hero. Vendored from
    * nexu-io/html-video (Apache-2.0) and adapted to HyperFrames 0.6: Tailwind CDN
@@ -34,7 +61,7 @@
                 width: 1080px;
                 height: 1920px;
                 overflow: hidden;
-                background: #020c1a;
+                background: #0A1532;
                 color: #fafaf8;
                 font-family: "Inter Tight", system-ui, sans-serif;
             }
@@ -47,7 +74,7 @@
                 filter: blur(120px);
                 will-change: transform;
                 z-index: 0;
-                opacity: 0.55;
+                opacity: 0.35;
             }
             @keyframes float1 {
                 0%,
@@ -79,7 +106,7 @@
             .b1 {
                 width: 480px;
                 height: 480px;
-                background: #1565c0;
+                background: #1E3A8A;
                 top: -100px;
                 left: -120px;
                 animation: float1 12s ease-in-out infinite;
@@ -87,7 +114,7 @@
             .b2 {
                 width: 400px;
                 height: 400px;
-                background: #0d47a1;
+                background: #1E40AF;
                 top: 24%;
                 right: -120px;
                 animation: float2 10s ease-in-out infinite;
@@ -95,7 +122,7 @@
             .b3 {
                 width: 380px;
                 height: 380px;
-                background: #1976d2;
+                background: #2563EB;
                 bottom: -100px;
                 left: 22%;
                 animation: float3 14s ease-in-out infinite;
@@ -103,7 +130,7 @@
             .b4 {
                 width: 300px;
                 height: 300px;
-                background: #0097a7;
+                background: #3B82F6;
                 top: 64%;
                 left: 6%;
                 animation: float1 16s ease-in-out infinite;
@@ -132,17 +159,17 @@
                 pointer-events: none;
                 background: radial-gradient(
                     ellipse at center,
-                    rgba(2, 8, 20, 0.75) 0%,
-                    rgba(2, 8, 20, 0.55) 44%,
-                    rgba(2, 8, 20, 0) 72%
+                    rgba(10, 21, 50, 0.75) 0%,
+                    rgba(10, 21, 50, 0.55) 44%,
+                    rgba(10, 21, 50, 0) 72%
                 );
                 filter: blur(24px);
             }
 
             .chip {
                 position: absolute;
-                left: 70px;
-                right: 70px;
+                left: 120px;
+                right: 120px;
                 display: flex;
                 justify-content: space-between;
                 font-size: 22px;
@@ -199,30 +226,25 @@
 
             .main {
                 position: absolute;
-                left: 80px;
-                right: 80px;
+                left: 120px;
+                right: 120px;
                 top: 50%;
                 transform: translateY(-50%);
                 z-index: 10;
                 text-align: center;
             }
             .headline {
+                word-spacing: 0.05em;
                 font-weight: 900;
-                letter-spacing: -3px;
+                letter-spacing: -1px;
                 line-height: 1.12;
-                font-size: 165px;
+                font-size: 150px;
                 text-transform: capitalize;
-                background-image: linear-gradient(
-                    125deg,
-                    #ff8c00 0%,
-                    #ff4d6d 35%,
-                    #e040fb 65%,
-                    #7c4dff 100%
-                );
+                background-image: linear-gradient(125deg, #F59E0B 0%, #EF4444 35%, #A5B4FC 65%, #3B82F6 100%);
                 -webkit-background-clip: text;
                 background-clip: text;
                 color: transparent;
-                filter: drop-shadow(0 0 60px rgba(255, 100, 20, 0.45))
+                filter: drop-shadow(0 0 60px rgba(245, 158, 11, 0.35))
                     drop-shadow(0 8px 40px rgba(0, 0, 0, 0.65));
                 opacity: 0;
                 animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both;
@@ -232,13 +254,23 @@
                 font-size: 40px;
                 font-weight: 500;
                 line-height: 1.4;
-                color: #5ce1e6;
+                color: #A5B4FC;
                 opacity: 0.88;
                 max-width: 880px;
                 margin-left: auto;
                 margin-right: auto;
                 text-shadow: 0 2px 16px rgba(0, 0, 0, 0.4);
                 animation: fadeUp 0.8s ease-out 0.75s both;
+            }
+        
+            /* === EVOSE: hide built-in header/footer (replaced by overlay) === */
+            .chip, .brand-bar { display: none !important; }
+        
+            /* === EVOSE SAFE ZONE (840x1320) === */
+            .main {
+                left: 120px !important;
+                right: 120px !important;
+                max-width: 840px !important;
             }
         </style>
     </head>
@@ -247,10 +279,10 @@
             id="root"
             data-composition-id="main"
             data-start="0"
-            data-duration="5"
+            data-duration="15"
             data-width="1080"
             data-height="1920"
-            data-composition-variables='{"kicker":"AI Coding","brand":"https://aicodingvn.vercel.app/","headline":"GPT 5.5 ra mắt","subheadline":"Mô hình AI mạnh nhất từ trước tới nay vừa được công bố.","cta":"Theo dõi ngay"}'
+            data-composition-variables='{"kicker": "EVOSE", "brand": "app.evose.ai", "headline": "GPT 5.5 ra mắt", "subheadline": "Mô hình AI mạnh nhất từ trước tới nay vừa được công bố.", "cta": "Theo dõi ngay"}'
         >
             <div class="blob b1"></div>
             <div class="blob b2"></div>
@@ -306,10 +338,11 @@
                             " 100%)";
                 }
 
-                /* Scale down only if a single word is wider than the container */
+                /* Scale headline font to fit: (1) if full text needs >3 lines, scale for 3;
+                   (2) if a single word overflows container width, scale for that word. */
                 var hlEl = document.querySelector(".headline");
                 if (hlEl && hlEl.textContent.trim()) {
-                    var maxPx = 168, minPx = 60;
+                    var maxPx = 150, minPx = 60;
                     hlEl.style.fontSize = maxPx + "px";
                     var avail = hlEl.offsetWidth;
                     var probe = document.createElement("span");
@@ -317,13 +350,22 @@
                         "font-size:" + maxPx + "px;font-weight:900;" +
                         "font-family:'Inter Tight',system-ui,sans-serif;letter-spacing:-3px;";
                     document.body.appendChild(probe);
+                    // Probe full text to detect multi-word line overflow
+                    probe.textContent = hlEl.textContent.trim();
+                    var totalW = probe.scrollWidth;
+                    // Also probe widest single word
                     var maxWordW = 0;
                     hlEl.textContent.trim().split(/\s+/).forEach(function (w) {
                         probe.textContent = w;
                         if (probe.scrollWidth > maxWordW) maxWordW = probe.scrollWidth;
                     });
                     document.body.removeChild(probe);
-                    if (maxWordW > avail) {
+                    var lineRatio = totalW / avail;
+                    if (lineRatio > 3) {
+                        // > 3 lines at max size: scale to target exactly 3 lines
+                        hlEl.style.fontSize = Math.max(minPx, Math.floor(maxPx * 3 / lineRatio)) + "px";
+                    } else if (maxWordW > avail) {
+                        // Single word overflows: scale to fit the widest word
                         hlEl.style.fontSize = Math.max(minPx, Math.floor(maxPx * avail / maxWordW)) + "px";
                     }
                 }

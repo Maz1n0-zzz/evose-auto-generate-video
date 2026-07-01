@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<img src="./assets/logo.svg" alt="AI Coding" width="96" />
+<img src="./assets/logo.svg" alt="Evose" width="96" />
 
 <h1>AI&nbsp;Coding&nbsp;·&nbsp;Template&nbsp;Video</h1>
 
@@ -53,14 +53,14 @@ CapCut / TikTok / Shorts / Reels:
 
 <div align="center">
 
-### 📚 Muốn làm chủ Claude Code? Học bài bản cùng AI Coding
+### 📚 Muốn làm chủ Claude Code? Học bài bản cùng Evose
 
 <a href="https://www.udemy.com/course/claude-code-in-action-practical-guide-from-beginner-to-pro/?referralCode=C62ACDC291F191DF9E55">
 <img src="https://img-c.udemycdn.com/course/480x270/7112153_093e_13.jpg" alt="Vibe Coding Thực Chiến với Claude Code: Từ Zero đến Hero" width="480" />
 </a>
 
 **Vibe Coding Thực Chiến với Claude Code: Từ Zero đến Hero**
-<br/><sub><b>Senior AI Engineer</b> @ AI Coding</sub>
+<br/><sub><b>Senior AI Engineer</b> @ Evose</sub>
 
 <p><sub>
 Setup &nbsp;·&nbsp; Permission Modes &nbsp;·&nbsp; Memory &nbsp;·&nbsp; Hooks &nbsp;·&nbsp; Skills &nbsp;·&nbsp; MCP Servers &nbsp;·&nbsp; Subagents &nbsp;·&nbsp; GitHub<br/>
@@ -91,7 +91,7 @@ npm install
 **With Claude Code** — _recommended_
 
 ```text
-/create-template-video https://aicodingvn.vercel.app/some-article
+/create-template-video https://evose.ai/some-article
 ```
 
 Claude fetches the article, writes `script.json`, and runs the pipeline for you.
@@ -206,7 +206,7 @@ The server must accept `POST /tts` with `{ text }` and return `audio/mpeg` bytes
 **Inside Claude Code** _(recommended)_ — pass a URL or a local `.txt`:
 
 ```text
-/create-template-video https://aicodingvn.vercel.app/iphone-17-200mp
+/create-template-video https://evose.ai/iphone-17-200mp
 /create-template-video news/my-article.txt
 ```
 
@@ -234,10 +234,10 @@ npm run pipeline -- output/<slug>/script.json
         "title": "Apple ra mắt iPhone 17 camera 200MP",
         "source": {
             "url": "https://...",
-            "domain": "aicodingvn.vercel.app",
+            "domain": "evose.ai",
             "image": null
         },
-        "channel": "AI Coding"
+        "channel": "Evose"
     },
     "voice": { "provider": "omnivoice", "speed": 1.0 },
     "scenes": [
@@ -251,7 +251,7 @@ npm run pipeline -- output/<slug>/script.json
                 "headline": "iPhone 17",
                 "subheadline": "Camera 200MP",
                 "cta": "Theo dõi ngay",
-                "brand": "AI Coding"
+                "brand": "Evose"
             }
         },
         {
@@ -269,12 +269,12 @@ npm run pipeline -- output/<slug>/script.json
         {
             "id": "outro",
             "type": "outro",
-            "voiceText": "Theo dõi AI Coding để xem bản tin công nghệ mới mỗi ngày.",
+            "voiceText": "Theo dõi Evose để xem bản tin công nghệ mới mỗi ngày.",
             "templateId": "frame-logo-outro",
             "inputs": {
-                "brand_name": "AI Coding",
+                "brand_name": "Evose",
                 "tagline": "Tin công nghệ mỗi ngày",
-                "primary_url": "https://aicodingvn.vercel.app/"
+                "primary_url": "https://evose.ai/"
             }
         }
     ]
@@ -394,8 +394,8 @@ No `assets/sfx/`? The pipeline just renders without SFX.
 If this project saved you time, please consider:
 
 - ⭐ **Star this repo** — it really helps with discoverability
-- 🎓 **[Check out AI Coding's courses on Udemy](https://www.udemy.com/user/tran-van-huy-7/)**
-- 📱 **Follow AI Coding** on [Facebook](https://www.facebook.com/aicoding2010) · [TikTok](https://www.tiktok.com/@aicoding2010) · [YouTube](https://www.youtube.com/@aicoding2010)
+- 🎓 **[Check out Evose's courses on Udemy](https://www.udemy.com/user/tran-van-huy-7/)**
+- 📱 **Follow Evose** on [Facebook](https://www.facebook.com/aicoding2010) · [TikTok](https://www.tiktok.com/@aicoding2010) · [YouTube](https://www.youtube.com/@aicoding2010)
 - 💬 Tell a friend who creates content
 - 🐛 Report bugs or request features
 
@@ -419,6 +419,6 @@ If this project saved you time, please consider:
 
 **[⬆ Back to top](#top)**
 
-<sub>Made with ❤️ by <b>AI Coding</b> · <a href="https://aicodingvn.vercel.app/">aicodingvn.vercel.app</a></sub>
+<sub>Made with ❤️ by <b>Evose</b> · <a href="https://evose.ai/">evose.ai</a></sub>
 
 </div>

@@ -6,6 +6,33 @@
 <title>Glitch Title · Portrait 9:16</title>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
 <style>
+
+/* === EVOSE BRAND BASE === */
+:root {
+    --evose-navy: #0A1532;
+    --evose-deep: #050D1F;
+    --evose-white: #FFFFFF;
+    --evose-accent: #3B82F6;
+    --evose-cyan: #60A5FA;
+    --evose-lavender: #A5B4FC;
+}
+@keyframes evoseFadeUp {
+    0% { opacity: 0; transform: translateY(36px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes evoseFadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+@keyframes evoseScaleIn {
+    0% { opacity: 0; transform: scale(0.92); }
+    100% { opacity: 1; transform: scale(1); }
+}
+.evose-fade-up { animation: evoseFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.evose-fade-in { animation: evoseFadeIn 0.6s ease-out both; }
+.evose-scale-in { animation: evoseScaleIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+
   /*
    * frame-glitch-title — cyberpunk RGB-split glitch title. Vendored from
    * nexu-io/html-video (Apache-2.0) and adapted to HyperFrames 0.6: Tailwind CDN
@@ -16,7 +43,7 @@
    */
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { width: 1080px; height: 1920px; overflow: hidden; }
-  #root { position: relative; width: 1080px; height: 1920px; background: #0d0e10; color: #f5f5f7;
+  #root { position: relative; width: 1080px; height: 1920px; background: #0A1532; color: #f5f5f7;
     font-family: 'Archivo', sans-serif;
     display: flex; flex-direction: column; align-items: center; justify-content: center; }
   .mono { font-family: 'Space Mono', monospace; }
@@ -43,7 +70,7 @@
     97% { transform: translate(0,0); }
   }
   .glitch-host { position: relative; display: inline-block; z-index: 6; animation: glitch 4s infinite; }
-  .glitch-text { font-weight: 900; letter-spacing: -2px; line-height: 0.92; font-size: 168px;
+  .glitch-text { font-weight: 900; letter-spacing: -2px; line-height: 1.12; font-size: 168px;
     text-align: center; text-transform: uppercase; }
   .layer { position: absolute; inset: 0; mix-blend-mode: screen; }
   .layer-c { color: #00f0ff; transform: translate(-3px, 1px); }
@@ -55,13 +82,30 @@
     text-align: center; max-width: 880px; line-height: 1.5; }
 
   .chrome { position: absolute; z-index: 6; font-size: 22px; letter-spacing: 4px; opacity: 0.6; }
-  .chrome.tl { top: 80px; left: 70px; }
-  .chrome.tr { top: 80px; right: 70px; }
-  .chrome.bl { bottom: 80px; left: 70px; opacity: 0.5; }
-  .chrome.br { bottom: 80px; right: 70px; opacity: 0.5; color: #ff2bd6; }
+  .chrome.tl { top: 80px; left: 120px; }
+  .chrome.tr { top: 80px; right: 120px; }
+  .chrome.bl { bottom: 80px; left: 120px; opacity: 0.5; }
+  .chrome.br { bottom: 80px; right: 120px; opacity: 0.5; color: #ff2bd6; }
   .ascii { position: absolute; z-index: 6; font-size: 20px; opacity: 0.25; line-height: 1; letter-spacing: 2px; white-space: pre; }
-  .ascii.a1 { top: 200px; left: 70px; }
-  .ascii.a2 { bottom: 200px; right: 70px; text-align: right; }
+  .ascii.a1 { top: 200px; left: 120px; }
+  .ascii.a2 { bottom: 200px; right: 120px; text-align: right; }
+
+            /* === EVOSE: hide built-in chrome (replaced by overlay) === */
+            .chrome, .overline { display: none !important; visibility: hidden !important; }
+        
+            /* === EVOSE SAFE ZONE (840x1320) === */
+            .subtitle {
+                left: 120px !important;
+                right: 120px !important;
+                max-width: 840px !important;
+            }
+        
+  /* === EVOSE motion-in (fade, opacity-only — không phá căn giữa, không phá glitch) === */
+  @keyframes evGlitchIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes evGlitchUp { from { opacity: 0; clip-path: inset(0 0 100% 0); } to { opacity: 1; clip-path: inset(0 0 0% 0); } }
+  .glitch-host { opacity: 0; animation: glitch 4s infinite, evGlitchUp 0.8s cubic-bezier(0.16,1,0.3,1) 0.25s forwards; }
+  .overline { opacity: 0; animation: evGlitchIn 0.6s ease-out 0.05s forwards; }
+  .subtitle { opacity: 0; animation: evGlitchIn 0.7s ease-out 0.6s forwards; }
 </style>
 </head>
 <body>
@@ -72,7 +116,7 @@
     data-duration="5"
     data-width="1080"
     data-height="1920"
-    data-composition-variables='{"title":"Sự thật","subtitle":"04 · GIẢI MÃ · điều không ai nói cho bạn"}'
+    data-composition-variables='{"title": "Sự thật", "subtitle": "04 · GIẢI MÃ · điều không ai nói cho bạn"}'
   >
     <svg width="0" height="0" style="position:absolute">
       <defs>

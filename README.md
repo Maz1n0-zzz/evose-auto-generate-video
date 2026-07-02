@@ -4,7 +4,7 @@
 
 <img src="./assets/logo.svg" alt="Evose" width="96" />
 
-<h1>AI&nbsp;Coding&nbsp;·&nbsp;Template&nbsp;Video</h1>
+<h1>Mazino&nbsp;·&nbsp;Template&nbsp;Video</h1>
 
 <p><b>A Vietnamese article in. A 9:16 short out.</b><br/>
 One command · zero editing · deterministic renders.</p>

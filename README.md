@@ -32,6 +32,11 @@ One command · zero editing · deterministic renders.</p>
 ---
 
 <div align="center">
+<img src="./docs/preview.png" alt="Evose Studio — giao diện web tạo video tự động" width="900" style="border-radius:12px;border:1px solid #e2e2dd;" />
+<br/><sub><i>Evose Studio · v4.2 — Web UI (mở <code>app.html</code> trong trình duyệt)</i></sub>
+</div>
+
+<div align="center">
 <img src="./assets/pipeline.svg" alt="url / .txt → Claude Code (/create-template-video) → pipeline (OmniVoice · SFX · HyperFrames · FFmpeg) → video.mp4 + voice.mp3 + script.txt" width="860" />
 </div>
 
@@ -66,6 +71,28 @@ Claude Code &nbsp;·&nbsp; MCP Servers &nbsp;·&nbsp; Subagents &nbsp;·&nbsp; H
 [![Tạo AI Agent miễn phí tại Evose](https://img.shields.io/badge/▶_Tạo_AI_Agent_miễn_phí-10b981?style=for-the-badge&logoColor=white)](https://evose.ai/)
 
 </div>
+
+---
+
+## 🎬 Evose Studio — Web UI
+
+Mở `app.html` trong trình duyệt để dùng giao diện đồ hoạ:
+
+| Tính năng | Mô tả |
+|-----------|-------|
+| **URL Input** | Dán link bài báo, AI phân tích nội dung |
+| **Phong Cách Video** | Chọn 1 trong 11 frame template (Creative Voltage, Glitch Title, …) |
+| **Tỷ Lệ Khung Hình** | 9:16 · 16:9 · 1:1 |
+| **API Keys** | Lưu OpenAI/Gemini · ElevenLabs · GitHub Token vào localStorage |
+| **Xuất Video** | Hiển thị câu lệnh CLI để chạy trong terminal |
+
+> **Lưu ý quan trọng:** `app.html` là UI tĩnh — render **không chạy trong trình duyệt**.
+> Sau khi bấm "Xuất Video", copy câu lệnh hiện ra và chạy trong terminal:
+> ```bash
+> npm run pipeline -- --url "https://your-article-url"
+> ```
+> Pipeline sẽ sinh `script.json`, render từng frame bằng HyperFrames, ghép TTS và SFX,
+> xuất `output/<slug>/video.mp4`.
 
 ---
 

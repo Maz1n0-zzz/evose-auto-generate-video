@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evose Studio · v4.2</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><g stroke='%230a0a0a' stroke-width='4.6' fill='none'><rect x='10' y='3' width='12' height='26' rx='6' transform='rotate(45 16 16)'/><rect x='10' y='3' width='12' height='26' rx='6' transform='rotate(-45 16 16)'/></g><rect x='13.4' y='12.8' width='5.2' height='6.4' rx='2.6' fill='%230a0a0a'/></svg>">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fff;
+    --bg2: #fbfbfa;
+    --bg3: #f4f4f2;
+    --bg4: #e9e9e6;
+    --border: #e2e2dd;
+    --text: #0a0a0a;
+    --text2: #5a5a57;
+    --text3: #9a9a96;
+    --line: #cfcfca;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  *::-webkit-scrollbar { width: 7px; height: 7px; }
+  *::-webkit-scrollbar-thumb { background: var(--line); border-radius: 99px; }
+  *::-webkit-scrollbar-track { background: transparent; }
+
+  body {
+    font-family: 'Hanken Grotesk', -apple-system, sans-serif;
+    font-size: 13px;
+    color: var(--text);
+    background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+  /* TITLE BAR */
+  .titlebar {
+    display: flex; align-items: center; justify-content: center; position: relative;
+    height: 38px; border-bottom: 1px solid var(--border); background: var(--bg2); flex-shrink: 0;
+  }
+  .titlebar-dots { position: absolute; left: 16px; display: flex; gap: 8px; }
+  .titlebar-dot { width: 12px; height: 12px; border-radius: 99px; }
+  .td-r { background: #ff5f57; }
+  .td-y { background: #febc2e; }
+  .td-g { background: #28c840; }
+  .titlebar-title {
+    font-family: var(--mono); font-size: 11px; color: var(--text3);
+    letter-spacing: .14em; text-transform: uppercase; display: flex; align-items: center; gap: 7px;
+  }
+
+  .body { display: flex; flex: 1; min-height: 0; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 230px; flex-shrink: 0; border-right: 1px solid var(--border);
+    background: var(--bg); display: flex; flex-direction: column; padding: 18px 14px;
+  }
+  .brand { display: flex; align-items: center; gap: 11px; padding: 4px 6px 22px; }
+  .brand-logo {
+    width: 34px; height: 34px; border-radius: 9px; border: 1.5px solid var(--text);
+    display: grid; place-items: center; flex-shrink: 0;
+  }
+  .brand-txt { font-size: 18px; font-weight: 800; letter-spacing: -.02em; }
+  .brand-txt .light { font-weight: 400; color: var(--text2); }
+
+  .nav-label {
+    font-family: var(--mono); font-size: 10px; color: var(--text3);
+    letter-spacing: .16em; text-transform: uppercase; padding: 16px 10px 8px;
+  }
+  .nav-i {
+    display: flex; align-items: center; gap: 12px; padding: 9px 11px; border-radius: 9px;
+    color: var(--text2); font-size: 13.5px; font-weight: 600; cursor: pointer;
+    transition: all .15s; margin-bottom: 2px; user-select: none;
+  }
+  .nav-i .ic { font-size: 17px; }
+  .nav-i:hover { background: var(--bg3); color: var(--text); }
+  .nav-i.active { background: var(--text); color: #fff; }
+  .nav-i .badge { margin-left: auto; font-family: var(--mono); font-size: 11px; color: var(--text3); }
+  .nav-i.active .badge { color: rgba(255,255,255,.6); }
+
+  .side-foot { margin-top: auto; padding-top: 14px; }
+  .side-status {
+    display: flex; align-items: center; gap: 9px; font-size: 12px; color: var(--text2);
+    padding: 9px 11px; border-radius: 9px; border: 1px solid var(--border);
+    background: var(--bg2); margin-bottom: 10px; font-weight: 500;
+  }
+  .dotc { width: 7px; height: 7px; border-radius: 99px; background: #28c840; box-shadow: 0 0 7px #28c840; flex-shrink: 0; }
+  .user-card {
+    display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 11px;
+    border: 1px solid var(--border); background: var(--bg2);
+  }
+  .avatar {
+    width: 34px; height: 34px; border-radius: 9px; background: var(--text); color: #fff;
+    display: grid; place-items: center; font-weight: 800; font-size: 14px; flex-shrink: 0;
+  }
+
+  /* MAIN */
+  .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 22px; border-bottom: 1px solid var(--border); flex-shrink: 0; background: var(--bg);
+  }
+  .topbar h1 { font-size: 18px; font-weight: 800; letter-spacing: -.02em; }
+  .top-meta { display: flex; align-items: center; gap: 14px; }
+  .meta-pill {
+    font-family: var(--mono); font-size: 11px; color: var(--text2);
+    display: flex; align-items: center; gap: 7px;
+  }
+  .meta-pill .dotc { width: 6px; height: 6px; box-shadow: none; }
+
+  .btn {
+    border: none; border-radius: 8px; padding: 8px 14px; font-size: 12px; font-weight: 600;
+    cursor: pointer; font-family: inherit; transition: all .15s;
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .btn-d { background: #0a0a0a; color: #fff; }
+  .btn-d:hover { background: #2e2e2c; }
+  .btn-o { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
+  .btn-o:hover { background: var(--bg3); }
+
+  .scroll { flex: 1; overflow: auto; padding: 22px; }
+  .layout { display: grid; grid-template-columns: 1fr 320px; gap: 20px; max-width: 1200px; }
+
+  .panel {
+    border: 1px solid var(--border); border-radius: 14px; background: var(--bg); padding: 20px;
+  }
+  .panel-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  .panel-title { display: flex; align-items: center; gap: 9px; font-size: 15px; font-weight: 800; letter-spacing: -.01em; }
+  .panel-title i { font-size: 17px; }
+  .panel-sub { font-size: 12.5px; color: var(--text2); margin-bottom: 16px; }
+  .panel-tag { font-family: var(--mono); font-size: 11px; color: var(--text3); display: flex; align-items: center; gap: 6px; }
+  .link-more { font-family: var(--mono); font-size: 12px; color: var(--text2); cursor: pointer; }
+  .link-more:hover { color: var(--text); }
+
+  /* input */
+  .input-row { display: flex; gap: 8px; }
+  .input {
+    flex: 1; padding: 11px 14px; border-radius: 9px; border: 1px solid var(--border);
+    background: var(--bg); color: var(--text); font-size: 13px; font-family: inherit; outline: none;
+    transition: border .15s, box-shadow .15s; display: flex; align-items: center; gap: 9px;
+  }
+  .input input {
+    border: none; outline: none; background: transparent; flex: 1;
+    font-family: inherit; font-size: 13px; color: var(--text);
+  }
+  .input:focus-within { border-color: var(--text); box-shadow: 0 0 0 3px rgba(10,10,10,.06); }
+  .input i { color: var(--text3); font-size: 15px; }
+
+  .chips { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 14px; }
+  .chips .lbl { font-size: 12px; color: var(--text3); }
+  .chipf {
+    padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--bg2); font-size: 12px; font-weight: 600; color: var(--text2);
+    cursor: pointer; transition: all .15s;
+  }
+  .chipf:hover { border-color: var(--text); color: var(--text); }
+
+  /* frame cards */
+  .frames { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .frame-card {
+    border: 1px solid var(--border); border-radius: 12px; overflow: hidden; cursor: pointer;
+    background: #0a0a0a; transition: all .16s; position: relative;
+  }
+  .frame-card:hover { transform: translateY(-2px); }
+  .frame-card.sel { box-shadow: 0 0 0 2px var(--text); border-color: var(--text); }
+  .fc-art {
+    aspect-ratio: 1/1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; position: relative; padding: 14px;
+  }
+  .fc-check {
+    position: absolute; top: 9px; right: 9px; width: 20px; height: 20px;
+    border-radius: 99px; background: #fff; color: #0a0a0a; display: grid;
+    place-items: center; font-size: 12px;
+  }
+  .fc-name {
+    background: var(--bg); padding: 11px 12px; font-size: 12.5px; font-weight: 700;
+    color: var(--text); border-top: 1px solid var(--border); text-align: center;
+  }
+  .hero-grad {
+    background: linear-gradient(135deg, #ffffff 0%, #bfdbfe 55%, #93c5fd 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .hero-volt {
+    background: linear-gradient(135deg, #67e8f9 0%, #3B82F6 30%, #6366f1 70%, #a855f7 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+
+  /* segmented */
+  .seg-label { font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: .14em; text-transform: uppercase; margin-bottom: 9px; }
+  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 9px; padding: 3px; gap: 3px; background: var(--bg2); }
+  .seg .o { padding: 8px 16px; border-radius: 7px; font-size: 12.5px; font-weight: 600; color: var(--text2); cursor: pointer; display: flex; align-items: center; gap: 7px; transition: all .15s; }
+  .seg .o:hover { color: var(--text); }
+  .seg .o.sel { background: #0a0a0a; color: #fff; }
+
+  /* API rows */
+  .api-row { display: flex; align-items: center; gap: 12px; margin-bottom: 11px; }
+  .api-icon { width: 38px; height: 38px; border-radius: 9px; background: var(--bg3); display: grid; place-items: center; font-size: 18px; color: var(--text2); flex-shrink: 0; }
+  .api-field { flex: 1; }
+  .api-field .k { font-size: 12px; font-weight: 700; margin-bottom: 5px; }
+  .api-field .k span { color: var(--text3); font-weight: 500; }
+  .api-input {
+    width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--bg2); font-family: var(--mono); font-size: 12px; color: var(--text2); outline: none;
+  }
+  .api-input:focus { border-color: var(--text); }
+
+  /* options */
+  .opt-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .opt-row:last-child { border-bottom: none; }
+  .opt-info .t { font-size: 13px; font-weight: 700; }
+  .opt-info .d { font-size: 11.5px; color: var(--text3); margin-top: 2px; }
+  .select-mini {
+    padding: 7px 11px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--bg); font-size: 12px; font-weight: 600; font-family: inherit;
+    color: var(--text); cursor: pointer; outline: none;
+  }
+
+  /* render log */
+  .log-box {
+    border: 1px solid var(--border); border-radius: 12px; background: var(--bg2);
+    padding: 14px; font-family: var(--mono); font-size: 11px; color: var(--text2);
+    max-height: 180px; overflow: auto; white-space: pre-wrap; line-height: 1.6;
+    display: none;
+  }
+  .log-box.visible { display: block; }
+  .log-line-ok { color: #28c840; }
+  .log-line-err { color: #ff5f57; }
+  .log-line-info { color: var(--text3); }
+
+  .fade-up { animation: fu .45s cubic-bezier(.16,1,.3,1) both; }
+  @keyframes fu { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+
+  @media (max-width: 1100px) { .layout { grid-template-columns: 1fr; } .frames { grid-template-columns: repeat(2,1fr); } }
+  @media (max-width: 720px) { .sidebar { display: none; } }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- TITLE BAR -->
+  <div class="titlebar">
+    <div class="titlebar-dots">
+      <span class="titlebar-dot td-r"></span>
+      <span class="titlebar-dot td-y"></span>
+      <span class="titlebar-dot td-g"></span>
+    </div>
+    <div class="titlebar-title">
+      <svg width="13" height="13" viewBox="0 0 32 32" fill="none">
+        <g stroke="currentColor" stroke-width="4.6" fill="none">
+          <rect x="10" y="3" width="12" height="26" rx="6" transform="rotate(45 16 16)"/>
+          <rect x="10" y="3" width="12" height="26" rx="6" transform="rotate(-45 16 16)"/>
+        </g>
+        <rect x="13.4" y="12.8" width="5.2" height="6.4" rx="2.6" fill="currentColor"/>
+      </svg>
+      Evose Studio · v4.2
+    </div>
+  </div>
+
+  <div class="body">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-logo">
+          <svg width="22" height="22" viewBox="0 0 32 32" fill="none" style="color:var(--text)">
+            <g stroke="currentColor" stroke-width="4.6" fill="none">
+              <rect x="10" y="3" width="12" height="26" rx="6" transform="rotate(45 16 16)"/>
+              <rect x="10" y="3" width="12" height="26" rx="6" transform="rotate(-45 16 16)"/>
+            </g>
+            <rect x="13.4" y="12.8" width="5.2" height="6.4" rx="2.6" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="brand-txt">Evose <span class="light">Studio</span></div>
+      </div>
+
+      <div class="nav-label">Workspace</div>
+      <div class="nav-i active" data-tab="create"><i class="ri-video-add-line ic"></i> Tạo Video</div>
+      <div class="nav-i" data-tab="history"><i class="ri-history-line ic"></i> Lịch Sử <span class="badge" id="history-count">—</span></div>
+      <div class="nav-i" data-tab="frames"><i class="ri-layout-masonry-line ic"></i> Thư Viện Frame</div>
+
+      <div class="nav-label">Hệ Thống</div>
+      <div class="nav-i" data-tab="apikeys"><i class="ri-key-2-line ic"></i> API Keys</div>
+      <div class="nav-i" data-tab="github"><i class="ri-github-line ic"></i> GitHub</div>
+      <div class="nav-i" data-tab="settings"><i class="ri-settings-3-line ic"></i> Cài Đặt</div>
+
+      <div class="side-foot">
+        <div class="side-status"><span class="dotc"></span> OmniVoice · Sẵn sàng</div>
+        <div class="user-card">
+          <div class="avatar">M</div>
+          <div>
+            <div style="font-weight:800;font-size:13px;">Mazino</div>
+            <div style="font-size:11px;color:var(--text2);">Pro Plan</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <div class="topbar">
+        <h1>Tạo Video Từ Link</h1>
+        <div class="top-meta">
+          <span class="meta-pill"><span class="dotc"></span> API sẵn sàng</span>
+          <span class="meta-pill" style="font-family:var(--mono)">hyperframes 0.6.94</span>
+          <button class="btn btn-d" id="btn-quick-render"><i class="ri-flashlight-fill"></i> Render Nhanh</button>
+        </div>
+      </div>
+
+      <div class="scroll">
+        <div class="layout fade-up">
+
+          <!-- LEFT COLUMN -->
+          <div style="display:flex;flex-direction:column;gap:20px;">
+
+            <!-- Nguồn nội dung -->
+            <div class="panel">
+              <div class="panel-title"><i class="ri-links-line"></i> Nguồn Nội Dung</div>
+              <div class="panel-sub">Dán link bài viết / tin tức — AI sẽ phân tích và dựng video.</div>
+              <div class="input-row">
+                <div class="input">
+                  <i class="ri-global-line"></i>
+                  <input id="url-input" type="url" placeholder="https://..." value="">
+                </div>
+                <button class="btn btn-d" id="btn-analyze"><i class="ri-search-eye-line"></i> Phân Tích</button>
+              </div>
+              <div class="chips">
+                <span class="lbl">Gợi ý:</span>
+                <span class="chipf" data-url="https://techcrunch.com/">Tin công nghệ</span>
+                <span class="chipf" data-url="https://vnexpress.net/kinh-doanh/">Tài chính</span>
+                <span class="chipf" data-url="https://blog.openai.com/">Blog sản phẩm</span>
+              </div>
+            </div>
+
+            <!-- Phong cách video -->
+            <div class="panel">
+              <div class="panel-head">
+                <div class="panel-title"><i class="ri-layout-grid-line"></i> Phong Cách Video</div>
+                <span class="link-more">11 frame có sẵn →</span>
+              </div>
+              <div class="frames">
+                <div class="frame-card sel" data-frame="frame-creative-voltage">
+                  <div class="fc-art">
+                    <span class="fc-check"><i class="ri-check-line"></i></span>
+                    <div style="font-family:var(--mono);font-size:9px;color:#67e8f9;letter-spacing:.1em;position:absolute;top:12px;left:12px;">secured</div>
+                    <div style="text-align:center;">
+                      <div style="font-family:var(--mono);font-size:9px;color:#8a8aa0;letter-spacing:.14em;">AGENT</div>
+                      <div class="hero-grad" style="font-size:15px;font-weight:900;letter-spacing:.02em;">GOVERNANCE</div>
+                    </div>
+                  </div>
+                  <div class="fc-name">Creative Voltage</div>
+                </div>
+                <div class="frame-card" data-frame="frame-build-minimal">
+                  <div class="fc-art">
+                    <div style="color:#fff;font-weight:900;font-size:18px;letter-spacing:-.02em;">BUILD.</div>
+                  </div>
+                  <div class="fc-name">Build Minimal</div>
+                </div>
+                <div class="frame-card" data-frame="frame-glitch-title">
+                  <div class="fc-art">
+                    <div style="color:#ff2d55;font-weight:900;font-size:17px;letter-spacing:.04em;text-shadow:1.5px 0 #00e0ff,-1.5px 0 #ff2d55;">GLITCH</div>
+                  </div>
+                  <div class="fc-name">Glitch Title</div>
+                </div>
+                <div class="frame-card" data-frame="frame-pentagram-stat">
+                  <div class="fc-art">
+                    <div style="color:#fff;font-weight:900;font-size:26px;">42<span style="font-size:15px;">%</span></div>
+                  </div>
+                  <div class="fc-name">Pentagram Stat</div>
+                </div>
+              </div>
+
+              <div style="margin-top:20px;">
+                <div class="seg-label">Tỷ lệ khung hình</div>
+                <div class="seg">
+                  <span class="o sel" data-ratio="9:16"><i class="ri-smartphone-line"></i> 9:16</span>
+                  <span class="o" data-ratio="16:9"><i class="ri-tv-2-line"></i> 16:9</span>
+                  <span class="o" data-ratio="1:1"><i class="ri-square-line"></i> 1:1</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- API Keys -->
+            <div class="panel">
+              <div class="panel-head">
+                <div class="panel-title"><i class="ri-key-2-line"></i> API Keys</div>
+                <span class="panel-tag"><i class="ri-lock-line"></i> Mã hoá · lưu cục bộ</span>
+              </div>
+              <div style="margin-top:6px;">
+                <div class="api-row">
+                  <div class="api-icon"><i class="ri-openai-fill"></i></div>
+                  <div class="api-field">
+                    <div class="k">OpenAI / Gemini <span>· kịch bản</span></div>
+                    <input class="api-input" id="key-openai" type="password" placeholder="sk-...">
+                  </div>
+                </div>
+                <div class="api-row">
+                  <div class="api-icon"><i class="ri-mic-2-line"></i></div>
+                  <div class="api-field">
+                    <div class="k">ElevenLabs <span>· giọng đọc</span></div>
+                    <input class="api-input" id="key-elevenlabs" type="password" placeholder="el-...">
+                  </div>
+                </div>
+                <div class="api-row">
+                  <div class="api-icon"><i class="ri-github-fill"></i></div>
+                  <div class="api-field">
+                    <div class="k">GitHub Token <span>· lưu repo</span></div>
+                    <input class="api-input" id="key-github" type="password" placeholder="ghp-...">
+                  </div>
+                </div>
+                <button class="btn btn-d" style="width:100%;margin-top:6px;padding:11px;" id="btn-save-keys">
+                  <i class="ri-shield-check-line"></i> Lưu &amp; Kiểm Tra Kết Nối
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- RIGHT COLUMN -->
+          <div style="display:flex;flex-direction:column;gap:20px;">
+
+            <!-- Tùy chọn xuất -->
+            <div class="panel">
+              <div class="panel-title" style="font-size:14px;margin-bottom:14px;"><i class="ri-equalizer-2-line"></i> Tùy Chọn Xuất</div>
+              <div class="opt-row">
+                <div class="opt-info">
+                  <div class="t">Chất lượng</div>
+                  <div class="d">Độ phân giải xuất</div>
+                </div>
+                <select class="select-mini" id="quality-select">
+                  <option value="1080">Cao · 1080p</option>
+                  <option value="720">Trung · 720p</option>
+                </select>
+              </div>
+              <div class="opt-row">
+                <div class="opt-info">
+                  <div class="t">Renderer</div>
+                  <div class="d">Công cụ dựng frame</div>
+                </div>
+                <span style="font-family:var(--mono);font-size:11px;color:var(--text3);">hyperframes</span>
+              </div>
+              <div class="opt-row">
+                <div class="opt-info">
+                  <div class="t">TTS Provider</div>
+                  <div class="d">Giọng đọc tự động</div>
+                </div>
+                <span style="font-family:var(--mono);font-size:11px;color:var(--text3);">omnivoice</span>
+              </div>
+            </div>
+
+            <!-- Render log -->
+            <div class="panel" id="log-panel" style="display:none;">
+              <div class="panel-title" style="font-size:14px;margin-bottom:10px;"><i class="ri-terminal-box-line"></i> Output</div>
+              <div class="log-box visible" id="log-box"></div>
+            </div>
+
+            <!-- Nút xuất -->
+            <button class="btn btn-d" id="btn-export" style="width:100%;padding:15px;font-size:15px;border-radius:12px;">
+              <i class="ri-sparkling-2-fill"></i> Xuất Video
+            </button>
+
+            <p style="font-size:11.5px;color:var(--text3);text-align:center;line-height:1.6;">
+              Lệnh render chạy qua terminal CLI.<br>
+              Xem hướng dẫn tại <a href="https://evose.ai/" target="_blank" style="color:var(--text2);text-decoration:underline;">evose.ai</a>
+            </p>
+
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+  // Frame card selection
+  document.querySelectorAll('.frame-card').forEach(card => {
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.frame-card').forEach(c => c.classList.remove('sel'));
+      card.classList.add('sel');
+      const check = card.querySelector('.fc-check');
+      document.querySelectorAll('.fc-check').forEach(c => c.style.display = 'none');
+      if (!check) {
+        const chk = document.createElement('span');
+        chk.className = 'fc-check';
+        chk.innerHTML = '<i class="ri-check-line"></i>';
+        card.querySelector('.fc-art').appendChild(chk);
+      } else {
+        check.style.display = '';
+      }
+    });
+  });
+
+  // Aspect ratio segmented
+  document.querySelectorAll('.seg .o').forEach(o => {
+    o.addEventListener('click', () => {
+      o.closest('.seg').querySelectorAll('.o').forEach(x => x.classList.remove('sel'));
+      o.classList.add('sel');
+    });
+  });
+
+  // Chip click → fill URL
+  document.querySelectorAll('.chipf[data-url]').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.getElementById('url-input').value = chip.dataset.url;
+    });
+  });
+
+  // Sidebar nav (visual only — tabs not fully wired)
+  document.querySelectorAll('.nav-i[data-tab]').forEach(item => {
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.nav-i').forEach(n => n.classList.remove('active'));
+      item.classList.add('active');
+    });
+  });
+
+  // Save keys → localStorage
+  document.getElementById('btn-save-keys').addEventListener('click', () => {
+    const keys = {
+      openai: document.getElementById('key-openai').value,
+      elevenlabs: document.getElementById('key-elevenlabs').value,
+      github: document.getElementById('key-github').value,
+    };
+    try {
+      localStorage.setItem('evose_keys', JSON.stringify(keys));
+      const btn = document.getElementById('btn-save-keys');
+      btn.innerHTML = '<i class="ri-check-line"></i> Đã lưu';
+      setTimeout(() => { btn.innerHTML = '<i class="ri-shield-check-line"></i> Lưu & Kiểm Tra Kết Nối'; }, 2000);
+    } catch(e) {}
+  });
+
+  // Load saved keys on startup
+  try {
+    const saved = JSON.parse(localStorage.getItem('evose_keys') || '{}');
+    if (saved.openai) document.getElementById('key-openai').value = saved.openai;
+    if (saved.elevenlabs) document.getElementById('key-elevenlabs').value = saved.elevenlabs;
+    if (saved.github) document.getElementById('key-github').value = saved.github;
+  } catch(e) {}
+
+  // Export / Render → show CLI command
+  function getSelectedFrame() {
+    const sel = document.querySelector('.frame-card.sel');
+    return sel ? sel.dataset.frame : 'frame-creative-voltage';
+  }
+  function getSelectedRatio() {
+    const sel = document.querySelector('.seg .o.sel');
+    return sel ? sel.dataset.ratio : '9:16';
+  }
+
+  function showLog(lines) {
+    const panel = document.getElementById('log-panel');
+    const box = document.getElementById('log-box');
+    panel.style.display = '';
+    box.innerHTML = lines.map(([cls, txt]) =>
+      `<div class="log-line-${cls}">${txt}</div>`
+    ).join('');
+    box.scrollTop = box.scrollHeight;
+  }
+
+  document.getElementById('btn-export').addEventListener('click', () => {
+    const url = document.getElementById('url-input').value.trim();
+    if (!url) {
+      showLog([['err', '✗ Vui lòng nhập URL bài báo trước khi xuất.']]);
+      return;
+    }
+    const frame = getSelectedFrame();
+    const ratio = getSelectedRatio();
+    showLog([
+      ['info', '# Chạy lệnh trong terminal:'],
+      ['ok',   ''],
+      ['ok',   `npm run pipeline -- --url "${url}"`],
+      ['info', ''],
+      ['info', `# Frame gợi ý: ${frame}`],
+      ['info', `# Tỷ lệ: ${ratio}`],
+      ['info', ''],
+      ['info', '# Sau khi render xong:'],
+      ['info', './evose-brand-kit/evose-finalize.sh output/<slug>/'],
+    ]);
+  });
+
+  document.getElementById('btn-quick-render').addEventListener('click', () => {
+    const url = document.getElementById('url-input').value.trim();
+    showLog([
+      ['info', '# Render nhanh (qua terminal):'],
+      ['ok',   url ? `npm run pipeline -- --url "${url}"` : 'npm run pipeline -- --url "<URL>"'],
+      ['info', '# Xem output/ để lấy video.mp4'],
+    ]);
+  });
+
+  document.getElementById('btn-analyze').addEventListener('click', () => {
+    const url = document.getElementById('url-input').value.trim();
+    if (!url) return;
+    showLog([
+      ['info', `# Phân tích URL: ${url}`],
+      ['info', '# AI sẽ lấy nội dung và sinh script khi chạy pipeline'],
+      ['ok',   `npm run pipeline -- --url "${url}"`],
+    ]);
+  });
+</script>
+</body>
+</html>

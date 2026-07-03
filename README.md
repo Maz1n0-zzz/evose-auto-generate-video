@@ -74,31 +74,46 @@ Claude Code &nbsp;·&nbsp; MCP Servers &nbsp;·&nbsp; Subagents &nbsp;·&nbsp; H
 
 ---
 
-## 🎬 Evose Studio — Web UI
+## 🖥️ Evose Studio — Web UI
 
-Mở `app.html` trong trình duyệt để dùng giao diện đồ hoạ:
+`app.html` is a static planning UI — no server needed, runs entirely in your browser.
 
-| Tính năng | Mô tả |
-|-----------|-------|
-| **URL Input** | Dán link bài báo, AI phân tích nội dung |
-| **Phong Cách Video** | Chọn 1 trong 11 frame template (Creative Voltage, Glitch Title, …) |
-| **Tỷ Lệ Khung Hình** | 9:16 · 16:9 · 1:1 |
-| **API Keys** | Lưu OpenAI/Gemini · ElevenLabs · GitHub Token vào localStorage |
-| **Xuất Video** | Hiển thị câu lệnh CLI để chạy trong terminal |
+**Open it:**
 
-> **Lưu ý quan trọng:** `app.html` là UI tĩnh — render **không chạy trong trình duyệt**.
-> Sau khi bấm "Xuất Video", copy câu lệnh hiện ra và chạy trong terminal:
+```bash
+open app.html        # macOS
+start app.html       # Windows
+xdg-open app.html    # Linux
+```
+
+Or just double-click `app.html` in Finder / Explorer.
+
+**Features:**
+
+| Feature | Description |
+|---------|-------------|
+| **URL Input** | Paste an article link — the AI reads the content |
+| **Video Style** | Pick one of 11 frame templates (Creative Voltage, Glitch Title, …) |
+| **Aspect Ratio** | 9:16 · 16:9 · 1:1 |
+| **API Keys** | Save OpenAI/Gemini · ElevenLabs · GitHub Token to localStorage |
+| **Export** | Shows the CLI command to copy + run in terminal |
+
+**Workflow:**
+
+1. Paste an article URL in the top bar
+2. Select a template style from the frame cards
+3. Click **Xuất Video** — a CLI command appears in the log area
+4. Copy the command → run it in terminal → wait for `output/<slug>/video.mp4`
+
+> `app.html` is a planning surface only — render does **not** run in the browser.
+> After clicking Export, paste the generated command into your terminal:
 > ```bash
-> npm run pipeline -- --url "https://your-article-url"
+> npm run pipeline -- output/<slug>/script.json
 > ```
-> Pipeline sẽ sinh `script.json`, render từng frame bằng HyperFrames, ghép TTS và SFX,
-> xuất `output/<slug>/video.mp4`.
 
 ---
 
 ## 🚀 Quick Start
-
-> 📺 **Detailed guide:** [Watch the video walkthrough on YouTube](https://www.youtube.com/watch?v=V08-8KLmbnA)
 
 ```bash
 git clone https://github.com/Maz1n0-zzz/evose-auto-generate-video.git
@@ -135,6 +150,47 @@ Full control over every scene and template.
 </table>
 
 A few minutes later → `output/<slug>/video.mp4` (1080×1920).
+
+---
+
+## 🤖 Using with Claude Code
+
+This is how this repo was built and how it's designed to be used — Claude Code as the AI brain, the pipeline as the deterministic production engine.
+
+### 1. Install Claude Code
+
+```bash
+npm install -g @anthropic/claude-code
+```
+
+Or download from [claude.ai/download](https://claude.ai/download).
+
+### 2. Clone the repo and open it with Claude Code
+
+```bash
+git clone https://github.com/Maz1n0-zzz/evose-auto-generate-video.git
+cd AI-auto-generate-video
+npm install
+claude
+```
+
+The `/create-template-video` skill loads automatically when you open the project directory.
+
+### 3. Create a video
+
+```text
+/create-template-video https://your-article-url
+```
+
+Claude will:
+
+1. Fetch and summarize the article content
+2. Write `output/<slug>/script.json` — scene-by-scene template choices + Vietnamese TTS copy
+3. Run `npm run pipeline` automatically
+4. Return paths to `video.mp4`, `voice.mp3`, `script.txt`
+
+> The full authoring rules (template map, TTS number handling, Evose brand fields) live in
+> [`.claude/skills/create-template-video/SKILL.md`](.claude/skills/create-template-video/SKILL.md).
 
 ---
 

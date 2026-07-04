@@ -13,7 +13,15 @@ export interface TtsClient {
 
 import type { Config } from "../config.js";
 import { OmniVoiceClient } from "./omnivoice-client.js";
+import { ElevenLabsClient } from "./elevenlabs-client.js";
 
 export function createTtsClient(cfg: Config): TtsClient {
+  if (cfg.ttsProvider === "elevenlabs") {
+    return new ElevenLabsClient({
+      apiKey: cfg.elevenlabsApiKey,
+      voiceId: cfg.elevenlabsVoiceId,
+      modelId: cfg.elevenlabsModelId,
+    });
+  }
   return new OmniVoiceClient({ endpoint: cfg.omnivoiceEndpoint });
 }

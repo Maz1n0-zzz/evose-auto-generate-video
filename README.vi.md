@@ -13,7 +13,7 @@ Một câu lệnh, không cần dựng phim, chạy lại bao nhiêu lần cũng
 <img alt="Node" src="https://img.shields.io/badge/Node-%E2%89%A522-339933?style=flat-square&logo=node.js&logoColor=white" />
 <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-6-3178C6?style=flat-square&logo=typescript&logoColor=white" />
 <img alt="HyperFrames" src="https://img.shields.io/badge/HyperFrames-0.6.94-ec4899?style=flat-square" />
-<img alt="OmniVoice" src="https://img.shields.io/badge/TTS-OmniVoice-f59e0b?style=flat-square" />
+<img alt="OmniVoice" src="https://img.shields.io/badge/TTS-OmniVoice_%7C_ElevenLabs-f59e0b?style=flat-square" />
 <img alt="Format" src="https://img.shields.io/badge/9%3A16-1080%C3%971920-0ea5e9?style=flat-square" />
 <img alt="License" src="https://img.shields.io/badge/License-MIT-10b981?style=flat-square" />
 </p>
@@ -119,7 +119,7 @@ Hoặc double-click `app.html` trong Finder / File Explorer.
 git clone https://github.com/Maz1n0-zzz/evose-auto-generate-video.git
 cd AI-auto-generate-video
 npm install
-# chạy server OmniVoice ở máy bạn, rồi tạo video
+cp .env.example .env   # chỉnh .env — chọn OmniVoice hoặc ElevenLabs
 ```
 
 <table>
@@ -246,13 +246,13 @@ Pipeline chạy 8 bước, lần nào cũng như lần nấy — code ở [`src/
 
 <br/>
 
-| Mục                   | Cần       | Ghi chú                                                               |
-| --------------------- | --------- | --------------------------------------------------------------------- |
-| **Node.js**           | ≥ 22      | `node --version`                                                      |
-| **FFmpeg + ffprobe**  | bản mới   | phải có trong PATH (`ffmpeg -version`)                                |
-| **Chrome / Chromium** | bất kỳ    | HyperFrames dùng để render từng template                              |
-| **OmniVoice server**  | đang chạy | TTS local tại `OMNIVOICE_ENDPOINT` (mặc định `http://127.0.0.1:8123`) |
-| **Claude Code CLI**   | tuỳ chọn  | chỉ cần cho skill `/create-template-video`                            |
+| Mục                   | Cần       | Ghi chú                                                                    |
+| --------------------- | --------- | -------------------------------------------------------------------------- |
+| **Node.js**           | ≥ 22      | `node --version`                                                           |
+| **FFmpeg + ffprobe**  | bản mới   | phải có trong PATH (`ffmpeg -version`)                                     |
+| **Chrome / Chromium** | bất kỳ    | HyperFrames dùng để render từng template                                   |
+| **TTS**               | một trong hai | OmniVoice (local, miễn phí) **hoặc** ElevenLabs (cloud) — xem bên dưới |
+| **Claude Code CLI**   | tuỳ chọn  | chỉ cần cho skill `/create-template-video`                                 |
 
 **Cài FFmpeg:**
 
@@ -263,18 +263,106 @@ Pipeline chạy 8 bước, lần nào cũng như lần nấy — code ở [`src/
 </details>
 
 <details open>
-<summary><b>Cấu hình</b> — <code>.env.local</code></summary>
+<summary><b>🎙️ Cài TTS — Phương án A: OmniVoice (local, miễn phí, tốt nhất cho tiếng Việt)</b></summary>
 
 <br/>
 
-Ở đây chỉ có mỗi OmniVoice, lại chạy ngay trên máy nên **chẳng cần API key gì cả.**
+OmniVoice chạy ngay trên máy — không cần API key, không tốn tiền, dùng offline được.
+
+**1. Cài sherpa-onnx** (engine chạy OmniVoice):
+
+```bash
+pip install sherpa-onnx
+```
+
+**2. Tải model TTS tiếng Việt** — chọn một model trong [danh sách sherpa-onnx](https://k2-fsa.github.io/sherpa/onnx/tts/pretrained_models/vits.html):
+
+```bash
+# Ví dụ: vits-vn (nhanh, chất lượng tốt)
+wget https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/vits-vn-hf-vivos.tar.bz2
+tar xf vits-vn-hf-vivos.tar.bz2
+```
+
+**3. Khởi động TTS server** (giữ terminal này mở):
+
+```bash
+python3 -m sherpa_onnx.server \
+  --vits-model=vits-vn-hf-vivos/model.onnx \
+  --vits-lexicon=vits-vn-hf-vivos/lexicon.txt \
+  --vits-tokens=vits-vn-hf-vivos/tokens.txt \
+  --port=8123
+```
+
+Server sẽ lắng nghe `POST /tts` tại cổng 8123 — đúng format pipeline cần.
+
+**4. Tạo file `.env`** (copy từ `.env.example`):
+
+```bash
+cp .env.example .env
+```
+
+Nội dung mặc định dùng được ngay:
 
 ```env
 TTS_PROVIDER=omnivoice
 OMNIVOICE_ENDPOINT=http://127.0.0.1:8123
 ```
 
-Server chỉ cần nhận `POST /tts` kèm `{ text }` và trả về bytes `audio/mpeg` là đủ.
+</details>
+
+<details open>
+<summary><b>🎙️ Cài TTS — Phương án B: ElevenLabs (cloud, không cần cài server)</b></summary>
+
+<br/>
+
+ElevenLabs hoạt động qua API — không cần chạy gì trên máy. Cần tạo tài khoản (có gói miễn phí).
+
+**1. Đăng ký tại [elevenlabs.io](https://elevenlabs.io/)** → vào **Profile → API Keys** → copy API key.
+
+**2. Chọn giọng** — tìm giọng hỗ trợ tiếng Việt trong Voice Library → copy **Voice ID** từ trang chi tiết giọng đó.
+
+> **Gợi ý:** Tìm từ khoá "Vietnamese" trong Voice Library để lọc giọng tiếng Việt.
+
+**3. Tạo file `.env`** (copy từ `.env.example`):
+
+```bash
+cp .env.example .env
+```
+
+Sau đó điền vào:
+
+```env
+TTS_PROVIDER=elevenlabs
+ELEVENLABS_API_KEY=your_api_key_here
+ELEVENLABS_VOICE_ID=your_voice_id_here
+ELEVENLABS_MODEL_ID=eleven_multilingual_v2
+```
+
+`eleven_multilingual_v2` hỗ trợ tiếng Việt sẵn — không cần cài thêm gì.
+
+> **Lưu ý chi phí:** Gói miễn phí được 10.000 ký tự/tháng. Một video 90 giây dùng khoảng 400 ký tự.
+
+</details>
+
+<details>
+<summary><b>Tổng hợp các biến môi trường</b></summary>
+
+<br/>
+
+Copy `.env.example` → `.env` rồi điền giá trị:
+
+```bash
+cp .env.example .env
+```
+
+| Biến | Mặc định | Mô tả |
+|---|---|---|
+| `TTS_PROVIDER` | `omnivoice` | `omnivoice` hoặc `elevenlabs` |
+| `OMNIVOICE_ENDPOINT` | `http://127.0.0.1:8123` | URL server OmniVoice |
+| `ELEVENLABS_API_KEY` | — | API key ElevenLabs |
+| `ELEVENLABS_VOICE_ID` | — | Voice ID ElevenLabs |
+| `ELEVENLABS_MODEL_ID` | `eleven_multilingual_v2` | Model ElevenLabs |
+| `TTS_CONCURRENCY` | `1` | Số luồng TTS song song (tối đa 3 cho ElevenLabs) |
 
 </details>
 

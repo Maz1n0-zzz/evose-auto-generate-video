@@ -13,7 +13,7 @@ One command · zero editing · deterministic renders.</p>
 <img alt="Node" src="https://img.shields.io/badge/Node-%E2%89%A522-339933?style=flat-square&logo=node.js&logoColor=white" />
 <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-6-3178C6?style=flat-square&logo=typescript&logoColor=white" />
 <img alt="HyperFrames" src="https://img.shields.io/badge/HyperFrames-0.6.94-ec4899?style=flat-square" />
-<img alt="OmniVoice" src="https://img.shields.io/badge/TTS-OmniVoice-f59e0b?style=flat-square" />
+<img alt="OmniVoice" src="https://img.shields.io/badge/TTS-OmniVoice_%7C_ElevenLabs-f59e0b?style=flat-square" />
 <img alt="Format" src="https://img.shields.io/badge/9%3A16-1080%C3%971920-0ea5e9?style=flat-square" />
 <img alt="License" src="https://img.shields.io/badge/License-MIT-10b981?style=flat-square" />
 </p>
@@ -119,7 +119,7 @@ Or just double-click `app.html` in Finder / Explorer.
 git clone https://github.com/Maz1n0-zzz/evose-auto-generate-video.git
 cd AI-auto-generate-video
 npm install
-# start your local OmniVoice server, then generate video
+cp .env.example .env   # then edit .env — pick OmniVoice or ElevenLabs
 ```
 
 <table>
@@ -246,13 +246,13 @@ Eight deterministic steps in [`src/render/template-pipeline.ts`](src/render/temp
 
 <br/>
 
-| Item                  | Need       | Notes                                                               |
-| --------------------- | ---------- | ------------------------------------------------------------------- |
-| **Node.js**           | ≥ 22       | `node --version`                                                    |
-| **FFmpeg + ffprobe**  | any modern | must be in PATH (`ffmpeg -version`)                                 |
-| **Chrome / Chromium** | any        | used by HyperFrames to render each template                         |
-| **OmniVoice server**  | running    | local TTS at `OMNIVOICE_ENDPOINT` (default `http://127.0.0.1:8123`) |
-| **Claude Code CLI**   | optional   | only for the `/create-template-video` skill                         |
+| Item                  | Need       | Notes                                                                   |
+| --------------------- | ---------- | ----------------------------------------------------------------------- |
+| **Node.js**           | ≥ 22       | `node --version`                                                        |
+| **FFmpeg + ffprobe**  | any modern | must be in PATH (`ffmpeg -version`)                                     |
+| **Chrome / Chromium** | any        | used by HyperFrames to render each template                             |
+| **TTS**               | one of two | OmniVoice (local, free) **or** ElevenLabs (cloud) — see section below  |
+| **Claude Code CLI**   | optional   | only for the `/create-template-video` skill                             |
 
 **Install FFmpeg:**
 
@@ -263,18 +263,98 @@ Eight deterministic steps in [`src/render/template-pipeline.ts`](src/render/temp
 </details>
 
 <details open>
-<summary><b>Configuration</b> — <code>.env.local</code></summary>
+<summary><b>🎙️ TTS Setup — Option A: OmniVoice (local, free, best for Vietnamese)</b></summary>
 
 <br/>
 
-OmniVoice is the only TTS provider, and it's local — **no API keys.**
+OmniVoice runs on your machine — no API key, no cost, works offline.
+
+**1. Install sherpa-onnx** (the engine that powers OmniVoice):
+
+```bash
+# macOS / Linux
+pip install sherpa-onnx
+
+# Windows
+pip install sherpa-onnx
+```
+
+**2. Download a Vietnamese TTS model** — pick one from the [sherpa-onnx model list](https://k2-fsa.github.io/sherpa/onnx/tts/pretrained_models/vits.html):
+
+```bash
+# Example: vits-vn (fast, good quality)
+wget https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/vits-vn-hf-vivos.tar.bz2
+tar xf vits-vn-hf-vivos.tar.bz2
+```
+
+**3. Start the TTS server** (keep this terminal open):
+
+```bash
+python3 -m sherpa_onnx.server \
+  --vits-model=vits-vn-hf-vivos/model.onnx \
+  --vits-lexicon=vits-vn-hf-vivos/lexicon.txt \
+  --vits-tokens=vits-vn-hf-vivos/tokens.txt \
+  --port=8123
+```
+
+The server exposes `POST /tts` on port 8123 — exactly what the pipeline expects.
+
+**4. Configure `.env`** (copy `.env.example` → `.env`):
 
 ```env
 TTS_PROVIDER=omnivoice
 OMNIVOICE_ENDPOINT=http://127.0.0.1:8123
 ```
 
-The server must accept `POST /tts` with `{ text }` and return `audio/mpeg` bytes.
+</details>
+
+<details open>
+<summary><b>🎙️ TTS Setup — Option B: ElevenLabs (cloud, no local install needed)</b></summary>
+
+<br/>
+
+ElevenLabs works without any local server. You need an API key (free tier available).
+
+**1. Create an account** at [elevenlabs.io](https://elevenlabs.io/) and grab your API key from **Profile → API Keys**.
+
+**2. Pick a voice** — for Vietnamese content, choose a multilingual voice. Copy the **Voice ID** from the voice's detail page.
+
+> **Tip:** Search the Voice Library for "Vietnamese" or clone an existing voice to get a Voice ID.
+
+**3. Configure `.env`** (copy `.env.example` → `.env`):
+
+```env
+TTS_PROVIDER=elevenlabs
+ELEVENLABS_API_KEY=your_api_key_here
+ELEVENLABS_VOICE_ID=your_voice_id_here
+ELEVENLABS_MODEL_ID=eleven_multilingual_v2
+```
+
+`eleven_multilingual_v2` supports Vietnamese natively — no extra setup needed.
+
+> **Cost note:** Free tier gives 10,000 characters/month. A typical 90-second video uses ~400 characters.
+
+</details>
+
+<details>
+<summary><b>Configuration reference — all env vars</b></summary>
+
+<br/>
+
+Copy `.env.example` to `.env` and fill in the relevant section:
+
+```bash
+cp .env.example .env
+```
+
+| Variable | Default | Description |
+|---|---|---|
+| `TTS_PROVIDER` | `omnivoice` | `omnivoice` or `elevenlabs` |
+| `OMNIVOICE_ENDPOINT` | `http://127.0.0.1:8123` | OmniVoice server URL |
+| `ELEVENLABS_API_KEY` | — | ElevenLabs API key |
+| `ELEVENLABS_VOICE_ID` | — | ElevenLabs Voice ID |
+| `ELEVENLABS_MODEL_ID` | `eleven_multilingual_v2` | ElevenLabs model |
+| `TTS_CONCURRENCY` | `1` | Parallel TTS calls (up to 3 for ElevenLabs) |
 
 </details>
 

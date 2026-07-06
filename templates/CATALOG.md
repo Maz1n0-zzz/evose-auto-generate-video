@@ -240,6 +240,7 @@ Lora / Be Vietnam Pro are known-good). Then add a row here.
 ---
 
 ## frame-chart-bars
+> 🔴 **LEGACY — KHÔNG DÙNG**. Dùng `frame-chart-bars-v2` thay thế.
 **Role:** trực quan hoá dữ liệu — bar chart. So sánh nhiều mục/hạng mục.
 **Best for:** doanh thu theo quý, xếp hạng, số lượng theo nhóm.
 | slot | type | limit | notes |
@@ -250,6 +251,7 @@ Lora / Be Vietnam Pro are known-good). Then add a row here.
 | caption | text | ~60 | dòng chốt dưới cùng |
 
 ## frame-chart-donut
+> 🔴 **LEGACY — KHÔNG DÙNG**. Dùng `frame-chart-donut-v2` thay thế.
 **Role:** trực quan hoá dữ liệu — 1 tỷ lệ % nổi bật.
 **Best for:** thị phần, tỷ lệ hoàn thành, 1 con số phần trăm chủ đạo.
 | slot | type | limit | notes |
@@ -261,6 +263,7 @@ Lora / Be Vietnam Pro are known-good). Then add a row here.
 | caption | text | ~50 | dòng chốt |
 
 ## frame-chart-line
+> 🔴 **LEGACY — KHÔNG DÙNG**. Dùng `frame-chart-line-v2` thay thế.
 **Role:** trực quan hoá dữ liệu — xu hướng theo thời gian.
 **Best for:** đà tăng/giảm, chuỗi thời gian.
 | slot | type | limit | notes |
@@ -291,4 +294,62 @@ Lora / Be Vietnam Pro are known-good). Then add a row here.
 | image | asset | — | PNG từ capture-screenshot.js --mode news |
 | hl_top/hl_left/hl_width/hl_height | text | — | % vị trí khung highlight; bỏ trống = tắt |
 | caption | text | ~50 | dòng chốt |
+
+---
+
+## frame-chart-bars-v2
+**Role:** trực quan hoá dữ liệu — bar chart với nền blob động (CSS @keyframe floating orbs).
+**Best for:** so sánh 2–6 mục có số liệu; nền atmosphere hơn v1 (3 blob BLUE/CYAN/LAVENDER).
+| slot | type | limit | notes |
+|---|---|---|---|
+| label | text | ~24 | eyebrow mono (JetBrains Mono, uppercase) |
+| title | text | ~40 | tiêu đề; `{...}` = gradient CYAN→BLUE→VIOLET |
+| bars | json | 2–6 cột | `[{label,value,unit?,active?}]`; `active:false` = mờ |
+| caption | text | ~60 | dòng chốt dưới cùng |
+
+> v2 khác v1: thêm 3 blob CSS animated background (`mix-blend-mode:screen`). Không thay đổi slot.
+
+---
+
+## frame-chart-donut-v2
+**Role:** trực quan hoá dữ liệu — 1 tỷ lệ % nổi bật, nền blob động. Cũng sửa lỗi v1 (thiếu `data-composition-id` + `window.__timelines`).
+**Best for:** thị phần, tỷ lệ hoàn thành, 1 con số phần trăm chủ đạo.
+| slot | type | limit | notes |
+|---|---|---|---|
+| label | text | ~24 | eyebrow mono |
+| title | text | ~34 | tiêu đề; `{...}` = gradient |
+| percent | number | 0–100 | phần trăm chính (SVG sweep animate) |
+| unit | text | ~3 | mặc định "%" |
+| label_donut | text | ~40 | mô tả dưới số donut (tuỳ chọn) |
+| caption | text | ~50 | dòng chốt |
+
+> v2 khác v1: blob animated bg + fix cả hai bug render trong v1 portrait.html.
+
+---
+
+## frame-chart-line-v2
+**Role:** trực quan hoá dữ liệu — xu hướng theo thời gian, nền blob động.
+**Best for:** đà tăng/giảm, chuỗi thời gian với atmosphere hơn v1.
+| slot | type | limit | notes |
+|---|---|---|---|
+| label | text | ~24 | eyebrow mono |
+| title | text | ~40 | tiêu đề; `{...}` = gradient |
+| points | json | 3–8 điểm | `[{label,value}]`; SVG cubic-bezier draw-on |
+| caption | text | ~60 | dòng chốt |
+
+> v2 khác v1: blob animated bg. Đường kẻ cubic bezier smooth, dots spring `pop` animation.
+
+---
+
+## frame-pipeline-flow
+**Role:** sơ đồ quy trình — 6 bước dọc với icon + tiêu đề + mô tả, bước cuối highlight gradient.
+**Best for:** giải thích pipeline/workflow (AI pipeline, quy trình sản xuất, automation flow). Không có analogue trong repo.
+| slot | type | limit | notes |
+|---|---|---|---|
+| label | text | ~24 | eyebrow mono (JetBrains Mono, uppercase) |
+| title | text | ~50 | tiêu đề; `{...}` = gradient CYAN→BLUE→VIOLET |
+| steps | json | 3–6 bước | `[{icon,title,desc}]`; bước cuối tự động gradient fill |
+| caption | text | ~60 | dòng chốt (bottom:180px) |
+
+> Default 6 bước: 🔗 Nhập link → 🤖 AI phân tích → 📝 Sinh kịch bản → 🎨 Dựng frame → 🎬 Ghép + lồng tiếng → 📱 Xuất video 9:16.
 

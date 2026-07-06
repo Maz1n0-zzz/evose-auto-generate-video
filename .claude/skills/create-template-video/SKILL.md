@@ -79,20 +79,30 @@ Phát hiện input rồi lấy nội dung:
 **HOOK (chỉ 1):**
 - `frame-liquid-bg-hero` — hero aurora (blob động + headline + CTA). LUÔN dùng cho scene hook.
 
-**BODY (Claude tự chọn theo nội dung — xem Step 5):**
-- `frame-vignelli` — 1 con số nền tối charcoal + đỏ.
-- `frame-pentagram-stat` — 1 con số nền tối neon (Swiss grid, số cam phát sáng + accent cyan + biểu đồ cột).
+**BODY (Claude tự chọn theo nội dung — xem Step 5 + ràng buộc đa dạng cứng):**
+
+**🟢 POOL ƯU TIÊN — hiện đại/animated (LUÔN chọn từ đây trước):**
+- `frame-chart-bars-v2` — **BIỂU ĐỒ CỘT nền blob động** — so sánh 2–6 mục bằng số. Dùng cho mọi scene so sánh số liệu dạng bar.
+- `frame-chart-donut-v2` — **BIỂU ĐỒ VÒNG / % nền blob động** — 1 tỉ lệ phần trăm nổi bật. Cũng fix lỗi render v1.
+- `frame-chart-line-v2` — **BIỂU ĐỒ ĐƯỜNG nền blob động** — xu hướng theo thời gian (3+ điểm).
+- `frame-pipeline-flow` — **SƠ ĐỒ QUY TRÌNH** 3–6 bước dọc. Dùng khi scene giải thích pipeline/workflow.
+- `frame-aicoding-list` — **DANH SÁCH** 2–5 mục (icon + tag mức độ), nền tối gradient. Dùng khi scene là list/xếp hạng.
+- `frame-aicoding-comparison` — **SO SÁNH 2 thứ** (cũ vs mới, A vs B) — 2 card + badge WIN + stat.
+- `frame-build-minimal` — câu chốt mạnh (1 từ lớn IN ĐẬM, glow cam, reveal từng chữ).
+- `frame-glitch-title` — cyberpunk glitch RGB-split — hợp tin sốc/breaking/công nghệ.
+- `frame-screenshot-scroll` — **NHÚNG ẢNH CHỤP TRANG WEB + CUỘN** (GitHub repo / trang dài).
+- `frame-screenshot-news` — **NHÚNG ẢNH CHỤP BÀI BÁO + HIGHLIGHT tiêu đề** (trích nguồn).
 - `frame-bold-poster` — tuyên bố mạnh nhiều dòng + figure số lớn.
-- `frame-build-minimal` — câu chốt mạnh nền tối (1 từ lớn IN ĐẬM, glow cam, reveal từng chữ).
 - `frame-creative-voltage` — câu sáng tạo/khẩu hiệu, split xanh điện + chữ viết tay.
-- `frame-glitch-title` — cyberpunk glitch RGB-split (nền nhiễu) — hợp tin sốc/breaking/công nghệ.
-- `frame-aicoding-list` — **DANH SÁCH** 2–5 mục (mỗi mục có icon + tag mức độ), nền tối gradient. Dùng khi scene là list/xếp hạng.
-- `frame-aicoding-comparison` — **SO SÁNH 2 thứ** (cũ vs mới, A vs B) — 2 card khung gradient + badge WIN + stat. Dùng khi scene đối đầu/đối chiếu.
-- `frame-chart-bars` — **BIỂU ĐỒ CỘT** so sánh nhiều mục có số liệu (doanh thu theo quý, xếp hạng, số lượng theo nhóm), nền tối gradient xanh điện. Dùng khi scene so sánh 2–6 mục bằng số.
-- `frame-chart-donut` — **BIỂU ĐỒ VÒNG / %** một tỉ lệ phần trăm nổi bật (thị phần, tỉ lệ hoàn thành), nền tối. Dùng khi scene xoay quanh 1 con số phần trăm.
-- `frame-chart-line` — **BIỂU ĐỒ ĐƯỜNG** xu hướng theo thời gian (đà tăng/giảm), nền tối. Dùng khi scene là chuỗi số theo thời gian.
-- `frame-screenshot-scroll` — **NHÚNG ẢNH CHỤP TRANG WEB + CUỘN** (GitHub repo / trang dài), khung điện thoại. Dùng khi scene giới thiệu repo hoặc trang web dài.
-- `frame-screenshot-news` — **NHÚNG ẢNH CHỤP BÀI BÁO + HIGHLIGHT tiêu đề**, khung điện thoại. Dùng khi scene trích nguồn tin tức/bài báo.
+
+**🟡 PHỤ — dùng TỐI ĐA 1 lần/video, chỉ khi không frame 🟢 nào hợp hơn:**
+- `frame-vignelli` — 1 con số nền tối charcoal + đỏ. Chỉ khi con số không phù hợp donut-v2/bars-v2.
+- `frame-pentagram-stat` — 1 con số nền tối neon cam/cyan (Swiss grid). Chỉ khi không hợp donut-v2/bars-v2.
+
+**🔴 LEGACY — TUYỆT ĐỐI KHÔNG DÙNG (thay bằng bản -v2):**
+- ~~`frame-chart-bars`~~ — LEGACY. Dùng `frame-chart-bars-v2`.
+- ~~`frame-chart-donut`~~ — LEGACY. Dùng `frame-chart-donut-v2`.
+- ~~`frame-chart-line`~~ — LEGACY. Dùng `frame-chart-line-v2`.
 
 **OUTRO:**
 - `frame-logo-outro` — mặc định (logo glow + tên + tagline + url).
@@ -129,7 +139,13 @@ Cấu trúc bắt buộc:
 **Map nội dung → template:**
 
 - hook → **LUÔN `frame-liquid-bg-hero`** (slots: kicker, headline, subheadline, cta, brand). `headline` hiển thị bằng gradient bắt mắt (mặc định vàng→tím); có thể đặt `headline_from`/`headline_to` (2 màu hex) để đổi tông. **`headline` ≤4 từ ngắn, không dấu phẩy, không số** (vd "AI Bùng Nổ!" ✅, "Alexa For Shopping Ra Mắt!" ❌ — quá dài). **`voiceText` hook ≤18 từ** (nếu dài hơn, hook frame phải kéo dài bằng loop — animation sẽ lặp từ đầu, chấp nhận được; nhưng ≤18 từ vẫn là best practice). Không dùng template khác cho hook.
-- **body → Claude TỰ CHỌN template hợp nhất cho từng scene** theo nội dung (ưu tiên ĐA DẠNG — đừng lặp 1 template cho mọi body). Chọn trong:
+- **body → Claude TỰ CHỌN template hợp nhất cho từng scene** theo RÀNG BUỘC ĐA DẠNG CỨNG:
+  - **KHÔNG LẶP FRAME: mỗi frame body KHÔNG được dùng quá 1 lần/video** (ngoại lệ cực hiếm: không còn frame phù hợp khác).
+  - **2 scene cùng loại nội dung → BẮT BUỘC 2 frame KHÁC nhau** (vd scene số A = `chart-donut-v2`, scene số B = `chart-bars-v2`).
+  - **Scene số liệu → LUÔN dùng chart -v2. TUYỆT ĐỐI không dùng chart v1** (`frame-chart-bars`/`-donut`/`-line` là LEGACY).
+  - **Ưu tiên pool 🟢 (hiện đại) trước; chỉ khi không frame 🟢 nào hợp mới dùng 🟡 (phụ — tối đa 1 lần/video).**
+  Mô tả chi tiết từng frame:
+    - **⚠️ QUY TẮC HEX / TEXT SLOT (ghi nhớ trước khi điền):** Mã màu hex (`#xxxxxx`) **CHỈ đặt vào slot màu** (`accent_from`, `accent_to`, `from`, `to`, `headline_from`, `headline_to`). **TUYỆT ĐỐI KHÔNG đặt hex vào slot text** (`title`, `accent`, `subtitle`, `label`, `caption`, `kicker`, `headline`). Cú pháp `{từ}` trong `title` **chỉ dùng cho `frame-chart-bars-v2`** (và bản legacy `frame-chart-bars`) — KHÔNG áp dụng cho bất kỳ frame nào khác.
     - `frame-vignelli` — scene có **1 con số/stat** muốn nhấn mạnh, tông tối charcoal + đỏ. Slots: kicker, number, label, note, brand.
     - `frame-pentagram-stat` — scene có **1 con số/benchmark**, nền tối neon (Swiss grid, số cam phát sáng + accent cyan) + biểu đồ cột. Slots: label, headline (số), subtitle, anchor, footer_left, footer_right.
     - `frame-build-minimal` — **câu chốt/nhận định ngắn** xoay quanh 1 từ khoá, nền tối + 1 từ lớn in đậm glow cam. Slots: eyebrow, hero (1 từ), desc, side_left, side_right.
@@ -137,19 +153,27 @@ Cấu trúc bắt buộc:
     - `frame-creative-voltage` — **câu sáng tạo/khẩu hiệu** (vài từ), split xanh điện + viết tay. Slots: meta, display_lines, accent_index, script, caption.
     - `frame-glitch-title` — **tin sốc/breaking/công nghệ** kiểu cyberpunk glitch. Slots: title, subtitle.
     - `frame-aicoding-list` — **scene là DANH SÁCH / SO SÁNH 2–5 mục** (ai bị ảnh hưởng, ưu/nhược, các bậc, checklist). Slots: title, accent, accent_from, accent_to, subtitle, items[]. Mỗi item `{icon, title, desc, tag, level}`:
+        - `title`: chuỗi text thường — **KHÔNG chứa `{` `}`** (frame này KHÔNG dùng cú pháp `{}`, đó là cú pháp riêng của `frame-chart-bars`).
+        - `accent`: **1 từ hoặc cụm từ xuất hiện trong tiêu đề** sẽ được tô gradient (vd `"bùng nổ"`). **TUYỆT ĐỐI KHÔNG điền mã màu hex** (`#xxxxxx`) vào `accent` — mã màu hex chỉ thuộc `accent_from`/`accent_to`.
+        - `accent_from`/`accent_to`: **2 mã màu hex** cho gradient chữ nhấn — Claude TỰ CHỌN (vd `"#06b6d4"` → `"#3b82f6"`). Đây là slot DUY NHẤT nhận hex trong frame này.
         - `icon`: Claude TỰ CHỌN emoji hợp từng mục (🚫 ⚠️ ✅ ❌ 📈 💡 🔒 🚀 …), KHÔNG cố định.
         - `level`: `danger`/`warn`/`good`/`info` → quyết định màu icon+tag+thanh. `tag`: nhãn ngắn (Nguy/Cao/Lợi…).
-        - `accent_from`/`accent_to`: Claude TỰ CHỌN 2 màu hex cho gradient chữ nhấn (hợp tông bài), vd cam→đỏ, tím→lam, xanh lá.
+        - **✅ ĐÚNG:** `{"title":"Tại sao AI pharma bùng nổ?","accent":"bùng nổ","accent_from":"#06b6d4","accent_to":"#3b82f6"}`
+        - **❌ SAI:** `{"title":"...{bùng nổ}?","accent":"#3B82F6"}` — `{}` trong title là thừa, hex trong `accent` bị bỏ qua (template tự vệ)
     - `frame-aicoding-comparison` — **scene SO SÁNH ĐÚNG 2 thứ** (cũ vs mới, A vs B, trước/sau). Slots: badge, pre, vs, post, left{}, right{}. Mỗi vế `{label, from, to, icon?, bullets[], stat?, stat_label?, win?}`:
         - `from`/`to`: Claude TỰ CHỌN 2 màu hex gradient cho mỗi vế (thường 2 vế khác tông, vd trái cam→đỏ, phải teal→lam).
         - `icon`: emoji tuỳ chọn cho mỗi vế. `win: true` cho vế thắng (viền sáng + badge WIN). `stat`/`stat_label`: số liệu tuỳ chọn dưới mỗi card.
-    - Gợi ý cân bằng: nếu nhiều scene đều là số, xen kẽ `frame-vignelli` (than + đỏ/vàng) và `frame-pentagram-stat` (tối neon cam/cyan) cho đỡ đơn điệu; chèn `frame-build-minimal` cho scene không-số.
-    - `frame-chart-bars` — **scene SO SÁNH DỮ LIỆU nhiều mục có số**. Slots: label, title, bars, caption. `title` hiển thị `{...}` bằng gradient. `bars` là JSON `[{label, value, unit?, active?}]` (2–6 cột); `active: true` cho cột muốn nhấn, `active: false` làm mờ cột.
-    - `frame-chart-donut` — **scene có 1 TỈ LỆ PHẦN TRĂM chủ đạo**. Slots: label, title, percent (0–100), unit (mặc định "%"), caption.
-    - `frame-chart-line` — **scene XU HƯỚNG THEO THỜI GIAN**. Slots: label, title, points, caption. `points` là JSON `[{label, value}]` (3–8 điểm).
-    - `frame-screenshot-scroll` — **scene GIỚI THIỆU REPO / TRANG WEB DÀI**. Slots: label, title, image, pan, caption. `image` là ảnh PNG chụp bằng `scripts/capture-screenshot.js --mode github`; `pan` là mức cuộn (vd "-55%"), đặt "0%" để ảnh tĩnh.
-    - `frame-screenshot-news` — **scene TRÍCH NGUỒN BÀI BÁO / TIN TỨC**. Slots: label, title, image, hl_top, hl_left, hl_width, hl_height, caption. `image` là ảnh PNG chụp bằng `scripts/capture-screenshot.js --mode news`; `hl_*` là % vị trí khung soi tiêu đề (bỏ trống = tắt highlight).
-    - **Quy tắc dữ liệu cho 5 frame chart/screenshot (Claude tự quyết):** (1) bài CÓ số liệu cụ thể → vẽ chart THẬT với số đó; (2) bài KHÔNG có số nhưng minh hoạ được khái niệm → chart minh hoạ (số tượng trưng + label mô tả); (3) không hợp trực quan hoá → KHÔNG dùng chart frame, chọn frame chữ. Nguồn GitHub → `frame-screenshot-scroll` (cuộn); nguồn báo → `frame-screenshot-news` (tĩnh + highlight). Số trong `inputs` giữ định dạng đẹp ("5.6", "45%"); `voiceText` vẫn viết số ra chữ theo quy tắc TTS bên dưới.
+    - **⚠️ frame-vignelli & frame-pentagram-stat là LỰA CHỌN PHỤ (🟡)**: chỉ dùng tối đa 1 lần/video mỗi frame, và chỉ khi scene là 1 con số đơn không phù hợp donut-v2/bars-v2. ĐỪNG chọn mặc định — ưu tiên pool 🟢 (chart-v2 / pipeline-flow / aicoding-comparison) trước.
+    - `frame-chart-bars-v2` — **🟢 scene SO SÁNH DỮ LIỆU nhiều mục có số** (nền blob động). **LUÔN dùng bản này thay v1.** Slots: label, title, bars, caption. `title` dùng cú pháp `{từ}` để tô gradient 1 từ (vd `"Tăng trưởng {AI} Q3"`). **Cú pháp `{...}` CHỈ áp dụng cho frame chart-bars — KHÔNG dùng cho frame-aicoding-list hay frame nào khác.** `bars` là JSON `[{label, value, unit?, active?}]` (2–6 cột); `active: true` cho cột muốn nhấn, `active: false` làm mờ cột.
+    - `frame-chart-donut-v2` — **🟢 scene có 1 TỈ LỆ PHẦN TRĂM chủ đạo** (nền blob động + fix lỗi render v1). **LUÔN dùng bản này thay v1.** Slots: label, title, percent (0–100), unit (mặc định "%"), label_donut (nhãn dưới vòng, tuỳ chọn), caption.
+    - `frame-chart-line-v2` — **🟢 scene XU HƯỚNG THEO THỜI GIAN** (nền blob động, đường cubic-bezier + dot pop). **LUÔN dùng bản này thay v1.** Slots: label, title, points, caption. `points` là JSON `[{label, value}]` (3–8 điểm).
+    - `frame-pipeline-flow` — **🟢 scene giải thích QUY TRÌNH / PIPELINE**. Slots: label, title, steps, caption. `steps` là JSON `[{icon, title, desc}]` (3–6 bước). Nếu bỏ trống `steps`, template tự render 6 bước pipeline Evose mặc định (Nhập link → AI phân tích → Sinh kịch bản → Dựng frame → Ghép + lồng tiếng → Xuất video). Dùng khi scene mô tả workflow, pipeline, các bước quy trình.
+    - `frame-screenshot-scroll` — **🟢 scene GIỚI THIỆU REPO / TRANG WEB DÀI**. Slots: label, title, image, pan, caption. `image` là ảnh PNG chụp bằng `scripts/capture-screenshot.js --mode github`; `pan` là mức cuộn (vd "-55%"), đặt "0%" để ảnh tĩnh.
+    - `frame-screenshot-news` — **🟢 scene TRÍCH NGUỒN BÀI BÁO / TIN TỨC**. Slots: label, title, image, hl_top, hl_left, hl_width, hl_height, caption. `image` là ảnh PNG chụp bằng `scripts/capture-screenshot.js --mode news`; `hl_*` là % vị trí khung soi tiêu đề (bỏ trống = tắt highlight).
+    - ~~`frame-chart-bars`~~ — **🔴 LEGACY — TUYỆT ĐỐI KHÔNG DÙNG**. Thay bằng `frame-chart-bars-v2`.
+    - ~~`frame-chart-donut`~~ — **🔴 LEGACY — TUYỆT ĐỐI KHÔNG DÙNG**. Thay bằng `frame-chart-donut-v2`.
+    - ~~`frame-chart-line`~~ — **🔴 LEGACY — TUYỆT ĐỐI KHÔNG DÙNG**. Thay bằng `frame-chart-line-v2`.
+    - **Quy tắc dữ liệu cho frame chart-v2 và screenshot (Claude tự quyết):** (1) bài CÓ số liệu cụ thể → vẽ chart THẬT với số đó; (2) bài KHÔNG có số nhưng minh hoạ được khái niệm → chart minh hoạ (số tượng trưng + label mô tả); (3) không hợp trực quan hoá → KHÔNG dùng chart frame, chọn frame chữ. Nguồn GitHub → `frame-screenshot-scroll` (cuộn); nguồn báo → `frame-screenshot-news` (tĩnh + highlight). Số trong `inputs` giữ định dạng đẹp ("5.6", "45%"); `voiceText` vẫn viết số ra chữ theo quy tắc TTS bên dưới.
 - outro → `frame-logo-outro` (mặc định; slots: brand_name, tagline, primary_url). Dùng `frame-statement-outro` nếu muốn card đỏ nền giấy.
 
 ### ⚠️ Quy tắc TTS tiếng Việt (BẮT BUỘC cho `voiceText`)
@@ -184,6 +208,12 @@ Bảng đầy đủ (áp dụng cho `voiceText`):
   - Dùng emoji **vừa phải** (0–1 icon mỗi field, đặt ở nhãn/headline/CTA ngắn — vd kicker "🔥 Tin nóng", cta "Theo dõi ngay →"). ĐỪNG nhét emoji vào chữ lớn pop từng ký tự (vd `hero` của build-minimal) vì sẽ vỡ animation.
 
 ### Step 6: Tự kiểm tra
+
+**🔴 CHECKLIST ĐA DẠNG FRAME (bắt buộc kiểm trước khi ghi script.json):**
+- [ ] Đã dùng ≥5 loại frame body KHÁC NHAU? (nếu chưa → thay frame đang lặp bằng frame từ pool 🟢)
+- [ ] Có frame body nào lặp >1 lần không? (nếu có → chọn lại frame khác)
+- [ ] Có dùng nhầm `frame-chart-bars`/`frame-chart-donut`/`frame-chart-line` (LEGACY) không? (nếu có → đổi sang -v2)
+- [ ] `frame-vignelli` và `frame-pentagram-stat` mỗi loại ≤1 lần/video? (nếu không → chọn lại)
 
 - scenes[0]=hook, scene cuối=outro; mỗi templateId ∈ CATALOG; mỗi inputs đủ slot bắt buộc;
 - **Hook headline**: ≤4 từ ngắn, không dấu phẩy, không số. Hook `voiceText` ≤18 từ.

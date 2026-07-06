@@ -1,0 +1,71 @@
+<!doctype html><html lang="en"><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=1080, height=1920"/><title>Chart Line v2 · 9:16</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--navy:#0A1532;--accent:#3B82F6;--cyan:#67E8F9;--violet:#A855F7;--lav:#A5B4FC;--dim:#8A96AD;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:1080px;height:1920px;overflow:hidden;color:#fff;font-family:'Be Vietnam Pro',sans-serif;background:radial-gradient(120% 80% at 84% 8%,rgba(59,130,246,.22),transparent 52%),radial-gradient(90% 70% at 10% 0%,rgba(168,85,247,.16),transparent 55%),#0A1532;}
+#root{position:relative;width:1080px;height:1920px;}
+.blob{position:absolute;border-radius:50%;mix-blend-mode:screen;pointer-events:none;}
+.blob1{width:560px;height:560px;left:-80px;top:100px;background:radial-gradient(circle,rgba(59,130,246,.32),transparent 65%);filter:blur(44px);animation:fl1 5s ease-in-out infinite;}
+.blob2{width:440px;height:440px;right:-60px;top:720px;background:radial-gradient(circle,rgba(103,232,249,.26),transparent 65%);filter:blur(52px);animation:fl2 4s ease-in-out infinite .6s;}
+.blob3{width:360px;height:360px;left:200px;bottom:280px;background:radial-gradient(circle,rgba(165,180,252,.22),transparent 65%);filter:blur(46px);animation:fl3 6s ease-in-out infinite 1.2s;}
+@keyframes fl1{0%,100%{transform:translate(0,0);}50%{transform:translate(55px,-65px);}}
+@keyframes fl2{0%,100%{transform:translate(0,0);}50%{transform:translate(-48px,55px);}}
+@keyframes fl3{0%,100%{transform:translate(0,0);}50%{transform:translate(38px,-48px);}}
+.c-label{position:absolute;left:120px;top:250px;font-family:'JetBrains Mono',monospace;font-size:26px;letter-spacing:4px;color:var(--lav);text-transform:uppercase;opacity:0;animation:fi .6s .2s forwards;}
+.c-title{position:absolute;left:120px;right:120px;top:305px;font-weight:900;font-size:76px;line-height:1.05;letter-spacing:-2px;opacity:0;transform:translateY(30px);animation:fu .7s cubic-bezier(.16,1,.3,1) .35s forwards;}
+.c-title .hl{background:linear-gradient(135deg,#67E8F9,#3B82F6 40%,#6366F1 75%,#A855F7);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+.chart-wrap{position:absolute;left:120px;right:120px;top:560px;}
+.c-cap{position:absolute;left:120px;right:120px;top:1640px;font-size:38px;font-weight:600;color:var(--lav);line-height:1.3;opacity:0;transform:translateY(20px);animation:fu .7s cubic-bezier(.16,1,.3,1) 1.9s forwards;}
+.x-labels{display:flex;justify-content:space-between;margin-top:16px;padding:0 4px;}
+.x-lbl{font-family:'JetBrains Mono',monospace;font-size:26px;color:var(--dim);opacity:0;animation:fi .4s ease forwards;}
+@keyframes fi{to{opacity:1;}}@keyframes fu{to{opacity:1;transform:translateY(0);}}
+@keyframes pop{0%{r:0;opacity:0;}60%{r:14px;opacity:1;}100%{r:10px;opacity:1;}}
+</style></head>
+<body><div id="root" data-composition-id="main" data-start="0" data-duration="20" data-width="1080" data-height="1920">
+<div class="blob blob1"></div><div class="blob blob2"></div><div class="blob blob3"></div>
+<div class="c-label"></div><h1 class="c-title"></h1>
+<div class="chart-wrap"><svg id="linesvg" xmlns="http://www.w3.org/2000/svg"></svg><div class="x-labels" id="xlabels"></div></div>
+<div class="c-cap"></div>
+</div>
+<script>(function(){
+var v=(window.__hyperframes&&typeof window.__hyperframes.getVariables==="function")?window.__hyperframes.getVariables():{};
+var set=function(s,t){var e=document.querySelector(s);if(e&&t!=null)e.textContent=String(t);};
+set(".c-label",v.label);set(".c-cap",v.caption);
+document.querySelector(".c-title").innerHTML=(v.title||"").replace(/\{([^}]+)\}/g,'<span class="hl">$1</span>');
+var points=v.points;if(typeof points==="string"){try{points=JSON.parse(points);}catch(e){points=[];}}
+if(!Array.isArray(points)||points.length<2)points=[{label:"T1",value:12},{label:"T2",value:28},{label:"T3",value:45},{label:"T4",value:38},{label:"T5",value:62},{label:"T6",value:80}];
+var W=840,H=400,padT=40,padB=20,padL=16,padR=16;
+var vals=points.map(function(p){return+p.value||0;});
+var minV=Math.min.apply(null,vals),maxV=Math.max.apply(null,vals);
+if(maxV===minV){minV=Math.max(0,minV-10);maxV+=10;}
+var n=points.length;
+var xs=points.map(function(_,i){return padL+(W-padL-padR)*i/(n-1);});
+var ys=points.map(function(p){return padT+(H-padT-padB)*(1-(+p.value-minV)/(maxV-minV));});
+var svg=document.getElementById("linesvg");
+svg.setAttribute("viewBox","0 0 "+W+" "+H);svg.setAttribute("width",W);svg.setAttribute("height",H);
+var defs=document.createElementNS("http://www.w3.org/2000/svg","defs");
+var lg=document.createElementNS("http://www.w3.org/2000/svg","linearGradient");
+lg.setAttribute("id","lg");lg.setAttribute("x1","0%");lg.setAttribute("y1","0%");lg.setAttribute("x2","100%");lg.setAttribute("y2","0%");
+["#67E8F9","#3B82F6","#A855F7"].forEach(function(c,i){var s=document.createElementNS("http://www.w3.org/2000/svg","stop");s.setAttribute("offset",i*50+"%");s.setAttribute("stop-color",c);lg.appendChild(s);});
+defs.appendChild(lg);svg.appendChild(defs);
+var d="M"+xs[0]+","+ys[0];for(var i=1;i<n;i++){var mx=(xs[i-1]+xs[i])/2;d+=" C"+mx+","+ys[i-1]+" "+mx+","+ys[i]+" "+xs[i]+","+ys[i];}
+var path=document.createElementNS("http://www.w3.org/2000/svg","path");
+path.setAttribute("d",d);path.setAttribute("fill","none");path.setAttribute("stroke","url(#lg)");path.setAttribute("stroke-width","5");path.setAttribute("stroke-linecap","round");
+var len=path.getTotalLength?path.getTotalLength():2000;
+path.style.strokeDasharray=len;path.style.strokeDashoffset=len;
+var ks=document.createElement('style');ks.textContent='@keyframes drawLine{from{stroke-dashoffset:'+len+'px}to{stroke-dashoffset:0}}';document.head.appendChild(ks);
+path.style.animation='drawLine 1.2s cubic-bezier(.16,1,.3,1) .6s both';
+svg.appendChild(path);
+points.forEach(function(p,i){
+  var dot=document.createElementNS("http://www.w3.org/2000/svg","circle");
+  dot.setAttribute("cx",xs[i]);dot.setAttribute("cy",ys[i]);dot.setAttribute("r","10");
+  dot.setAttribute("fill","#3B82F6");dot.setAttribute("stroke","#fff");dot.setAttribute("stroke-width","3");
+  dot.style.animation="pop .4s cubic-bezier(.34,1.56,.64,1) "+(0.8+i*0.12)+"s both";
+  svg.appendChild(dot);
+  var lbl=document.createElement("div");lbl.className="x-lbl";lbl.textContent=p.label||"";
+  lbl.style.animationDelay=(1.2+i*0.1)+"s";document.getElementById("xlabels").appendChild(lbl);
+});
+window.__timelines=window.__timelines||{};window.__timelines["main"]={pause:function(){},seek:function(){},paused:function(){return true;}};
+})();</script></body></html>

@@ -1,0 +1,66 @@
+<!doctype html><html lang="en"><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=1080, height=1920"/><title>Chart Donut v2 · 9:16</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--navy:#0A1532;--accent:#3B82F6;--cyan:#67E8F9;--violet:#A855F7;--lav:#A5B4FC;--dim:#8A96AD;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:1080px;height:1920px;overflow:hidden;color:#fff;font-family:'Be Vietnam Pro',sans-serif;background:radial-gradient(120% 80% at 84% 8%,rgba(59,130,246,.22),transparent 52%),radial-gradient(90% 70% at 10% 0%,rgba(168,85,247,.16),transparent 55%),#0A1532;}
+#root{position:relative;width:1080px;height:1920px;}
+.blob{position:absolute;border-radius:50%;mix-blend-mode:screen;pointer-events:none;}
+.blob1{width:560px;height:560px;left:-80px;top:100px;background:radial-gradient(circle,rgba(59,130,246,.32),transparent 65%);filter:blur(44px);animation:fl1 5s ease-in-out infinite;}
+.blob2{width:440px;height:440px;right:-60px;top:720px;background:radial-gradient(circle,rgba(103,232,249,.26),transparent 65%);filter:blur(52px);animation:fl2 4s ease-in-out infinite .6s;}
+.blob3{width:360px;height:360px;left:200px;bottom:280px;background:radial-gradient(circle,rgba(165,180,252,.22),transparent 65%);filter:blur(46px);animation:fl3 6s ease-in-out infinite 1.2s;}
+@keyframes fl1{0%,100%{transform:translate(0,0);}50%{transform:translate(55px,-65px);}}
+@keyframes fl2{0%,100%{transform:translate(0,0);}50%{transform:translate(-48px,55px);}}
+@keyframes fl3{0%,100%{transform:translate(0,0);}50%{transform:translate(38px,-48px);}}
+.c-label{position:absolute;left:120px;top:250px;font-family:'JetBrains Mono',monospace;font-size:26px;letter-spacing:4px;color:var(--lav);text-transform:uppercase;opacity:0;animation:fi .6s .2s forwards;}
+.c-title{position:absolute;left:120px;right:120px;top:305px;font-weight:900;font-size:76px;line-height:1.05;letter-spacing:-2px;opacity:0;transform:translateY(30px);animation:fu .7s cubic-bezier(.16,1,.3,1) .35s forwards;}
+.c-title .hl{background:linear-gradient(135deg,#67E8F9,#3B82F6 40%,#6366F1 75%,#A855F7);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+.donut-wrap{position:absolute;left:50%;top:580px;transform:translateX(-50%);width:620px;height:620px;display:flex;align-items:center;justify-content:center;}
+.donut-svg{width:620px;height:620px;transform:rotate(-90deg);}
+.donut-bg{fill:none;stroke:rgba(165,180,252,.12);stroke-width:40;}
+.donut-arc{fill:none;stroke-width:40;stroke-linecap:round;stroke:url(#donutGrad);}
+.pct-el{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;display:flex;align-items:baseline;justify-content:center;}
+.num{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:150px;color:#fff;line-height:1;opacity:0;animation:fi .5s 1.2s forwards;}
+.u{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:66px;color:var(--lav);line-height:1;opacity:0;animation:fi .5s 1.2s forwards;}
+.d-label{position:absolute;left:50%;top:1260px;transform:translateX(-50%);font-size:40px;font-weight:700;color:var(--lav);text-align:center;white-space:nowrap;opacity:0;animation:fu .6s cubic-bezier(.16,1,.3,1) 1.4s forwards;}
+.c-cap{position:absolute;left:120px;right:120px;top:1640px;font-size:38px;font-weight:600;color:var(--lav);line-height:1.3;opacity:0;transform:translateY(20px);animation:fu .7s cubic-bezier(.16,1,.3,1) 1.9s forwards;}
+@keyframes fi{to{opacity:1;}}@keyframes fu{to{opacity:1;transform:translateY(0);}}
+</style></head>
+<body><div id="root">
+<div class="blob blob1"></div><div class="blob blob2"></div><div class="blob blob3"></div>
+<div class="c-label"></div><h1 class="c-title"></h1>
+<div class="donut-wrap">
+  <svg class="donut-svg" viewBox="0 0 620 620" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="donutGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#67E8F9"/><stop offset="50%" stop-color="#3B82F6"/><stop offset="100%" stop-color="#A855F7"/></linearGradient></defs>
+    <circle class="donut-bg" cx="310" cy="310" r="278"/>
+    <circle class="donut-arc" id="arc" cx="310" cy="310" r="278"/>
+  </svg>
+  <div class="pct-el"><span class="num" id="numEl"></span><span class="u" id="unitEl">%</span></div>
+</div>
+<div class="d-label" id="dlabel"></div>
+<div class="c-cap"></div>
+</div>
+<script>(function(){
+var v=(window.__hyperframes&&typeof window.__hyperframes.getVariables==="function")?window.__hyperframes.getVariables():{};
+var set=function(s,t){var e=document.querySelector(s);if(e&&t!=null)e.textContent=String(t);};
+set(".c-label",v.label);set(".c-cap",v.caption);
+document.querySelector(".c-title").innerHTML=(v.title||"").replace(/\{([^}]+)\}/g,'<span class="hl">$1</span>');
+var pct=parseFloat(v.percent)||75;if(pct<0)pct=0;if(pct>100)pct=100;
+var unit=v.unit||"%";
+document.getElementById("numEl").textContent=Math.round(pct);
+document.getElementById("unitEl").textContent=unit;
+if(v.label_donut)document.getElementById("dlabel").textContent=v.label_donut;
+var r=278,circ=2*Math.PI*r;
+var arc=document.getElementById("arc");
+arc.style.strokeDasharray=circ;arc.style.strokeDashoffset=circ;
+arc.style.transition="stroke-dashoffset 1s cubic-bezier(.16,1,.3,1) .5s";
+requestAnimationFrame(function(){arc.style.strokeDashoffset=circ*(1-pct/100);});
+requestAnimationFrame(function(){
+  var numEl=document.getElementById("numEl"),unitEl=document.getElementById("unitEl");
+  var inner=(278-20)*2;var size=150;
+  while(numEl.scrollWidth+unitEl.scrollWidth>inner&&size>60){
+    size-=6;numEl.style.fontSize=size+"px";unitEl.style.fontSize=(size*0.44)+"px";
+  }
+});
+})();</script></body></html>

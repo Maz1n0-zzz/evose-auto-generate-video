@@ -1,0 +1,70 @@
+<!doctype html><html lang="en"><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=1080, height=1920"/><title>Pipeline Flow · 9:16</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--navy:#0A1532;--accent:#3B82F6;--cyan:#67E8F9;--violet:#A855F7;--lav:#A5B4FC;--dim:#8A96AD;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:1080px;height:1920px;overflow:hidden;color:#fff;font-family:'Be Vietnam Pro',sans-serif;background:radial-gradient(120% 80% at 84% 8%,rgba(59,130,246,.22),transparent 52%),radial-gradient(90% 70% at 10% 0%,rgba(168,85,247,.16),transparent 55%),#0A1532;}
+#root{position:relative;width:1080px;height:1920px;}
+.blob{position:absolute;border-radius:50%;mix-blend-mode:screen;pointer-events:none;}
+.blob1{width:480px;height:480px;left:-60px;top:80px;background:radial-gradient(circle,rgba(59,130,246,.28),transparent 65%);filter:blur(44px);animation:fl1 5s ease-in-out infinite;}
+.blob2{width:400px;height:400px;right:-40px;top:900px;background:radial-gradient(circle,rgba(103,232,249,.22),transparent 65%);filter:blur(52px);animation:fl2 4s ease-in-out infinite .6s;}
+.blob3{width:340px;height:340px;left:240px;bottom:200px;background:radial-gradient(circle,rgba(165,180,252,.2),transparent 65%);filter:blur(46px);animation:fl3 6s ease-in-out infinite 1.2s;}
+@keyframes fl1{0%,100%{transform:translate(0,0);}50%{transform:translate(50px,-60px);}}
+@keyframes fl2{0%,100%{transform:translate(0,0);}50%{transform:translate(-44px,50px);}}
+@keyframes fl3{0%,100%{transform:translate(0,0);}50%{transform:translate(36px,-44px);}}
+.c-label{position:absolute;left:120px;top:220px;font-family:'JetBrains Mono',monospace;font-size:24px;letter-spacing:4px;color:var(--lav);text-transform:uppercase;opacity:0;animation:fi .6s .2s forwards;}
+.c-title{position:absolute;left:120px;right:120px;top:270px;font-weight:900;font-size:68px;line-height:1.05;letter-spacing:-2px;opacity:0;transform:translateY(28px);animation:fu .7s cubic-bezier(.16,1,.3,1) .35s forwards;}
+.c-title .hl{background:linear-gradient(135deg,#67E8F9,#3B82F6 40%,#6366F1 75%,#A855F7);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+.pipeline{position:absolute;left:120px;right:120px;top:470px;display:flex;flex-direction:column;}
+.step{display:flex;flex-direction:row;align-items:flex-start;gap:28px;opacity:0;transform:translateY(22px);animation:fu .6s cubic-bezier(.16,1,.3,1) forwards;}
+.node{width:72px;height:72px;border-radius:50%;border:2px solid rgba(99,102,241,.65);display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0;background:rgba(99,102,241,.08);}
+.node.last{background:linear-gradient(135deg,#3B82F6,#6366F1 50%,#A855F7);border-color:transparent;box-shadow:0 0 28px rgba(99,102,241,.45);}
+.content{padding-top:6px;flex:1;}
+.num{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:17px;font-weight:700;color:var(--lav);background:rgba(99,102,241,.14);border-radius:7px;padding:2px 10px;margin-bottom:7px;}
+.stitle{font-weight:800;font-size:38px;color:#fff;line-height:1.15;}
+.sdesc{font-size:26px;color:var(--dim);line-height:1.3;margin-top:3px;}
+.connector{width:2px;height:36px;margin-left:35px;background:linear-gradient(180deg,rgba(99,102,241,.55),rgba(99,102,241,.1));opacity:0;animation:fi .4s ease forwards;}
+.c-cap{position:absolute;left:120px;right:120px;bottom:180px;font-size:36px;font-weight:600;color:var(--lav);line-height:1.3;opacity:0;transform:translateY(18px);animation:fu .7s cubic-bezier(.16,1,.3,1) 2.4s forwards;}
+@keyframes fi{to{opacity:1;}}@keyframes fu{to{opacity:1;transform:translateY(0);}}
+</style></head>
+<body><div id="root" data-composition-id="main" data-start="0" data-duration="20" data-width="1080" data-height="1920">
+<div class="blob blob1"></div><div class="blob blob2"></div><div class="blob blob3"></div>
+<div class="c-label"></div><h1 class="c-title"></h1>
+<div class="pipeline" id="pipeline"></div>
+<div class="c-cap"></div>
+</div>
+<script>(function(){
+var v=(window.__hyperframes&&typeof window.__hyperframes.getVariables==="function")?window.__hyperframes.getVariables():{};
+var set=function(s,t){var e=document.querySelector(s);if(e&&t!=null)e.textContent=String(t);};
+set(".c-label",v.label);set(".c-cap",v.caption);
+document.querySelector(".c-title").innerHTML=(v.title||"").replace(/\{([^}]+)\}/g,'<span class="hl">$1</span>');
+var steps=v.steps;if(typeof steps==="string"){try{steps=JSON.parse(steps);}catch(e){steps=[];}}
+if(!Array.isArray(steps)||!steps.length)steps=[
+  {icon:"🔗",title:"Nhập link",desc:"URL bài báo / chủ đề"},
+  {icon:"🤖",title:"AI phân tích",desc:"Tóm tắt & trích điểm chính"},
+  {icon:"📝",title:"Sinh kịch bản",desc:"Script tiếng Việt + voiceText"},
+  {icon:"🎨",title:"Dựng frame",desc:"Chọn template & điền slot"},
+  {icon:"🎬",title:"Ghép + lồng tiếng",desc:"TTS OmniVoice + render video"},
+  {icon:"📱",title:"Xuất video 9:16",desc:"Sẵn đăng TikTok / Reels"}
+];
+var pipeline=document.getElementById("pipeline");
+steps.forEach(function(step,i){
+  var isLast=i===steps.length-1;
+  var delay=(0.5+i*0.28).toFixed(2);
+  var row=document.createElement("div");row.className="step";row.style.animationDelay=delay+"s";
+  var node=document.createElement("div");node.className="node"+(isLast?" last":"");node.textContent=step.icon||"";
+  var content=document.createElement("div");content.className="content";
+  var num=document.createElement("div");num.className="num";num.textContent="BƯỚC "+(i+1);
+  var stitle=document.createElement("div");stitle.className="stitle";stitle.textContent=step.title||"";
+  var sdesc=document.createElement("div");sdesc.className="sdesc";sdesc.textContent=step.desc||"";
+  content.appendChild(num);content.appendChild(stitle);content.appendChild(sdesc);
+  row.appendChild(node);row.appendChild(content);pipeline.appendChild(row);
+  if(!isLast){
+    var conn=document.createElement("div");conn.className="connector";
+    conn.style.animationDelay=(parseFloat(delay)+0.22).toFixed(2)+"s";
+    pipeline.appendChild(conn);
+  }
+});
+window.__timelines=window.__timelines||{};window.__timelines["main"]={pause:function(){},seek:function(){},paused:function(){return true;}};
+})();</script></body></html>

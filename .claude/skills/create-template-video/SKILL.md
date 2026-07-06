@@ -176,6 +176,26 @@ Cấu trúc bắt buộc:
     - **Quy tắc dữ liệu cho frame chart-v2 và screenshot (Claude tự quyết):** (1) bài CÓ số liệu cụ thể → vẽ chart THẬT với số đó; (2) bài KHÔNG có số nhưng minh hoạ được khái niệm → chart minh hoạ (số tượng trưng + label mô tả); (3) không hợp trực quan hoá → KHÔNG dùng chart frame, chọn frame chữ. Nguồn GitHub → `frame-screenshot-scroll` (cuộn); nguồn báo → `frame-screenshot-news` (tĩnh + highlight). Số trong `inputs` giữ định dạng đẹp ("5.6", "45%"); `voiceText` vẫn viết số ra chữ theo quy tắc TTS bên dưới.
 - outro → `frame-logo-outro` (mặc định; slots: brand_name, tagline, primary_url). Dùng `frame-statement-outro` nếu muốn card đỏ nền giấy.
 
+### 🗣️ Quy tắc VĂN PHONG voiceText — DỄ HIỂU, ÍT JARGON (BẮT BUỘC)
+
+Người xem là **công chúng phổ thông trên MXH (TikTok/Reels)**, KHÔNG phải chuyên gia. `voiceText` phải nghe hiểu ngay lần đầu, không cần đọc lại.
+
+- **Hạn chế tối đa thuật ngữ chuyên ngành (jargon).** Nếu bài gốc có thuật ngữ khó:
+  (a) ưu tiên **DIỄN ĐẠT LẠI** bằng lời thường ngày, hoặc
+  (b) nếu buộc phải nhắc → **GIẢI THÍCH ngắn gọn ngay sau** bằng ngôn ngữ đời thường.
+- **Không bê nguyên tên sản phẩm/công cụ kỹ thuật ít người biết** (vd "RAPIDS-singlecell", "nvMolKit", "BioNeMo Agent Toolkit", "Parabricks"). Thay bằng mô tả **chức năng** dễ hiểu (vd "công cụ AI của NVIDIA giúp xử lý dữ liệu sinh học"). Chỉ giữ tên thương hiệu LỚN quen thuộc (NVIDIA, Anthropic, Claude, OpenAI, Google, Apple...).
+- **Ưu tiên câu ngắn, chủ-vị rõ ràng, giọng kể chuyện gần gũi.** Tránh câu học thuật dài dòng.
+- **Quy đổi khái niệm trừu tượng thành lợi ích/hình ảnh cụ thể** người xem thấy được (vd thay "gia tốc tác vụ hoá tin học 3000 lần" → "việc trước đây mất hàng giờ, giờ chỉ vài giây").
+- **Mỗi scene 1 ý duy nhất, nói như đang giải thích cho một người bạn không rành công nghệ.**
+- **Thông tin/số liệu vẫn phải CHÍNH XÁC theo bài gốc** — chỉ đổi CÁCH DIỄN ĐẠT cho dễ hiểu, KHÔNG bịa/sai lệch nội dung.
+
+**Ví dụ TRƯỚC/SAU:**
+> ❌ TRƯỚC (nhiều jargon): *"BioNeMo Agent Toolkit của NVIDIA đóng gói các hàm tính toán thành kỹ năng có thể gọi trực tiếp; Claude tự chọn công cụ, format dữ liệu, thực thi trên GPU."*
+>
+> ✅ SAU (dễ hiểu): *"NVIDIA tạo ra bộ công cụ AI giúp nhà khoa học chỉ cần nói bằng lời thường, máy tính sẽ tự hiểu và làm phần tính toán phức tạp thay họ."*
+
+---
+
 ### ⚠️ Quy tắc TTS tiếng Việt (BẮT BUỘC cho `voiceText`)
 
 `voiceText` được OmniVoice (TTS tiếng Việt) đọc to. **Số và ký
@@ -214,6 +234,7 @@ Bảng đầy đủ (áp dụng cho `voiceText`):
 - [ ] Có frame body nào lặp >1 lần không? (nếu có → chọn lại frame khác)
 - [ ] Có dùng nhầm `frame-chart-bars`/`frame-chart-donut`/`frame-chart-line` (LEGACY) không? (nếu có → đổi sang -v2)
 - [ ] `frame-vignelli` và `frame-pentagram-stat` mỗi loại ≤1 lần/video? (nếu không → chọn lại)
+- [ ] `voiceText` có thuật ngữ kỹ thuật nào người thường không hiểu ngay mà chưa được giải thích/thay thế không? (nếu có → viết lại đơn giản hơn theo quy tắc văn phong)
 
 - scenes[0]=hook, scene cuối=outro; mỗi templateId ∈ CATALOG; mỗi inputs đủ slot bắt buộc;
 - **Hook headline**: ≤4 từ ngắn, không dấu phẩy, không số. Hook `voiceText` ≤18 từ.

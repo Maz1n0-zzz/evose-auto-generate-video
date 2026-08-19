@@ -60,9 +60,16 @@ animation:barGrow .9s var(--ease) forwards;}
 .val{margin-bottom:14px;
 font-family:var(--font-mono);font-weight:700;font-size:var(--val-fs);color:var(--ink);
 opacity:0;animation:fadeUp .5s var(--ease) forwards;}
-.lbl{position:absolute;bottom:calc(var(--axis-gap) * -1 - var(--lbl-off));
-font-size:var(--lbl-fs);font-weight:700;color:var(--ink-soft);text-align:center;
-white-space:nowrap;opacity:0;animation:fadeIn .5s var(--ease) forwards;}
+/* KHÔNG dùng white-space:nowrap: nhãn dài hơn bề ngang cột sẽ tràn sang cột
+   bên cạnh và đè chồng lên nhau ("GPT-5.6 Luna Claude Opus 5..."). Cho xuống
+   dòng trong đúng bề ngang cột. */
+/* Neo từ ĐƯỜNG TRỤC thả xuống (top:100% của .col chính là mép trục), không
+   neo bằng bottom: neo bottom thì nhãn càng nhiều dòng càng thò ngược lên và
+   đè vào trục. Cách này giữ khoảng cách dưới trục cố định với mọi số dòng. */
+.lbl{position:absolute;top:100%;margin-top:var(--lbl-off);
+width:100%;font-size:var(--lbl-fs);font-weight:700;color:var(--ink-soft);
+text-align:center;line-height:1.16;overflow-wrap:break-word;
+opacity:0;animation:fadeIn .5s var(--ease) forwards;}
 .lbl.on{color:var(--ink);}
 
 @keyframes fadeIn{to{opacity:1;}}
@@ -81,12 +88,12 @@ var GEO={
                  "--title-y":"258px","--title-fs":"72px","--cap-y":"180px","--cap-fs":"38px",
                  "--chart-top":"620px","--chart-h":"900px","--bar-gap":"40px","--bar-max":"170px",
                  "--axis-gap":"0px","--val-fs":"42px",
-                 "--lbl-off":"56px","--lbl-fs":"32px"}},
+                 "--lbl-off":"20px","--lbl-fs":"32px"}},
   landscape:{css:{"--pad-x":"140px","--eyebrow-y":"90px","--eyebrow-fs":"22px",
                   "--title-y":"132px","--title-fs":"56px","--cap-y":"70px","--cap-fs":"30px",
                   "--chart-top":"300px","--chart-h":"560px","--bar-gap":"46px","--bar-max":"180px",
                   "--axis-gap":"0px","--val-fs":"34px",
-                  "--lbl-off":"46px","--lbl-fs":"26px"}}
+                  "--lbl-off":"16px","--lbl-fs":"26px"}}
 };
 var W=+root.getAttribute("data-width")||1080,H=+root.getAttribute("data-height")||1920;
 var G=GEO[W>=H?"landscape":"portrait"];

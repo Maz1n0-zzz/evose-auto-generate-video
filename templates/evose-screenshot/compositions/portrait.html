@@ -149,13 +149,10 @@ if(wantScroll&&v.image){
      xem xong cảnh mà ảnh mới cuộn được một phần ba. Truyền `duration` bằng
      đúng độ dài cảnh nếu muốn khớp chính xác. */
   var durSec=8;
-  try{
-    var hf=window.__hyperframes;
-    if(hf&&typeof hf.getDurationInSeconds==="function"){
-      var hd=hf.getDurationInSeconds();
-      if(hd>0&&hd<14)durSec=hd;   /* chỉ tin khi có vẻ là độ dài cảnh thật */
-    }
-  }catch(e){}
+  /* Pipeline bơm sceneDurationSec = độ dài cảnh THẬT (đã biết từ bước sinh
+     lời đọc), nên cuộn khớp đúng cảnh. Chạy template ngoài pipeline thì
+     không có, rơi về 8s. `duration` do tác giả điền luôn thắng. */
+  if(v.sceneDurationSec)durSec=parseFloat(v.sceneDurationSec)||durSec;
   if(v.duration)durSec=parseFloat(v.duration)||durSec;
 
   var delay=1.1;

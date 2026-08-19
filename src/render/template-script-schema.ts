@@ -47,6 +47,17 @@ export const TemplateScriptSchema = z.object({
   }),
   /** Output aspect for every scene (templates render a matching composition). */
   aspect: z.enum(["9:16", "16:9", "1:1"]).default("9:16"),
+  /**
+   * Lớp hoàn thiện thương hiệu.
+   *
+   * `overlay` mặc định BẬT để mọi script cũ (bộ `frame-*`, vốn dựa vào overlay
+   * để có nhận diện trên từng cảnh) render lại vẫn ra đúng kết quả như trước.
+   * Bộ `evose-*` nền sáng thì đặt `false`: nhận diện chỉ nằm ở cảnh mở và cảnh
+   * kết, giống video mẫu. Nhạc nền không chịu ảnh hưởng của cờ này.
+   */
+  brand: z
+    .object({ overlay: z.boolean().default(true) })
+    .default({ overlay: true }),
   scenes: z
     .array(TemplateScene)
     .min(3)

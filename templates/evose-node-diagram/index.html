@@ -1,0 +1,275 @@
+<!-- SINH TỰ ĐỘNG bởi scripts/gen-aspect.py — ĐỪNG SỬA TRỰC TIẾP.
+     Sửa compositions/portrait.html rồi chạy lại script. -->
+<!doctype html><html lang="vi"><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=1920, height=1080"/><title>Evose Node Diagram</title>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"/>
+<style>
+/* ------------------------------------------------------------------
+   EVOSE NODE DIAGRAM — sơ đồ chip nối nét chấm, nền dot-grid sáng.
+   Token gốc: templates/EVOSE-LIGHT-TOKENS.css (sửa ở đó trước).
+
+   File này DÙNG CHUNG cho cả 9:16 và 16:9. Mọi hằng số hình học nằm
+   trong GEO ở cuối file, JS bơm vào CSS variable theo kích thước canvas
+   thật (đọc từ data-width/data-height). Nhờ vậy index.html chỉ khác
+   portrait.html đúng 3 dòng khung — xem scripts/gen-aspect.py.
+   ------------------------------------------------------------------ */
+:root{--paper:#f2f2f0;--dot:#d6d6d1;--ink:#0a0a0a;--ink-line:rgba(10,10,10,.42);--ink-soft:#6b7280;
+--chip-2:#e7e7e3;--chip-2-line:#d2d2cc;--ok:#22c55e;--no:#ef4444;
+--font:'Hanken Grotesk',-apple-system,'Segoe UI',sans-serif;--font-mono:'JetBrains Mono',ui-monospace,monospace;
+--radius:14px;--shadow:0 6px 18px rgba(10,10,10,.14);--line-w:3px;--ease:cubic-bezier(.16,1,.3,1);
+--dash:repeating-linear-gradient(to bottom,var(--ink-line) 0 6px,transparent 6px 16px);
+--dash-x:repeating-linear-gradient(to right,var(--ink-line) 0 6px,transparent 6px 16px);}
+*{margin:0;padding:0;box-sizing:border-box;}
+
+/* ↓↓↓ 3 dòng khung — chỗ DUY NHẤT khác nhau giữa 9:16 và 16:9 ↓↓↓ */
+html,body{width:1920px;height:1080px;}
+#root{width:1920px;height:1080px;}
+/* ↑↑↑ (dòng thứ 3 là data-width/data-height trên #root dưới <body>) */
+
+html,body{overflow:hidden;font-family:var(--font);color:var(--ink);}
+#root{position:relative;
+background-color:var(--paper);
+background-image:radial-gradient(circle,var(--dot) 1.35px,transparent 1.35px);
+background-size:26px 26px;}
+
+.eyebrow{position:absolute;left:var(--eyebrow-x);top:var(--eyebrow-y);
+font-family:var(--font-mono);font-weight:500;font-size:var(--eyebrow-fs);
+letter-spacing:5px;text-transform:uppercase;color:var(--ink-soft);
+opacity:0;animation:fadeIn .5s var(--ease) forwards;}
+
+/* Sân khấu canh giữa 2 trục; chừa đáy cho mascot. */
+.stage{position:absolute;left:0;right:0;top:var(--stage-top);bottom:var(--stage-bottom);
+display:flex;flex-direction:column;align-items:center;justify-content:center;}
+
+/* --- chip --- */
+.chip{display:inline-flex;align-items:center;justify-content:center;text-align:center;
+padding:var(--chip-pad);border-radius:var(--radius);font-weight:800;line-height:1.12;
+text-transform:uppercase;letter-spacing:.3px;box-shadow:var(--shadow);
+opacity:0;transform:translateY(26px) scale(.94);
+animation:nodeIn .55s var(--ease) forwards;}
+.chip.ink{background:var(--ink);color:#fff;}
+.chip.mute{background:var(--chip-2);color:var(--ink);border:2px solid var(--chip-2-line);box-shadow:none;}
+
+/* --- đường nối nét chấm ---
+   Dùng repeating-linear-gradient thay `border: dashed` vì độ dài gạch của
+   `dashed` do trình duyệt quyết định (bằng border-width) — dày đặc hơn hẳn
+   reference. Gradient cho phép chốt chính xác: gạch 6px, hở 10px. */
+.link{width:var(--line-w);background-image:var(--dash);
+clip-path:inset(0 0 100% 0);animation:drawDown .34s ease-out forwards;}
+/* Khoảng trống KHÔNG vẽ đường — dùng giữa 2 khối là lựa chọn thay thế nhau
+   (sai / đúng), không phải 2 bước nối tiếp. Reference cũng để trống. */
+.gap{width:1px;}
+
+/* --- ngoặc rẽ nhánh --- */
+.bracket{position:relative;height:var(--bracket-h);}
+.bracket i{position:absolute;display:block;}
+.b-stub,.b-l,.b-r{width:var(--line-w);background-image:var(--dash);
+clip-path:inset(0 0 100% 0);animation:drawDown .28s ease-out forwards;}
+.b-stub{left:50%;margin-left:calc(var(--line-w) / -2);top:0;height:var(--b-stub-h);}
+.b-bar{left:0;right:0;top:var(--b-stub-h);height:var(--line-w);background-image:var(--dash-x);
+clip-path:inset(0 50% 0 50%);animation:drawWide .38s ease-out forwards;}
+.b-l{left:0;top:var(--b-stub-h);height:var(--b-drop-h);}
+.b-r{right:0;top:var(--b-stub-h);height:var(--b-drop-h);}
+
+/* --- hàng 2 nhánh: slot + mid + slot = đúng bề ngang khung --- */
+.row{display:flex;align-items:center;justify-content:center;width:100%;}
+.slot{width:var(--slot-w);display:flex;align-items:center;justify-content:center;}
+.mid{width:var(--mid-w);display:flex;align-items:center;justify-content:center;}
+.verdict{font-size:var(--verdict-fs);font-weight:900;line-height:1;color:var(--ink);
+opacity:0;transform:scale(.5);animation:popIn .5s var(--ease) forwards;}
+
+/* --- mũi tên đặc (layout stack) --- */
+.arrow{width:var(--arrow-w);height:var(--arrow-h);position:relative;
+opacity:0;animation:fadeIn .3s ease-out forwards;}
+.arrow::before{content:"";position:absolute;left:50%;top:0;width:0;height:var(--arrow-stem);
+margin-left:calc(var(--arrow-stem-w) / -2);border-left:var(--arrow-stem-w) solid var(--ink);}
+.arrow::after{content:"";position:absolute;left:50%;bottom:0;
+margin-left:calc(var(--arrow-head-w) * -1);
+border-left:var(--arrow-head-w) solid transparent;
+border-right:var(--arrow-head-w) solid transparent;
+border-top:var(--arrow-head-h) solid var(--ink);}
+
+/* --- badge ✅ / ❌ --- */
+.badge{width:var(--badge);height:var(--badge);display:flex;align-items:center;justify-content:center;
+opacity:0;transform:scale(.4);animation:popIn .5s var(--ease) forwards;}
+.badge.no{background:var(--no);border-radius:var(--badge-radius);box-shadow:0 10px 24px rgba(239,68,68,.32);}
+.badge.ok{background:var(--ok);border-radius:50%;box-shadow:0 10px 24px rgba(34,197,94,.32);}
+.badge svg{width:var(--badge-svg);height:var(--badge-svg);stroke:#fff;stroke-width:9;fill:none;
+stroke-linecap:round;stroke-linejoin:round;}
+
+.block{display:flex;flex-direction:column;align-items:center;}
+
+/* --- mascot (PNG alpha từ evose-brand-kit/mascot/) --- */
+.mascot{position:absolute;bottom:0;width:var(--mascot-w);height:var(--mascot-h);
+object-fit:contain;object-position:bottom center;pointer-events:none;
+opacity:0;transform:translateY(70px);animation:mascotIn .6s var(--ease) forwards;}
+.mascot.right{right:40px;}
+.mascot.left{left:40px;}
+
+@keyframes fadeIn{to{opacity:1;}}
+@keyframes nodeIn{to{opacity:1;transform:translateY(0) scale(1);}}
+@keyframes popIn{to{opacity:1;transform:scale(1);}}
+@keyframes mascotIn{to{opacity:1;transform:translateY(0);}}
+@keyframes drawDown{to{clip-path:inset(0 0 0 0);}}
+@keyframes drawWide{to{clip-path:inset(0 0 0 0);}}
+</style></head>
+<body><div id="root" data-composition-id="main" data-start="0" data-duration="20" data-width="1920" data-height="1080">
+<div class="eyebrow"></div><div class="stage"></div>
+</div>
+<script>(function(){
+var v=(window.__hyperframes&&typeof window.__hyperframes.getVariables==="function")?window.__hyperframes.getVariables():{};
+var root=document.getElementById("root");
+
+/* ---- hình học theo tỉ lệ khung ----
+   `css` bơm thẳng vào CSS variable; `js` dùng trong đoạn dựng bên dưới.
+   Khung dọc thoáng theo trục đứng; khung ngang phải nén lại. */
+var GEO={
+  portrait:{
+    css:{"--stage-top":"180px","--stage-bottom":"300px","--eyebrow-x":"90px","--eyebrow-y":"150px",
+         "--eyebrow-fs":"26px","--chip-pad":"24px 42px","--slot-w":"480px","--mid-w":"120px",
+         "--verdict-fs":"130px","--bracket-h":"260px","--b-stub-h":"110px","--b-drop-h":"150px",
+         "--badge":"170px","--badge-svg":"92px","--badge-radius":"42px",
+         "--arrow-w":"46px","--arrow-h":"72px","--arrow-stem":"48px","--arrow-stem-w":"5px",
+         "--arrow-head-w":"14px","--arrow-head-h":"22px",
+         "--mascot-w":"520px","--mascot-h":"640px"},
+    js:{linkH:130,blockGap:150,badgeGap:46,bracketW:600,stemMaxW:640,slotMaxW:460,
+        mascotW:520,mascotH:640,fsScale:1}
+  },
+  landscape:{
+    css:{"--stage-top":"120px","--stage-bottom":"130px","--eyebrow-x":"110px","--eyebrow-y":"64px",
+         "--eyebrow-fs":"24px","--chip-pad":"18px 34px","--slot-w":"560px","--mid-w":"180px",
+         "--verdict-fs":"92px","--bracket-h":"140px","--b-stub-h":"60px","--b-drop-h":"80px",
+         "--badge":"110px","--badge-svg":"60px","--badge-radius":"28px",
+         "--arrow-w":"38px","--arrow-h":"52px","--arrow-stem":"34px","--arrow-stem-w":"4px",
+         "--arrow-head-w":"11px","--arrow-head-h":"16px",
+         "--mascot-w":"400px","--mascot-h":"520px"},
+    js:{linkH:70,blockGap:80,badgeGap:28,bracketW:740,stemMaxW:900,slotMaxW:540,
+        mascotW:400,mascotH:520,fsScale:.86}
+  }
+};
+var W=+root.getAttribute("data-width")||1080,H=+root.getAttribute("data-height")||1920;
+var G=GEO[W>=H?"landscape":"portrait"];
+for(var k in G.css)root.style.setProperty(k,G.css[k]);
+var CFG=G.js;
+
+var STEP=0.30,d=0.20;
+function next(){var t=d;d+=STEP;return t.toFixed(2)+"s";}
+function arr(x){if(typeof x==="string"){try{x=JSON.parse(x);}catch(e){return [];}}return Array.isArray(x)?x:[];}
+function el(cls,tag){var e=document.createElement(tag||"div");if(cls)e.className=cls;return e;}
+/* Chữ dài thì thu nhỏ để chip không tràn slot. */
+function fs(t){var n=String(t||"").length,b=n<=10?54:n<=16?44:n<=24?38:32;
+  return Math.round(b*(CFG.fsScale||1));}
+
+/* `dly` truyền vào để 2 phần tử đối xứng (trái/phải cùng hàng) hiện CÙNG LÚC —
+   reference dựng 2 nhánh song song chứ không so le. Bỏ trống thì lấy nhịp kế. */
+function chip(text,tone,maxW,dly){
+  var c=el("chip "+(tone==="mute"?"mute":"ink"));
+  c.textContent=String(text==null?"":text);
+  c.style.fontSize=fs(text)+"px";
+  c.style.maxWidth=(maxW||CFG.slotMaxW)+"px";
+  c.style.animationDelay=dly||next();
+  return c;
+}
+function link(h,dly){
+  var l=el("link");l.style.height=(h||CFG.linkH)+"px";l.style.animationDelay=dly||next();return l;
+}
+function gap(h){var g=el("gap");g.style.height=(h||CFG.blockGap)+"px";return g;}
+function arrow(){var a=el("arrow");a.style.animationDelay=next();return a;}
+function badge(kind){
+  var b=el("badge "+(kind==="ok"?"ok":"no"));
+  b.innerHTML=kind==="ok"
+    ? '<svg viewBox="0 0 100 100"><path d="M22 52 L42 72 L78 30"/></svg>'
+    : '<svg viewBox="0 0 100 100"><path d="M28 28 L72 72 M72 28 L28 72"/></svg>';
+  b.style.animationDelay=next();
+  return b;
+}
+
+var stage=document.querySelector(".stage");
+if(v.label){var eb=document.querySelector(".eyebrow");
+  eb.textContent=String(v.label);eb.style.animationDelay=next();}
+
+function textOf(s){return typeof s==="string"?s:(s&&s.text)||"";}
+var stem=arr(v.stem).map(textOf);
+var branches=arr(v.branches);
+/* Không truyền gì → dựng lại sơ đồ hook của video reference. */
+if(!stem.length&&!branches.length){
+  stem=["Cùng model","Cùng việc"];
+  branches=[{tone:"ink",nodes:["System prompt","Kết quả"]},
+            {tone:"mute",nodes:["System prompt","Kết quả"]}];
+  if(v.verdict==null)v.verdict="≠";
+}
+var layout=v.layout||(stem.length?"split":"stack");
+function nodesOf(b){return arr(b&&b.nodes).map(textOf);}
+
+if(layout==="split"){
+  stem.forEach(function(t,i){
+    if(i)stage.appendChild(link(CFG.linkH));
+    stage.appendChild(chip(t,"ink",CFG.stemMaxW));
+  });
+  if(branches.length){
+    var br=el("bracket");br.style.width=CFG.bracketW+"px";
+    /* stub → thanh ngang → hai nhánh rơi xuống CÙNG LÚC. */
+    var dStub=next(),dBar=next(),dDrop=next();
+    [["b-stub",dStub],["b-bar",dBar],["b-l",dDrop],["b-r",dDrop]].forEach(function(k){
+      var p=el(k[0],"i");p.style.animationDelay=k[1];br.appendChild(p);
+    });
+    stage.appendChild(br);
+    /* Số hàng = nhánh dài nhất; nhánh ngắn hơn để trống ô. */
+    var depth=branches.reduce(function(m,b){return Math.max(m,nodesOf(b).length);},0);
+    for(var r=0;r<depth;r++){
+      /* Một nhịp cho CẢ hàng — trái/phải hiện đồng thời. */
+      if(r){
+        var dLink=next(),lr=el("row");
+        branches.forEach(function(b,bi){
+          var s=el("slot");
+          if(nodesOf(b)[r])s.appendChild(link(CFG.linkH,dLink));
+          lr.appendChild(s);
+          if(bi===0)lr.appendChild(el("mid"));
+        });
+        stage.appendChild(lr);
+      }
+      var dNode=next(),row=el("row");
+      branches.forEach(function(b,bi){
+        var s=el("slot"),t=nodesOf(b)[r];
+        if(t)s.appendChild(chip(t,b.tone==="mute"?"mute":"ink",CFG.slotMaxW,dNode));
+        row.appendChild(s);
+        if(bi===0){
+          var m=el("mid");
+          if(r===depth-1&&v.verdict){
+            var vd=el("verdict");vd.textContent=String(v.verdict);vd.style.animationDelay=next();
+            m.appendChild(vd);
+          }
+          row.appendChild(m);
+        }
+      });
+      stage.appendChild(row);
+    }
+  }
+}else{
+  branches.forEach(function(b,bi){
+    if(bi)stage.appendChild(gap(CFG.blockGap));
+    var blk=el("block");
+    if(b.badge){blk.appendChild(badge(b.badge));blk.appendChild(gap(CFG.badgeGap));}
+    nodesOf(b).forEach(function(t,i){
+      if(i)blk.appendChild(arrow());
+      blk.appendChild(chip(t,b.tone==="mute"?"mute":"ink",CFG.stemMaxW));
+    });
+    stage.appendChild(blk);
+  });
+}
+
+if(v.mascot){
+  var m=document.createElement("img");
+  m.className="mascot "+(v.mascot_side==="left"?"left":"right");
+  m.src=String(v.mascot);
+  var sc=parseFloat(v.mascot_scale);
+  if(sc>0){m.style.width=(CFG.mascotW*sc)+"px";m.style.height=(CFG.mascotH*sc)+"px";}
+  m.style.animationDelay=(d+0.25).toFixed(2)+"s";
+  root.appendChild(m);
+}
+
+/* HyperFrames 0.6.94 thoát code 1 ("zero duration") nếu frame thuần CSS không
+   khai báo timeline. Stub này đủ để nó nhận data-duration. */
+window.__timelines=window.__timelines||{};
+window.__timelines["main"]={pause:function(){},seek:function(){},paused:function(){return true;}};
+})();</script></body></html>

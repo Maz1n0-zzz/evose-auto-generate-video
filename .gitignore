@@ -17,5 +17,10 @@ SFX/
 assets/screenshot.png
 assets/screenshot-*.png
 
+# Ảnh do template-composer copy vào template lúc render — bản sao của
+# evose-brand-kit/mascot/*, không phải nguồn. Template evose-* nào cần asset
+# RIÊNG thì thêm ngoại lệ (!templates/evose-x/assets/tep.svg).
+templates/evose-*/assets/
+
 # Claude Code local settings (may contain secrets)
 .claude/settings.local.json

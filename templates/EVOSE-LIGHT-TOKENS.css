@@ -1,0 +1,56 @@
+/* ============================================================
+   EVOSE LIGHT — design tokens (nguồn chân lý cho bộ evose-*)
+   ============================================================
+
+   HyperFrames phục vụ MỖI template qua một HTTP server root ở
+   thư mục template đó, nên KHÔNG thể @import file này từ template.
+   File này là BẢN GỐC để tra cứu — copy khối :root vào từng
+   template. Sửa token ở đây trước, rồi mới đồng bộ xuống.
+
+   Rút ra từ video reference của designer (TikTok @evose.ai_vn).
+   Nguyên tắc: không gradient, không glow, không dark mode.
+   Màu accent CHỈ dùng cho badge/annotation, không dùng làm nền.
+   ============================================================ */
+
+:root {
+  /* --- nền --- */
+  --paper: #f2f2f0;          /* trắng ngà, nền chính */
+  --dot: #d6d6d1;            /* chấm lưới */
+  --dot-size: 26px;          /* bước lưới */
+  --dot-r: 1.6px;            /* bán kính chấm */
+
+  /* --- mực --- */
+  --ink: #0f1729;            /* navy-đen: chip chính, chữ */
+  --ink-line: rgba(15, 23, 41, 0.45);  /* đường nối nét đứt */
+  --ink-soft: #6b7280;       /* chữ phụ, eyebrow */
+
+  /* --- chip phụ (vế đối chiếu) --- */
+  --chip-2: #e7e7e3;
+  --chip-2-line: #d2d2cc;
+
+  /* --- accent: CHỈ cho badge + annotation --- */
+  --ok: #22c55e;             /* ✅ đúng */
+  --no: #ef4444;             /* ❌ sai, khoanh tay */
+  --mark: #3b82f6;           /* highlight chữ */
+
+  /* --- chữ --- */
+  --font: 'Hanken Grotesk', -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  /* Cả hai font đều có subset `vietnamese` trên Google Fonts — đã kiểm. */
+
+  /* --- hình khối --- */
+  --radius: 14px;
+  --shadow: 0 6px 18px rgba(15, 23, 41, 0.16);
+  --line-w: 3px;             /* độ dày đường nối */
+
+  /* --- nhịp animation --- */
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --step: 0.30s;             /* giãn cách giữa 2 phần tử liên tiếp */
+}
+
+/* Nền dot-grid dùng chung cho mọi template evose-* */
+.evose-paper {
+  background-color: var(--paper);
+  background-image: radial-gradient(circle, var(--dot) var(--dot-r), transparent var(--dot-r));
+  background-size: var(--dot-size) var(--dot-size);
+}

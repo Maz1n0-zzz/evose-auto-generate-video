@@ -1,46 +1,49 @@
 ---
 name: create-template-video
-description: Tạo video tin tức 9:16 bằng TEMPLATE HyperFrames chuyên nghiệp (poster editorial) từ URL bài báo hoặc file .txt tiếng Việt. Trigger khi user muốn tạo video tin tức, làm short news, video kiểu template/poster đẹp, "tạo video template", "làm bản tin kiểu poster", "video chuyên nghiệp". Output: video.mp4 + voice.mp3 + script.txt cho CapCut.
+description: Tạo video 9:16 theo bộ template Evose Light (nền giấy sáng, chip đen, mascot) từ URL bài báo hoặc file .txt tiếng Việt. Trigger khi user muốn tạo video tin tức, làm short news, video kiểu template/poster đẹp, "tạo video template", "làm bản tin kiểu poster", "video chuyên nghiệp". Output: video.mp4 + voice.mp3 + script.txt cho CapCut.
 ---
 
 # Create Template Video Skill
 
-## 🎯 EVOSE BRAND v3 (BẮT BUỘC TUÂN THỦ)
+## 🎯 EVOSE BRAND — BỘ LIGHT (BẮT BUỘC)
 
-**LƯU Ý CỰC QUAN TRỌNG: Repo này dùng cho thương hiệu Evose.**
+Repo có hai bộ template. **Luôn dùng bộ `evose-*` (Evose Light)** cho video mới.
+Bộ `frame-*` cũ chỉ giữ để render lại video đã làm trước đây — không chọn nó.
 
-### Header + Footer: KHÔNG ĐIỀN
-Repo có **OVERLAY LAYER thống nhất** (header "Evose.ai" + footer social icons) tự động đè
-lên mọi scene. Vì vậy:
-- ❌ KHÔNG điền `footer_left`, `footer_right`, `side_left`, `side_right`, `caption`, `date`
-  → để chuỗi rỗng `""` hoặc bỏ field
-- ❌ KHÔNG điền filler text như "ISC 2026", "Hamburg", "VFX/GLITCH", "Edge workstation"
-- ✅ Field hiển thị nội dung chính (headline, subtitle, label, number, items) vẫn điền bình thường
+### Bắt buộc trong script.json
 
-### Brand Fields (chỉ những fields KHÔNG bị overlay che)
-| Field | Giá trị |
+```json
+"aspect": "9:16",
+"brand": { "overlay": false }
+```
+
+`brand.overlay: false` là **bắt buộc**. Bộ cũ dựa vào lớp overlay header/footer
+để có nhận diện trên từng cảnh; bộ Light thì không — nhận diện chỉ nằm ở cảnh mở
+và cảnh kết. Quên đặt `false` thì overlay của bộ cũ đè lên và phá bố cục.
+
+### Nhận diện
+
+| Chỗ | Cách làm |
 |---|---|
+| Cảnh mở | `evose-logo-card`, để trống `tagline` và `url` |
+| Cảnh kết | `evose-logo-card` với `tagline: "Begin a new era"` và `url: "https://evose.ai/"` |
+| Giữa video | **Không đặt logo, không đặt footer.** Mascot đã mang monogram Evose trên ngực |
 | `metadata.channel` | `"EVOSE"` |
-| `inputs.kicker` (hook only, ở khu nội dung chính nếu có) | `"EVOSE"` hoặc bỏ |
-| `inputs.brand_name` (outro) | `"EVOSE"` |
-| `inputs.tagline` (outro) | `"Truy cập evose.ai để tạo ra trợ lý AI của riêng bạn."` |
-| `inputs.primary_url` (outro) | `"app.evose.ai"` |
 
 ### Outro CTA — BẮT BUỘC
-`voiceText` scene cuối (outro) **PHẢI** kết thúc bằng:
+
+`voiceText` cảnh cuối **PHẢI** kết thúc bằng:
 > **"Truy cập evose.ai để tạo ra trợ lý AI của riêng bạn."**
 
-Có thể prefix "Cảm ơn bạn đã theo dõi." nhưng câu CTA Evose phải là câu cuối.
+Được phép thêm "Cảm ơn bạn đã theo dõi." phía trước, nhưng câu CTA phải là câu cuối.
 
-### Safe Zone (bắt buộc)
-Vùng nội dung chỉ dùng từ **left: 120px → right: 960px** (rộng 840px) để chừa safe zone cho TikTok/Reels.
-Top từ **280px** (tránh overlay header). Bottom đến **1600px** (tránh overlay footer).
+### Cấm trong voiceText và inputs
 
-### Cấm tuyệt đối trong voiceText và inputs:
-- ❌ "Evose", "evose.ai", "Senior AI Engineer", "Bản tin AI"
-- ❌ "ISC 2026", "Hamburg", "Edge workstation", "VFX/GLITCH", "CYAN × MAGENTA", "Signal CH-04"
-- ❌ Ngày kiểu "12 · 06 · 2026" (fake date)
-- ❌ Mọi URL chứa "vercel.app", "udemy", "aicoding"
+- ❌ Ngày giả kiểu "12 · 06 · 2026"
+- ❌ Chữ độn vô nghĩa cho đủ chỗ ("ISC 2026", "Hamburg", "Signal CH-04"…)
+- ❌ URL chứa "vercel.app", "udemy", "aicoding"
+- ❌ Slot nào không có nội dung thật thì **bỏ hẳn**, đừng bịa chữ cho đầy —
+  template tự co bố cục lại khi thiếu slot
 
 ---
 
@@ -71,44 +74,42 @@ Phát hiện input rồi lấy nội dung:
 - **File `.txt`** → `Read`; title = dòng đầu (≤80 ký tự), content = phần còn lại, ogImage = `null`, domain = `"local"`.
 - slug = ASCII không dấu (bỏ dấu tiếng Việt, đ→d), ≤40 ký tự; timestamp = `YYYYMMDD-HHmm`; `outputDir = output/<slug>-<timestamp>/`; `mkdir -p`.
 
-### Step 4: Đọc danh mục template
+### Step 4: Chọn template
 
-Đọc `templates/CATALOG.md` để biết template nào có + slot inputs của mỗi cái.
-**Chỉ dùng templateId có trong CATALOG.** Hiện có:
+Đọc `templates/CATALOG.md` để biết slot đầy đủ. **Chỉ dùng `templateId` bắt đầu
+bằng `evose-`.** Danh sách đủ 12 cái:
 
-**HOOK (chỉ 1):**
-- `frame-liquid-bg-hero` — hero aurora (blob động + headline + CTA). LUÔN dùng cho scene hook.
+**MỞ ĐẦU**
+- `evose-logo-card` — cảnh mở (bỏ trống tagline/url). Lời đọc ngắn, 1 câu.
 
-**BODY (Claude tự chọn theo nội dung — xem Step 5 + ràng buộc đa dạng cứng):**
+**HOOK (cảnh 2, ngay sau logo)**
+- `evose-node-diagram` — hook dạng **đối chiếu** ("cùng X, khác Y → kết quả khác"). Ưu tiên dùng.
+- `evose-title-card` — hook dạng **tuyên bố**, chữ lớn viền dày 2–4 dòng ngắn.
 
-**🟢 POOL ƯU TIÊN — hiện đại/animated (LUÔN chọn từ đây trước):**
-- `frame-chart-bars-v2` — **BIỂU ĐỒ CỘT nền blob động** — so sánh 2–6 mục bằng số. Dùng cho mọi scene so sánh số liệu dạng bar.
-- `frame-chart-donut-v2` — **BIỂU ĐỒ VÒNG / % nền blob động** — 1 tỉ lệ phần trăm nổi bật. Cũng fix lỗi render v1.
-- `frame-chart-line-v2` — **BIỂU ĐỒ ĐƯỜNG nền blob động** — xu hướng theo thời gian (3+ điểm).
-- `frame-pipeline-flow` — **SƠ ĐỒ QUY TRÌNH** 3–6 bước dọc. Dùng khi scene giải thích pipeline/workflow.
-- `frame-aicoding-list` — **DANH SÁCH** 2–5 mục (icon + tag mức độ), nền tối gradient. Dùng khi scene là list/xếp hạng.
-- `frame-aicoding-comparison` — **SO SÁNH 2 thứ** (cũ vs mới, A vs B) — 2 card + badge WIN + stat.
-- `frame-build-minimal` — câu chốt mạnh (1 từ lớn IN ĐẬM, glow cam, reveal từng chữ).
-- `frame-glitch-title` — cyberpunk glitch RGB-split — hợp tin sốc/breaking/công nghệ.
-- `frame-screenshot-scroll` — **NHÚNG ẢNH CHỤP TRANG WEB + CUỘN** (GitHub repo / trang dài).
-- `frame-screenshot-news` — **NHÚNG ẢNH CHỤP BÀI BÁO + HIGHLIGHT tiêu đề** (trích nguồn).
-- `frame-bold-poster` — tuyên bố mạnh nhiều dòng + figure số lớn.
-- `frame-creative-voltage` — câu sáng tạo/khẩu hiệu, split xanh điện + chữ viết tay.
+**THÂN BÀI — chọn theo NỘI DUNG cảnh, không chọn cho đẹp**
 
-**🟡 PHỤ — dùng TỐI ĐA 1 lần/video, chỉ khi không frame 🟢 nào hợp hơn:**
-- `frame-vignelli` — 1 con số nền tối charcoal + đỏ. Chỉ khi con số không phù hợp donut-v2/bars-v2.
-- `frame-pentagram-stat` — 1 con số nền tối neon cam/cyan (Swiss grid). Chỉ khi không hợp donut-v2/bars-v2.
+| Cảnh nói về | Dùng |
+|---|---|
+| So sánh hai đường đi / hai lựa chọn | `evose-node-diagram` |
+| Danh sách, xếp hạng, ưu–nhược, checklist (2–5 mục) | `evose-list` |
+| Một tỉ lệ phần trăm | `evose-chart-donut` |
+| So sánh 2–6 mục có số liệu | `evose-chart-bars` |
+| Xu hướng theo thời gian (3+ mốc) | `evose-chart-line` |
+| Một con số lớn **không phải phần trăm** | `evose-stat-hero` |
+| Quy trình 3–6 bước | `evose-pipeline` |
+| Công bố một phần / một bước | `evose-chapter-card` |
+| Ảnh chụp màn hình mà người xem cần ĐỌC | `evose-screenshot` |
+| Câu chốt mạnh, kết luận | `evose-statement` |
 
-**🔴 LEGACY — TUYỆT ĐỐI KHÔNG DÙNG (thay bằng bản -v2):**
-- ~~`frame-chart-bars`~~ — LEGACY. Dùng `frame-chart-bars-v2`.
-- ~~`frame-chart-donut`~~ — LEGACY. Dùng `frame-chart-donut-v2`.
-- ~~`frame-chart-line`~~ — LEGACY. Dùng `frame-chart-line-v2`.
+**KẾT**
+- `evose-logo-card` với `tagline` + `url`.
 
-**OUTRO:**
-- `frame-logo-outro` — mặc định (logo glow + tên + tagline + url).
-- `frame-statement-outro` — thay thế (card đỏ nền giấy).
-- `frame-logo-outro` — **outro mặc định** / end-card thương hiệu (logo glow + tên + tagline + url).
-- `frame-statement-outro` — outro thay thế (card đỏ trên nền giấy).
+**Quy tắc chọn**
+- Không lặp một template quá 2 lần trong cùng video (`evose-statement` và
+  `evose-chapter-card` được phép, vì chúng đánh dấu nhịp).
+- Hai cảnh liền nhau **không được** dùng cùng một template.
+- Cảnh có số liệu → dùng đúng loại chart hợp với dạng số, đừng ép mọi con số vào donut.
+- Bài không có số liệu thật thì **đừng bịa số** để dùng chart — chọn template chữ.
 
 ### Step 5: Sinh script.json (template mode)
 
@@ -119,12 +120,8 @@ Cấu trúc bắt buộc:
     "version": "1.0",
     "renderer": "hyperframes",
     "aspect": "9:16",
-    "metadata": {
-        "title": "...",
-        "source": { "url": "...", "domain": "...", "image": null },
-        "channel": "EVOSE"
-    },
-    "voice": { "provider": "omnivoice", "speed": 1.0 },
+    "brand": { "overlay": false },
+    "metadata"    "voice": { "provider": "omnivoice", "speed": 1.0 },
     "scenes": [
         /* 8–12 scene: 1 hook + 6–10 body + 1 outro */
     ]
@@ -133,48 +130,33 @@ Cấu trúc bắt buộc:
 
 - `provider`: luôn là `omnivoice` (TTS local duy nhất; không cần `voiceId`/API key).
 - Mỗi scene: `{ id, type, voiceText, templateId, inputs }`. `inputs` khớp slot trong CATALOG.
-- scenes[0].type = `hook`; scene cuối .type = `outro` (templateId = `frame-logo-outro`).
+- scenes[0].type = `hook`; scene cuối .type = `outro` (templateId = `evose-logo-card`).
+- Cảnh MỞ bằng logo: đặt nó là scenes[0] (type `hook`) với 1 câu dẫn ngắn, rồi
+  cảnh 2 mới là hook nội dung. Bộ Light chưa có cảnh mở câm riêng.
 - **8–12 scene**; tổng voiceText ~270–360 từ (~90–120s) — **GIỮ NGUYÊN tổng thời lượng**, chỉ chia nhỏ ra NHIỀU scene hơn cho nhịp nhanh, đỡ nhàm. Mỗi body scene **~25–40 từ** (mỗi scene chỉ 1 ý duy nhất — nếu 1 đoạn có 2 ý thì TÁCH thành 2 scene thay vì nhồi vào 1). Mục tiêu: mỗi scene xuất hiện trên màn hình chỉ ~6–10s rồi chuyển cảnh.
 
-**Map nội dung → template:**
+**Cấu trúc khuyến nghị (theo video mẫu của designer):**
 
-- hook → **LUÔN `frame-liquid-bg-hero`** (slots: kicker, headline, subheadline, cta, brand). `headline` hiển thị bằng gradient bắt mắt (mặc định vàng→tím); có thể đặt `headline_from`/`headline_to` (2 màu hex) để đổi tông. **`headline` ≤4 từ ngắn, không dấu phẩy, không số** (vd "AI Bùng Nổ!" ✅, "Alexa For Shopping Ra Mắt!" ❌ — quá dài). **`voiceText` hook ≤18 từ** (nếu dài hơn, hook frame phải kéo dài bằng loop — animation sẽ lặp từ đầu, chấp nhận được; nhưng ≤18 từ vẫn là best practice). Không dùng template khác cho hook.
-- **body → Claude TỰ CHỌN template hợp nhất cho từng scene** theo RÀNG BUỘC ĐA DẠNG CỨNG:
-  - **KHÔNG LẶP FRAME: mỗi frame body KHÔNG được dùng quá 1 lần/video** (ngoại lệ cực hiếm: không còn frame phù hợp khác).
-  - **2 scene cùng loại nội dung → BẮT BUỘC 2 frame KHÁC nhau** (vd scene số A = `chart-donut-v2`, scene số B = `chart-bars-v2`).
-  - **Scene số liệu → LUÔN dùng chart -v2. TUYỆT ĐỐI không dùng chart v1** (`frame-chart-bars`/`-donut`/`-line` là LEGACY).
-  - **Ưu tiên pool 🟢 (hiện đại) trước; chỉ khi không frame 🟢 nào hợp mới dùng 🟡 (phụ — tối đa 1 lần/video).**
-  Mô tả chi tiết từng frame:
-    - **⚠️ QUY TẮC HEX / TEXT SLOT (ghi nhớ trước khi điền):** Mã màu hex (`#xxxxxx`) **CHỈ đặt vào slot màu** (`accent_from`, `accent_to`, `from`, `to`, `headline_from`, `headline_to`). **TUYỆT ĐỐI KHÔNG đặt hex vào slot text** (`title`, `accent`, `subtitle`, `label`, `caption`, `kicker`, `headline`). Cú pháp `{từ}` trong `title` **chỉ dùng cho `frame-chart-bars-v2`** (và bản legacy `frame-chart-bars`) — KHÔNG áp dụng cho bất kỳ frame nào khác.
-    - `frame-vignelli` — scene có **1 con số/stat** muốn nhấn mạnh, tông tối charcoal + đỏ. Slots: kicker, number, label, note, brand.
-    - `frame-pentagram-stat` — scene có **1 con số/benchmark**, nền tối neon (Swiss grid, số cam phát sáng + accent cyan) + biểu đồ cột. Slots: label, headline (số), subtitle, anchor, footer_left, footer_right.
-    - `frame-build-minimal` — **câu chốt/nhận định ngắn** xoay quanh 1 từ khoá, nền tối + 1 từ lớn in đậm glow cam. Slots: eyebrow, hero (1 từ), desc, side_left, side_right.
-    - `frame-bold-poster` — **tuyên bố mạnh nhiều dòng** + figure số lớn. Slots: kicker, date, figure, headline[], standfirst, footer_left, footer_right.
-    - `frame-creative-voltage` — **câu sáng tạo/khẩu hiệu** (vài từ), split xanh điện + viết tay. Slots: meta, display_lines, accent_index, script, caption.
-    - `frame-glitch-title` — **tin sốc/breaking/công nghệ** kiểu cyberpunk glitch. Slots: title, subtitle.
-    - `frame-aicoding-list` — **scene là DANH SÁCH / SO SÁNH 2–5 mục** (ai bị ảnh hưởng, ưu/nhược, các bậc, checklist). Slots: title, accent, accent_from, accent_to, subtitle, items[]. Mỗi item `{icon, title, desc, tag, level}`:
-        - `title`: chuỗi text thường — **KHÔNG chứa `{` `}`** (frame này KHÔNG dùng cú pháp `{}`, đó là cú pháp riêng của `frame-chart-bars`).
-        - `accent`: **1 từ hoặc cụm từ xuất hiện trong tiêu đề** sẽ được tô gradient (vd `"bùng nổ"`). **TUYỆT ĐỐI KHÔNG điền mã màu hex** (`#xxxxxx`) vào `accent` — mã màu hex chỉ thuộc `accent_from`/`accent_to`.
-        - `accent_from`/`accent_to`: **2 mã màu hex** cho gradient chữ nhấn — Claude TỰ CHỌN (vd `"#06b6d4"` → `"#3b82f6"`). Đây là slot DUY NHẤT nhận hex trong frame này.
-        - `icon`: Claude TỰ CHỌN emoji hợp từng mục (🚫 ⚠️ ✅ ❌ 📈 💡 🔒 🚀 …), KHÔNG cố định.
-        - `level`: `danger`/`warn`/`good`/`info` → quyết định màu icon+tag+thanh. `tag`: nhãn ngắn (Nguy/Cao/Lợi…).
-        - **✅ ĐÚNG:** `{"title":"Tại sao AI pharma bùng nổ?","accent":"bùng nổ","accent_from":"#06b6d4","accent_to":"#3b82f6"}`
-        - **❌ SAI:** `{"title":"...{bùng nổ}?","accent":"#3B82F6"}` — `{}` trong title là thừa, hex trong `accent` bị bỏ qua (template tự vệ)
-    - `frame-aicoding-comparison` — **scene SO SÁNH ĐÚNG 2 thứ** (cũ vs mới, A vs B, trước/sau). Slots: badge, pre, vs, post, left{}, right{}. Mỗi vế `{label, from, to, icon?, bullets[], stat?, stat_label?, win?}`:
-        - `from`/`to`: Claude TỰ CHỌN 2 màu hex gradient cho mỗi vế (thường 2 vế khác tông, vd trái cam→đỏ, phải teal→lam).
-        - `icon`: emoji tuỳ chọn cho mỗi vế. `win: true` cho vế thắng (viền sáng + badge WIN). `stat`/`stat_label`: số liệu tuỳ chọn dưới mỗi card.
-    - **⚠️ frame-vignelli & frame-pentagram-stat là LỰA CHỌN PHỤ (🟡)**: chỉ dùng tối đa 1 lần/video mỗi frame, và chỉ khi scene là 1 con số đơn không phù hợp donut-v2/bars-v2. ĐỪNG chọn mặc định — ưu tiên pool 🟢 (chart-v2 / pipeline-flow / aicoding-comparison) trước.
-    - `frame-chart-bars-v2` — **🟢 scene SO SÁNH DỮ LIỆU nhiều mục có số** (nền blob động). **LUÔN dùng bản này thay v1.** Slots: label, title, bars, caption. `title` dùng cú pháp `{từ}` để tô gradient 1 từ (vd `"Tăng trưởng {AI} Q3"`). **Cú pháp `{...}` CHỈ áp dụng cho frame chart-bars — KHÔNG dùng cho frame-aicoding-list hay frame nào khác.** `bars` là JSON `[{label, value, unit?, active?}]` (2–6 cột); `active: true` cho cột muốn nhấn, `active: false` làm mờ cột.
-    - `frame-chart-donut-v2` — **🟢 scene có 1 TỈ LỆ PHẦN TRĂM chủ đạo** (nền blob động + fix lỗi render v1). **LUÔN dùng bản này thay v1.** Slots: label, title, percent (0–100), unit (mặc định "%"), label_donut (nhãn dưới vòng, tuỳ chọn), caption.
-    - `frame-chart-line-v2` — **🟢 scene XU HƯỚNG THEO THỜI GIAN** (nền blob động, đường cubic-bezier + dot pop). **LUÔN dùng bản này thay v1.** Slots: label, title, points, caption. `points` là JSON `[{label, value}]` (3–8 điểm).
-    - `frame-pipeline-flow` — **🟢 scene giải thích QUY TRÌNH / PIPELINE**. Slots: label, title, steps, caption. `steps` là JSON `[{icon, title, desc}]` (3–6 bước). Nếu bỏ trống `steps`, template tự render 6 bước pipeline Evose mặc định (Nhập link → AI phân tích → Sinh kịch bản → Dựng frame → Ghép + lồng tiếng → Xuất video). Dùng khi scene mô tả workflow, pipeline, các bước quy trình.
-    - `frame-screenshot-scroll` — **🟢 scene GIỚI THIỆU REPO / TRANG WEB DÀI**. Slots: label, title, image, pan, caption. `image` là ảnh PNG chụp bằng `scripts/capture-screenshot.js --mode github`; `pan` là mức cuộn (vd "-55%"), đặt "0%" để ảnh tĩnh.
-    - `frame-screenshot-news` — **🟢 scene TRÍCH NGUỒN BÀI BÁO / TIN TỨC**. Slots: label, title, image, hl_top, hl_left, hl_width, hl_height, caption. `image` là ảnh PNG chụp bằng `scripts/capture-screenshot.js --mode news`; `hl_*` là % vị trí khung soi tiêu đề (bỏ trống = tắt highlight).
-    - ~~`frame-chart-bars`~~ — **🔴 LEGACY — TUYỆT ĐỐI KHÔNG DÙNG**. Thay bằng `frame-chart-bars-v2`.
-    - ~~`frame-chart-donut`~~ — **🔴 LEGACY — TUYỆT ĐỐI KHÔNG DÙNG**. Thay bằng `frame-chart-donut-v2`.
-    - ~~`frame-chart-line`~~ — **🔴 LEGACY — TUYỆT ĐỐI KHÔNG DÙNG**. Thay bằng `frame-chart-line-v2`.
-    - **Quy tắc dữ liệu cho frame chart-v2 và screenshot (Claude tự quyết):** (1) bài CÓ số liệu cụ thể → vẽ chart THẬT với số đó; (2) bài KHÔNG có số nhưng minh hoạ được khái niệm → chart minh hoạ (số tượng trưng + label mô tả); (3) không hợp trực quan hoá → KHÔNG dùng chart frame, chọn frame chữ. Nguồn GitHub → `frame-screenshot-scroll` (cuộn); nguồn báo → `frame-screenshot-news` (tĩnh + highlight). Số trong `inputs` giữ định dạng đẹp ("5.6", "45%"); `voiceText` vẫn viết số ra chữ theo quy tắc TTS bên dưới.
-- outro → `frame-logo-outro` (mặc định; slots: brand_name, tagline, primary_url). Dùng `frame-statement-outro` nếu muốn card đỏ nền giấy.
+1. `evose-logo-card` — mở, 1 câu
+2. `evose-node-diagram` hoặc `evose-title-card` — hook
+3. `evose-statement` — nêu VẤN ĐỀ (badge ❌)
+4. `evose-chapter-card` — công bố phần 1
+5–9. thân bài — chọn theo bảng ở Step 4, xen kẽ chart và chữ
+10. `evose-statement` — câu chốt (badge ✅)
+11. `evose-logo-card` — kết, có tagline + url
+
+Slot chi tiết của từng template nằm trong `templates/CATALOG.md`. Vài điểm dễ sai:
+
+- `evose-title-card.lines` — mảng 2–4 dòng, **mỗi dòng ngắn**; cỡ chữ tự co.
+- `evose-statement.hero` — **1–3 từ**, giữ trên một dòng.
+- `evose-node-diagram` — `layout: "split"` có `stem` + `verdict`; `layout: "stack"`
+  dùng `badge` ❌/✅ cho hai khối đối nhau.
+- `evose-list.accent` — phải là **cụm chữ có thật trong `title`**, không phải mã màu.
+- Cú pháp `{từ}` tô bút dạ, dùng được ở `title` của list / pipeline / screenshot /
+  3 chart. **Không** dùng ở các template khác.
+- `mascot` — đường dẫn PNG trong `evose-brand-kit/mascot/`; xem README ở đó để
+  chọn tư thế hợp cảm xúc của cảnh (`mascot-shrug` bó tay, `mascot-think` suy nghĩ,
+  `mascot-thumbsup` chốt đúng, `mascot-teacher` giảng giải…). Không bắt buộc.
 
 ### 🗣️ Quy tắc VĂN PHONG voiceText — DỄ HIỂU, ÍT JARGON (BẮT BUỘC)
 
@@ -229,19 +211,20 @@ Bảng đầy đủ (áp dụng cho `voiceText`):
 
 ### Step 6: Tự kiểm tra
 
-**🔴 CHECKLIST ĐA DẠNG FRAME (bắt buộc kiểm trước khi ghi script.json):**
-- [ ] Đã dùng ≥5 loại frame body KHÁC NHAU? (nếu chưa → thay frame đang lặp bằng frame từ pool 🟢)
-- [ ] Có frame body nào lặp >1 lần không? (nếu có → chọn lại frame khác)
-- [ ] Có dùng nhầm `frame-chart-bars`/`frame-chart-donut`/`frame-chart-line` (LEGACY) không? (nếu có → đổi sang -v2)
-- [ ] `frame-vignelli` và `frame-pentagram-stat` mỗi loại ≤1 lần/video? (nếu không → chọn lại)
-- [ ] `voiceText` có thuật ngữ kỹ thuật nào người thường không hiểu ngay mà chưa được giải thích/thay thế không? (nếu có → viết lại đơn giản hơn theo quy tắc văn phong)
+**🔴 CHECKLIST (bắt buộc kiểm trước khi ghi script.json):**
+- [ ] Mọi `templateId` đều bắt đầu bằng `evose-`? (không sót `frame-` nào)
+- [ ] Có `"brand": { "overlay": false }` chưa?
+- [ ] Cảnh đầu và cảnh cuối đều là `evose-logo-card`?
+- [ ] Hai cảnh liền nhau có trùng template không?
+- [ ] Có template nào lặp quá 2 lần không?
+- [ ] Số liệu trong chart có phải số THẬT từ bài không? (không bịa để lấy cớ dùng chart)
+- [ ] `voiceText` còn thuật ngữ nào người thường không hiểu ngay mà chưa giải thích không?
 
 - scenes[0]=hook, scene cuối=outro; mỗi templateId ∈ CATALOG; mỗi inputs đủ slot bắt buộc;
-- **Hook headline**: ≤4 từ ngắn, không dấu phẩy, không số. Hook `voiceText` ≤18 từ.
-- **⚠️ Slot bắt buộc cho stat frame** — nếu thiếu, phần dưới frame render rỗng (tối đen):
-  - `frame-vignelli`: `kicker`, `number`, `label`, `note` — **TẤT CẢ phải có giá trị thực**.
-  - `frame-pentagram-stat`: `label`, `headline`, `subtitle`, `anchor` — **TẤT CẢ phải có giá trị thực**.
-- headline ≤3 dòng & mỗi dòng ngắn; voiceText đã viết số ra chữ **và KHÔNG chứa emoji/icon**; emoji (nếu có) chỉ nằm trong `inputs`. Sửa thầm tối đa 2 lần.
+- **Hook `voiceText` ≤18 từ.** Chữ trên hình phải ngắn hơn nữa.
+- **Slot bị bỏ trống thì BỎ HẲN, đừng điền chuỗi rỗng hay chữ độn** — template
+  Light tự co bố cục khi thiếu slot, còn chữ độn thì nằm lại trên hình.
+- `evose-title-card.lines`: 2–4 dòng, mỗi dòng ngắn; voiceText đã viết số ra chữ **và KHÔNG chứa emoji/icon**; emoji (nếu có) chỉ nằm trong `inputs`. Sửa thầm tối đa 2 lần.
 
 ### Step 7: Ghi script.json
 

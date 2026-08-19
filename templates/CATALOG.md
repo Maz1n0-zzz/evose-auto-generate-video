@@ -1,25 +1,251 @@
 # Template Catalog
 
-> ⚠️ **EVOSE BRAND OVERLAY**: Repo này dùng OVERLAY LAYER thống nhất cho header+footer.
-> KHÔNG ĐIỀN các slot footer (`footer_left`, `footer_right`, `side_left`, `side_right`,
-> `caption`, `date`) — overlay sẽ tự động thêm "Evose.ai" header + social icons footer
-> lên mọi scene.
+Repo có **hai bộ template**. Renderer của cả hai đều là `"hyperframes"`.
 
- (HyperFrames, renderer: "hyperframes")
+| Bộ | Tiền tố | Tông | Dùng khi |
+|---|---|---|---|
+| **Evose Light** | `evose-*` | Nền giấy sáng + lưới chấm, chip đen, một màu nhấn | **MẶC ĐỊNH — dùng bộ này** |
+| Bộ cũ | `frame-*` | Nền tối, gradient, neon | Chỉ để render lại các video đã làm trước đây |
 
-Each scene in a template-mode `script.json` names a `templateId` below and fills
-`inputs` with the listed slots. The template owns all visual design; you only
-write text. Keep text SHORT — these are poster layouts, not paragraphs.
+Mỗi cảnh trong `script.json` chọn một `templateId` bên dưới và điền `inputs`.
+Template lo toàn bộ thiết kế và chuyển động; bạn chỉ viết chữ. **Giữ chữ NGẮN** —
+đây là bố cục dạng poster, không phải đoạn văn.
 
-Render aspect is set once per script (`"aspect": "9:16"` for TikTok/Shorts).
-
-> Vietnamese: visual text (inputs) keeps normal formatting ("5.5", "82.7%").
-> Only `voiceText` must spell numbers out phonetically (see the skill rules).
-> Emoji/icons (🔥 🚀 → …) are allowed in on-screen `inputs` (they render in colour),
-> but NEVER in `voiceText`. Don't put emoji in char-by-char animated fields
-> (e.g. `hero` of build-minimal).
+> Chữ hiển thị (`inputs`) giữ định dạng số bình thường ("5.5", "82.7%") và được
+> phép dùng emoji. Chỉ `voiceText` mới phải viết số ra chữ và tuyệt đối không
+> emoji — xem quy tắc trong SKILL.md.
 
 ---
+
+# BỘ EVOSE LIGHT (dùng bộ này)
+
+## Bắt buộc trong script.json
+
+```json
+{
+  "aspect": "9:16",
+  "brand": { "overlay": false }
+}
+```
+
+`brand.overlay: false` là **bắt buộc** với bộ Light. Bộ cũ dựa vào lớp overlay
+header/footer để có nhận diện trên từng cảnh; bộ Light thì không — nhận diện chỉ
+nằm ở cảnh mở và cảnh kết. Quên đặt `false` thì overlay của bộ cũ sẽ đè lên và
+phá bố cục. Nhạc nền vẫn chạy bình thường, không phụ thuộc cờ này.
+
+## Slot dùng chung
+
+| Slot | Có ở | Ý nghĩa |
+|---|---|---|
+| `mascot` | node-diagram, title-card, chapter-card, statement, stat-hero | Đường dẫn PNG trong `evose-brand-kit/mascot/` — xem README ở đó để chọn tư thế |
+| `mascot_side` | như trên | `"left"` / `"right"` |
+| `mascot_scale` | như trên | Số, mặc định 1 |
+| `media` | node-diagram, title-card, chapter-card, statement | Ảnh **làm NỀN** cho chữ đè lên. Cần ảnh để người xem ĐỌC thì dùng `evose-screenshot` |
+| `media_fit` | như trên | `"contain"` nếu không muốn ảnh bị cắt |
+| `{từ}` trong `title` | list, pipeline, screenshot, 3 chart | Tô một dải bút dạ sau cụm chữ đó |
+
+Mọi slot trên đều **tuỳ chọn** — bỏ trống thì template tự co bố cục lại.
+
+---
+
+## evose-logo-card
+**Vai trò:** cảnh mở và cảnh kết. Monogram hiện giữa khung rồi wordmark "Evose"
+lộ ra, cả cụm dịch trái. Logo nhúng sẵn, không cần cấp file.
+
+| slot | kiểu | ghi chú |
+|---|---|---|
+| `tagline` | string | Bỏ trống = cảnh mở. Điền = cảnh kết (canh phải dưới wordmark) |
+| `url` | string | Cảnh kết: `"https://evose.ai/"` |
+
+---
+
+## evose-node-diagram
+**Vai trò:** sơ đồ chip nối bằng nét chấm. Dùng cho **hook đối chiếu** hoặc mọi
+cảnh so sánh hai đường đi.
+
+| slot | kiểu | ghi chú |
+|---|---|---|
+| `layout` | `"split"` / `"stack"` | Bỏ trống: có `stem` → split, không thì stack |
+| `stem` | string[] | Chuỗi chip chung phía trên trước khi rẽ nhánh (chỉ dùng ở `split`) |
+| `branches` | object[] | 1–2 nhánh: `{ badge?, tone?, nodes: string[] }` |
+| `verdict` | string | Ký hiệu giữa hàng cuối, thường `"≠"` (chỉ `split`) |
+| `label` | string | Nhãn mono nhỏ góc trên |
+
+Trong mỗi nhánh: `tone: "ink"` (chip đen, vế được nhấn) hoặc `"mute"` (chip xám,
+vế đối chiếu). `badge: "no"` (❌) / `"ok"` (✅) — chỉ dùng ở `stack`.
+
+```json
+{ "layout": "split", "stem": ["Cùng model", "Cùng việc"], "verdict": "≠",
+  "branches": [ { "tone": "ink",  "nodes": ["System prompt", "Kết quả"] },
+                { "tone": "mute", "nodes": ["System prompt", "Kết quả"] } ] }
+```
+
+---
+
+## evose-title-card
+**Vai trò:** tiêu đề lớn chữ trắng viền đen dày, nghiêng, xếp chồng kiểu sticker.
+
+| slot | kiểu | ghi chú |
+|---|---|---|
+| `lines` | string[] | **2–4 dòng, mỗi dòng NGẮN.** Cỡ chữ tự co theo dòng dài nhất |
+| `tilt` | number | Độ nghiêng, mặc định `-2` |
+| `italic` | boolean | `false` để tắt chữ nghiêng |
+
+---
+
+## evose-chapter-card
+**Vai trò:** banner đen công bố một phần / một bước.
+
+| slot | kiểu | ghi chú |
+|---|---|---|
+| `title` | string | ≤34 ký tự là đẹp nhất, in nghiêng đậm |
+| `subtitle` | string | Một dòng phụ, chữ thường |
+
+Không có `media` thì banner tự phóng to và canh giữa khung; có `media` thì thu
+lại và neo lên đỉnh.
+
+---
+
+## evose-statement
+**Vai trò:** câu chốt — cảnh to tiếng nhất của video.
+
+| slot | kiểu | ghi chú |
+|---|---|---|
+| `badge_top` | `"no"` / `"ok"` | Badge nhỏ phía trên, gắn nhãn cho điều đang bị phủ nhận |
+| `lines` | string[] | Chip dẫn, thường 1 dòng |
+| `hero` | string | **Chip lớn, 1–3 từ.** Giữ trên một dòng nên phải ngắn |
+| `badge` | `"no"` / `"ok"` | Badge KHỔNG LỒ nổi ở nửa dưới |
+| `badge_side` | `"left"` / `"right"` | Mặc định `"right"` |
+| `lines_tone`, `hero_tone` | `"mute"` | Đổi sang chip xám |
+
+---
+
+## evose-list
+**Vai trò:** danh sách 2–5 mục — xếp hạng, ưu/nhược, checklist.
+
+| slot | kiểu | ghi chú |
+|---|---|---|
+| `title` | string | |
+| `accent` | string | Một cụm **có thật trong title** sẽ được tô bút dạ |
+| `subtitle` | string | |
+| `items` | object[] | 2–5 mục, quá 5 sẽ bị cắt |
+
+Mỗi mục: `{ icon, title, desc, tag, level }`.
+`icon` — bạn tự chọn emoji hợp nội dung. `tag` — nhãn ngắn bên phải (≤6 ký tự).
+`level` — `danger` (đỏ) / `warn` (cam) / `good` (xanh lá) / `info` (lam); quyết
+định màu vệt trái, chip icon và nhãn.
+
+---
+
+## evose-stat-hero
+**Vai trò:** MỘT con số lớn duy nhất.
+**Chỉ dùng khi con số KHÔNG phải phần trăm** — phần trăm thì `evose-chart-donut`
+hợp hơn vì có vòng tỉ lệ để nhìn ra tương quan.
+
+| slot | kiểu | ghi chú |
+|---|---|---|
+| `label` | string | Nhãn mono phía trên |
+| `figure` | string | Con số. Cỡ chữ tự co, "1,2 triệu" cũng vừa |
+| `unit` | string | Đơn vị đứng cạnh, vd `"phút"` |
+| `headline` | string | Dòng in hoa dưới gạch nhấn |
+| `note` | string | Một câu bổ nghĩa |
+
+---
+
+## evose-pipeline
+**Vai trò:** quy trình 3–6 bước dọc, mỗi bước có icon + tiêu đề + mô tả.
+Khác `node-diagram` ở chỗ sơ đồ kia chỉ có chip chữ trần để đối chiếu hai nhánh,
+còn cái này diễn giải **từng bước** nên mỗi bước có chỗ cho mô tả.
+
+| slot | kiểu | ghi chú |
+|---|---|---|
+| `label`, `title`, `caption` | string | |
+| `steps` | object[] | 3–6 bước `{ icon, title, desc }`. Bỏ trống → dùng 5 bước pipeline Evose mặc định |
+
+Bước cuối tự động tô nền đen vì đó là kết quả.
+
+---
+
+## evose-chart-bars
+**Vai trò:** so sánh 2–6 mục có số liệu.
+
+| slot | kiểu | ghi chú |
+|---|---|---|
+| `label`, `title`, `caption` | string | |
+| `bars` | object[] | 2–6 cột `{ label, value, unit?, active? }` |
+
+`active: true` → cột màu nhấn. `active: false` → cột xám mờ. Không khai báo →
+cột đen thường.
+
+---
+
+## evose-chart-donut
+**Vai trò:** một tỉ lệ phần trăm chủ đạo.
+
+| slot | kiểu | ghi chú |
+|---|---|---|
+| `label`, `title`, `caption` | string | |
+| `percent` | number | 0–100 |
+| `unit` | string | Mặc định `"%"` |
+| `label_donut` | string | Dòng mô tả ngay dưới vòng |
+
+---
+
+## evose-chart-line
+**Vai trò:** xu hướng theo thời gian.
+
+| slot | kiểu | ghi chú |
+|---|---|---|
+| `label`, `title`, `caption` | string | |
+| `points` | object[] | 3–8 điểm `{ label, value }` |
+
+---
+
+## evose-screenshot
+**Vai trò:** ảnh chụp màn hình **LÀ nội dung chính** (người xem cần đọc nó).
+Khác slot `media` của các template kia — ở đó ảnh chỉ là phông và bị làm nhoè.
+
+| slot | kiểu | ghi chú |
+|---|---|---|
+| `label`, `title`, `caption` | string | |
+| `image` | asset | PNG chụp bằng `scripts/capture-screenshot.js` |
+| `pan` | string | `"-65%"` = cuộn 65% quãng cuộn được. Bỏ trống hoặc `"0%"` = ảnh tĩnh |
+| `hl_top` `hl_left` `hl_width` `hl_height` | string | Vị trí khung soi tính theo **%** của khung máy. Bỏ trống = tắt |
+| `duration` | number | Ghi đè thời lượng cuộn. Bình thường không cần: pipeline tự cấp độ dài cảnh thật |
+
+Đặt `hl_*` phải ngắm theo ảnh cụ thể — chụp xong nên render thử một cảnh để soi
+lại toạ độ. Dùng `pan` và `hl_*` cùng lúc cũng được.
+
+---
+
+## Thêm template mới vào bộ Light
+
+1. Tạo `templates/evose-<tên>/compositions/portrait.html` — chép một file có sẵn
+   làm mẫu. Giữ nguyên **4 khai báo khung** (viewport, `html,body`, `#root`,
+   `data-width`/`data-height`) và object `GEO` ở cuối, vì mọi hằng số hình học
+   nằm trong đó và được chọn theo kích thước canvas lúc chạy.
+2. Chạy `python3 scripts/gen-aspect.py templates/evose-<tên>` để sinh
+   `index.html` (bản 16:9). **Đừng sửa `index.html` bằng tay** — nó bị ghi đè.
+3. Thêm `meta.json` và `hyperframes.json` (chép từ template khác).
+4. Thêm một mục vào danh sách trên.
+
+⚠️ Trong comment CSS, **đừng gõ dấu sao rồi gạch chéo** (hay gặp khi viết đường
+dẫn có ký tự đại diện) — nó đóng comment sớm, nuốt luôn khối quy tắc phía sau và
+frame render ra **trắng trơn mà không báo lỗi**. `gen-aspect.py` có bộ chặn lỗi
+này, đó cũng là lý do phải chạy nó thay vì tự chép file.
+
+---
+---
+
+# BỘ CŨ (`frame-*`) — GIỮ ĐỂ RENDER LẠI VIDEO CŨ
+
+> 🔴 **Không dùng cho video mới.** Bộ này nền tối / gradient / neon, đi ngược
+> hướng nhận diện hiện tại. Giữ lại để các `script.json` đã làm trước đây render
+> lại vẫn ra đúng kết quả cũ.
+>
+> Bộ này **cần** lớp overlay header/footer, tức `brand.overlay` phải để mặc định
+> `true`. Vì vậy KHÔNG điền các slot `footer_left`, `footer_right`, `side_left`,
+> `side_right`, `caption`, `date` — overlay tự thêm.
 
 ## frame-bold-poster
 

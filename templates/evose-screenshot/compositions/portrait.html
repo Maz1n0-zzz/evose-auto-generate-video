@@ -1,0 +1,172 @@
+<!doctype html><html lang="vi"><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=1080, height=1920"/><title>Evose Screenshot</title>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"/>
+<style>
+/* ------------------------------------------------------------------
+   EVOSE SCREENSHOT — ảnh chụp màn hình LÀ nội dung chính.
+   Token gốc: EVOSE-LIGHT-TOKENS.css.
+
+   Gộp frame-screenshot-scroll + frame-screenshot-news: hai cái đó chung
+   một bố cục (tiêu đề trên, khung máy giữa, chú thích dưới), chỉ khác
+   CHẾ ĐỘ. Ở đây chọn chế độ bằng slot, không tách template:
+     `pan`   khác "0%" → cuộn dọc suốt thời lượng (trang dài, repo GitHub)
+     `hl_*`  có giá trị → khung soi + làm mờ phần ngoài (soi tiêu đề báo)
+   Hai chế độ dùng chung được nếu cần.
+
+   Khác bộ cũ: khung máy nền tối viền neon → thẻ giấy trắng viền mực, và
+   phần làm mờ ngoài khung soi phủ màu GIẤY chứ không phủ đen.
+
+   Phân biệt với slot `media` của chapter-card / title-card / statement:
+   ở đó ảnh là NỀN cho chữ đè lên; ở đây ảnh là thứ người xem cần đọc.
+
+   Dùng chung một file cho 9:16 và 16:9 — xem scripts/gen-aspect.py.
+   ------------------------------------------------------------------ */
+:root{--paper:#f2f2f0;--dot:#d6d6d1;--ink:#0a0a0a;--ink-soft:#6b7280;
+--chip-2:#e7e7e3;--chip-2-line:#d2d2cc;--accent:#2563eb;--mark:rgba(37,99,235,.28);
+--font:'Hanken Grotesk',-apple-system,'Segoe UI',sans-serif;--font-mono:'JetBrains Mono',ui-monospace,monospace;
+--ease:cubic-bezier(.16,1,.3,1);}
+*{margin:0;padding:0;box-sizing:border-box;}
+
+/* ↓↓↓ 3 dòng khung — chỗ DUY NHẤT khác nhau giữa 9:16 và 16:9 ↓↓↓ */
+html,body{width:1080px;height:1920px;}
+#root{width:1080px;height:1920px;}
+/* ↑↑↑ (dòng thứ 3 là data-width/data-height trên #root dưới <body>) */
+
+html,body{overflow:hidden;font-family:var(--font);color:var(--ink);}
+#root{position:relative;overflow:hidden;
+background-color:var(--paper);
+background-image:radial-gradient(circle,var(--dot) 1.35px,transparent 1.35px);
+background-size:26px 26px;}
+
+.eyebrow{position:absolute;left:var(--pad-x);top:var(--eyebrow-y);
+font-family:var(--font-mono);font-weight:500;font-size:var(--eyebrow-fs);
+letter-spacing:5px;text-transform:uppercase;color:var(--ink-soft);
+opacity:0;animation:fadeIn .5s var(--ease) .1s forwards;}
+.title{position:absolute;left:var(--pad-x);right:var(--pad-x);top:var(--title-y);
+font-weight:900;font-size:var(--title-fs);line-height:1.06;letter-spacing:-1.5px;
+opacity:0;transform:translateY(26px);animation:fadeUp .6s var(--ease) .3s forwards;}
+.title .hl{background:linear-gradient(transparent 58%,var(--mark) 58%);}
+.caption{position:absolute;left:var(--pad-x);right:var(--pad-x);bottom:var(--cap-y);
+text-align:center;font-size:var(--cap-fs);font-weight:600;color:var(--ink-soft);line-height:1.32;
+opacity:0;transform:translateY(18px);animation:fadeUp .6s var(--ease) 2.4s forwards;}
+
+/* Thẻ giấy thay cho khung máy nền tối của bộ cũ. */
+.device{position:absolute;left:var(--dev-x);right:var(--dev-x);
+top:var(--dev-y);height:var(--dev-h);
+background:#fff;border:4px solid var(--ink);border-radius:var(--dev-radius);
+box-shadow:0 30px 70px -22px rgba(10,10,10,.30);overflow:hidden;
+opacity:0;transform:scale(.95);animation:pop .8s var(--ease) .65s forwards;}
+.screen{position:absolute;inset:0;overflow:hidden;}
+
+/* Chế độ tĩnh: cắt lấy phần TRÊN CÙNG (chỗ có tiêu đề bài) chứ không kéo giãn. */
+.shot{position:absolute;top:0;left:0;width:100%;height:100%;
+object-fit:cover;object-position:top center;display:block;}
+/* Chế độ cuộn: ảnh giữ tỉ lệ thật, cao tự do, rồi trượt dọc.
+   Quãng cuộn tính HOÀN TOÀN bằng CSS: trong translateY, 100% là chiều cao
+   thật của chính tấm ảnh, trừ đi chiều cao khung máy ra đúng quãng cuộn
+   được; max(0px, …) chặn trường hợp ảnh thấp hơn khung (nếu không sẽ cuộn
+   ngược). Không đo bằng JS vì phải chờ ảnh load — mà gắn animation sau khi
+   HyperFrames đã tua đồng hồ thì mỗi worker bắt đầu một mốc khác nhau,
+   frame ra lộn xộn. */
+.shot.scroll{height:auto;object-fit:fill;will-change:transform;
+animation:scrollDown var(--dur,8s) linear var(--delay,1.1s) both;}
+
+.hlbox{position:absolute;border:6px solid var(--accent);border-radius:12px;
+/* Phủ mờ phần NGOÀI khung soi bằng chính màu giấy — bộ cũ phủ đen, ở nền
+   sáng sẽ thành một mảng tối lạc lõng. */
+box-shadow:0 0 0 9999px rgba(242,242,240,.74),0 0 30px rgba(37,99,235,.28);
+z-index:5;opacity:0;animation:hlIn .55s var(--ease) 2.0s forwards;}
+
+@keyframes fadeIn{to{opacity:1;}}
+@keyframes fadeUp{to{opacity:1;transform:translateY(0);}}
+@keyframes pop{to{opacity:1;transform:scale(1);}}
+@keyframes hlIn{from{opacity:0;transform:scale(1.1);}to{opacity:1;transform:scale(1);}}
+@keyframes scrollDown{
+  0%,8%{transform:translateY(0);}                    /* giữ đầu trang một nhịp */
+  92%,100%{transform:translateY(
+    calc(-1 * var(--panfrac,.85) * max(0px, 100% - var(--dev-h))));}
+}
+</style></head>
+<body><div id="root" data-composition-id="main" data-start="0" data-duration="20" data-width="1080" data-height="1920">
+<div class="eyebrow"></div><h1 class="title"></h1>
+<div class="device"><div class="screen"><img class="shot" alt=""/><div class="hlbox"></div></div></div>
+<div class="caption"></div>
+</div>
+<script>(function(){
+var v=(window.__hyperframes&&typeof window.__hyperframes.getVariables==="function")?window.__hyperframes.getVariables():{};
+var root=document.getElementById("root");
+
+var GEO={
+  portrait:{css:{"--pad-x":"90px","--eyebrow-y":"210px","--eyebrow-fs":"26px",
+                 "--title-y":"266px","--title-fs":"64px","--cap-y":"170px","--cap-fs":"36px",
+                 "--dev-x":"130px","--dev-y":"560px","--dev-h":"1000px","--dev-radius":"38px"},
+             js:{devH:1000}},
+  landscape:{css:{"--pad-x":"140px","--eyebrow-y":"80px","--eyebrow-fs":"22px",
+                  "--title-y":"120px","--title-fs":"48px","--cap-y":"56px","--cap-fs":"28px",
+                  "--dev-x":"560px","--dev-y":"250px","--dev-h":"640px","--dev-radius":"30px"},
+             js:{devH:640}}
+};
+var W=+root.getAttribute("data-width")||1080,H=+root.getAttribute("data-height")||1920;
+var G=GEO[W>=H?"landscape":"portrait"];
+for(var k in G.css)root.style.setProperty(k,G.css[k]);
+
+function set(sel,val){var e=document.querySelector(sel);
+  if(!e)return; if(val==null||val===""){e.style.display="none";return;} e.textContent=String(val);}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+
+set(".eyebrow",v.label);
+set(".caption",v.caption);
+document.querySelector(".title").innerHTML=
+  esc(v.title||"").replace(/\{([^}]+)\}/g,'<span class="hl">$1</span>');
+
+var img=document.querySelector(".shot");
+if(v.image)img.src=String(v.image); else img.style.display="none";
+
+/* --- khung soi --- */
+var hb=document.querySelector(".hlbox");
+if(v.hl_top!=null&&v.hl_top!==""){
+  hb.style.top=String(v.hl_top);
+  hb.style.left=String(v.hl_left||"4%");
+  hb.style.width=String(v.hl_width||"92%");
+  hb.style.height=String(v.hl_height||"18%");
+}else{hb.style.display="none";}
+
+/* --- chế độ cuộn ---
+   Thời lượng cuộn bám theo thời lượng CLIP, không cố định. Bộ cũ từng
+   đặt cứng 5s nên clip dài thì ảnh cuộn xong rồi đứng im rất lâu. */
+var pan=v.pan;
+var wantScroll=pan!=null&&pan!==""&&pan!=="0%"&&pan!==0;
+if(wantScroll&&v.image){
+  /* Tỉ lệ quãng cuộn: "-70%" → 0.7 quãng cuộn được. Số trần cũng nhận. */
+  var frac=0.85;
+  if(typeof pan==="string"&&pan.indexOf("%")>-1)frac=Math.abs(parseFloat(pan))/100;
+  else if(!isNaN(parseFloat(pan)))frac=Math.abs(parseFloat(pan));
+  if(!(frac>0))frac=0.85;
+  img.style.setProperty("--panfrac",Math.min(1,frac));
+
+  /* Thời lượng cuộn. Mặc định 8s chứ KHÔNG lấy trọn data-duration=20:
+     pipeline cắt clip theo độ dài lời đọc (thường 6–10s/cảnh), lấy 20s thì
+     xem xong cảnh mà ảnh mới cuộn được một phần ba. Truyền `duration` bằng
+     đúng độ dài cảnh nếu muốn khớp chính xác. */
+  var durSec=8;
+  try{
+    var hf=window.__hyperframes;
+    if(hf&&typeof hf.getDurationInSeconds==="function"){
+      var hd=hf.getDurationInSeconds();
+      if(hd>0&&hd<14)durSec=hd;   /* chỉ tin khi có vẻ là độ dài cảnh thật */
+    }
+  }catch(e){}
+  if(v.duration)durSec=parseFloat(v.duration)||durSec;
+
+  var delay=1.1;
+  img.style.setProperty("--dur",Math.max(3,durSec-delay-0.3).toFixed(2)+"s");
+  img.style.setProperty("--delay",delay+"s");
+  /* Gắn NGAY, không đợi load — xem ghi chú ở .shot.scroll. */
+  img.classList.add("scroll");
+}
+
+/* HyperFrames 0.6.94 thoát code 1 ("zero duration") nếu frame thuần CSS không
+   khai báo timeline. Stub này đủ để nó nhận data-duration. */
+window.__timelines=window.__timelines||{};
+window.__timelines["main"]={pause:function(){},seek:function(){},paused:function(){return true;}};
+})();</script></body></html>

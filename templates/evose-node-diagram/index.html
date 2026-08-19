@@ -27,10 +27,27 @@ html,body{width:1920px;height:1080px;}
 /* ↑↑↑ (dòng thứ 3 là data-width/data-height trên #root dưới <body>) */
 
 html,body{overflow:hidden;font-family:var(--font);color:var(--ink);}
-#root{position:relative;
+#root{position:relative;overflow:hidden;
 background-color:var(--paper);
 background-image:radial-gradient(circle,var(--dot) 1.35px,transparent 1.35px);
 background-size:26px 26px;}
+
+/* --- ảnh nền tuỳ chọn ---
+   Có ảnh thì phủ một lớp màu giấy mờ lên trên: sơ đồ là chip đen chữ
+   trắng, đặt thẳng lên ảnh chụp màn hình sẽ rối và khó đọc. */
+.media{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+transform-origin:50% 42%;opacity:0;
+/* Làm nhoè: ở đây ảnh chỉ là PHÔNG, không phải thứ để đọc. Chỉ phủ lớp giấy
+   mờ thôi thì chữ đen trên ảnh (tiêu đề bài báo…) vẫn còn đủ đậm để tranh
+   chấp với chip. Cần ảnh sắc nét thì dùng evose-screenshot. */
+filter:blur(5px);transform:scale(1.03);
+animation:mediaIn .6s var(--ease) forwards, kenburns 20s linear forwards;}
+.media.contain{object-fit:contain;}
+#root.has-media::before{content:"";position:absolute;inset:0;z-index:1;
+background:rgba(242,242,240,.70);}
+#root.has-media .stage,#root.has-media .eyebrow,#root.has-media .mascot{z-index:2;}
+@keyframes mediaIn{to{opacity:1;}}
+@keyframes kenburns{from{scale:1;}to{scale:1.07;}}
 
 .eyebrow{position:absolute;left:var(--eyebrow-x);top:var(--eyebrow-y);
 font-family:var(--font-mono);font-weight:500;font-size:var(--eyebrow-fs);
@@ -182,6 +199,14 @@ function badge(kind){
     : '<svg viewBox="0 0 100 100"><path d="M28 28 L72 72 M72 28 L28 72"/></svg>';
   b.style.animationDelay=next();
   return b;
+}
+
+if(v.media){
+  var bg=document.createElement("img");
+  bg.className="media"+(v.media_fit==="contain"?" contain":"");
+  bg.src=String(v.media);
+  root.insertBefore(bg,root.firstChild);
+  root.classList.add("has-media");
 }
 
 var stage=document.querySelector(".stage");

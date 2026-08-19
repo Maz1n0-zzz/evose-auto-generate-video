@@ -90,8 +90,9 @@ if(v.media){
   root.classList.add("has-media");
 }
 
-var tilt=(v.tilt!=null?parseFloat(v.tilt):-2);
-root.style.setProperty("--tstyle",v.italic===false?"normal":"italic");
+/* Mặc định THẲNG. Muốn nghiêng kiểu sticker thì truyền tilt khác 0. */
+var tilt=(v.tilt!=null?parseFloat(v.tilt):0);
+root.style.setProperty("--tstyle",v.italic===true?"italic":"normal");
 
 var lines=arr(v.lines).map(function(s){return String(s==null?"":s).trim();})
                       .filter(function(s){return s.length;});
@@ -117,7 +118,9 @@ lines.forEach(function(t,i){
   e.style.fontSize=fsz+"px";
   /* Nghiêng lệch dần theo dòng — reference xếp chữ kiểu sticker chồng tay,
      không thẳng hàng tuyệt đối. */
-  e.style.rotate=(tilt+i*-0.9).toFixed(2)+"deg";
+  /* Lệch dần chỉ áp dụng khi đã cố ý nghiêng; tilt=0 thì mọi dòng thẳng
+     hàng và canh giữa. */
+  e.style.rotate=(tilt?(tilt+i*-0.9):0).toFixed(2)+"deg";
   e.style.animationDelay=(0.20+i*0.16).toFixed(2)+"s";
   stack.appendChild(e);
 });

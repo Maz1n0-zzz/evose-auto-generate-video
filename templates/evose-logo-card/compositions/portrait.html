@@ -87,16 +87,21 @@ place-items:center;padding:var(--follow-pad);border-radius:999px;
 background:var(--accent);color:#fff;font-weight:900;letter-spacing:1.5px;
 font-size:var(--follow-fs);box-shadow:0 14px 34px rgba(37,99,235,.38);
 opacity:0;transform:scale(.88);
-animation:followIn .5s var(--ease) 2.55s forwards, followPress .3s ease-in-out 3.85s;}
+animation:followIn .5s var(--ease) 2.35s forwards, followPress .3s ease-in-out 3.95s;}
 .follow .lbl{grid-area:1/1;white-space:nowrap;}
-.follow .lbl-b{opacity:0;animation:swapIn .001s linear 3.95s forwards;}
-.follow .lbl-a{animation:swapOut .001s linear 3.95s forwards;}
-.cursor{position:absolute;right:calc(var(--cursor-w) * -0.2);
-bottom:calc(var(--cursor-w) * -1.1);width:var(--cursor-w);height:auto;
-opacity:0;transform:translate(90px,110px);
-animation:cursorIn .35s ease-out 3.05s forwards,
-          cursorMove .85s var(--ease) 3.05s forwards,
-          cursorTap .3s ease-in-out 3.85s;}
+.follow .lbl-b{opacity:0;animation:swapIn .001s linear 4.05s forwards;}
+.follow .lbl-a{animation:swapOut .001s linear 4.05s forwards;}
+.cursor{position:absolute;
+/* Đích nằm TRONG lòng nút (mũi trỏ ở góc trên trái của icon nên đặt 56%/34%
+   là chạm gần tâm phải của nút). Trước đó neo bằng right/bottom âm nên con
+   trỏ dừng hẳn bên ngoài, nhìn không ra là đang bấm vào nút. */
+left:56%;top:34%;width:var(--cursor-w);height:auto;
+/* Xuất phát HẲN ngoài khung rồi mới trượt vào — trước đó chỉ lệch 90px nên
+   trông như con trỏ có sẵn cạnh nút chứ không phải đi vào bấm. */
+opacity:0;transform:translate(430px,520px);
+animation:cursorIn .3s ease-out 2.75s forwards,
+          cursorMove 1.15s cubic-bezier(.3,.7,.25,1) 2.75s forwards,
+          cursorTap .3s ease-in-out 3.95s;}
 @keyframes followIn{to{opacity:1;transform:scale(1);}}
 @keyframes followPress{50%{transform:scale(.93);}}
 @keyframes swapIn{to{opacity:1;}}

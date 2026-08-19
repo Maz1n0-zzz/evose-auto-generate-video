@@ -21,6 +21,8 @@ const TemplateScene = z.object({
   voiceText: z.string(),
   /** Độ dài cảnh câm (giây). Chỉ dùng khi voiceText là chuỗi rỗng. */
   silentSec: z.number().min(0.5).max(15).default(3),
+  /** Nối thêm bấy nhiêu giây lặng sau lời đọc, để cảnh đứng lâu hơn. */
+  padSec: z.number().min(0).max(10).default(0),
   /** Folder name under templates/, e.g. "frame-bold-poster". */
   templateId: z.string().min(1),
   /** Text slots for the template's data-composition-variables. */

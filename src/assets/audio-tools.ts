@@ -250,3 +250,22 @@ export async function makeSilence(sec: number, outPath: string): Promise<void> {
     p.on("error", rej);
   });
 }
+
+/**
+ * Nối thêm `sec` giây lặng vào CUỐI một file giọng.
+ *
+ * Dùng khi một cảnh cần đứng hình lâu hơn lời đọc — ví dụ cảnh mở có tựa dài,
+ * người xem cần thời gian đọc hết. Kéo dài bằng cách thêm lặng vào chính file
+ * giọng (chứ không chỉ kéo dài phần hình) để hình và tiếng của các cảnh sau
+ * không bị lệch nhau.
+ */
+export async function padSilence(inPath: string, sec: number, outPath: string): Promise<void> {
+  const { spawn } = await import("node:child_process");
+  const args = ["-y", "-loglevel", "error", "-i", inPath,
+    "-af", `apad=pad_dur=${sec}`, "-c:a", "libmp3lame", "-b:a", "128k", outPath];
+  await new Promise<void>((res, rej) => {
+    const p = spawn("ffmpeg", args, { stdio: ["ignore", "ignore", "inherit"] });
+    p.on("close", (c) => (c === 0 ? res() : rej(new Error(`padSilence ffmpeg thoát mã ${c}`))));
+    p.on("error", rej);
+  });
+}

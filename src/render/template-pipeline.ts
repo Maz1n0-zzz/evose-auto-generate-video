@@ -10,6 +10,7 @@ import {
   concatWithSilence,
   mixSfxOntoVoice,
   makeSilence,
+  padSilence,
   type SfxMixSpec,
 } from "../assets/audio-tools.js";
 import { indexSfxLibrary, pickSfxForScene, defaultPlayback } from "../assets/sfx-selector.js";
@@ -22,7 +23,9 @@ import { hasAudioTags, stripAudioTags } from "../utils/audio-tags.js";
 
 const TOTAL_STEPS = 8;
 const SCENE_GAP_SEC = 0.3;
-const OUTRO_HOLD_SEC = 3;
+// Cảnh cuối đứng hình thêm bấy nhiêu giây sau khi hết tiếng. Để 3 giây thì
+// đoạn cuối im lặng dài lê thê; 1.2 giây đủ để kết mà không hẫng.
+const OUTRO_HOLD_SEC = 1.2;
 const RENDER_FPS = 30;
 
 /** Maps a scene role to a key the SFX selector understands (tier-3 defaults). */
@@ -87,6 +90,15 @@ export async function runTemplatePipeline(scriptPath: string): Promise<void> {
         const spoken = keepTags ? scene.voiceText : stripAudioTags(scene.voiceText);
         log.info(`  TTS scene ${scene.id} (${spoken.length} chars)...`);
         await ttsClient.generate(spoken, out, srtOut);
+        // Nối lặng vào chính file giọng (không chỉ kéo dài phần hình) để hình
+        // và tiếng của các cảnh sau không lệch nhau.
+        if (scene.padSec > 0) {
+          const tmp = out.replace(/\.mp3$/, "-pad.mp3");
+          await padSilence(out, scene.padSec, tmp);
+          const { rename } = await import("node:fs/promises");
+          await rename(tmp, out);
+          log.info(`  scene ${scene.id}: nối thêm ${scene.padSec}s lặng`);
+        }
         const dur = await getDurationSec(out);
         log.info(`  scene ${scene.id}: ${dur.toFixed(2)}s`);
         return { id: scene.id, path: out, durationSec: dur };

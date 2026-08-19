@@ -23,7 +23,7 @@
 
    Dùng chung một file cho 9:16 và 16:9 — xem scripts/gen-aspect.py.
    ------------------------------------------------------------------ */
-:root{--paper:#f2f2f0;--dot:#d6d6d1;--ink:#0a0a0a;--navy:#0A1532;--ink-soft:#6b7280;
+:root{--paper:#f2f2f0;--dot:#d6d6d1;--ink:#0a0a0a;--navy:#0A1532;--accent:#2563eb;--ink-soft:#6b7280;
 --font:'Hanken Grotesk',-apple-system,'Segoe UI',sans-serif;
 --ease:cubic-bezier(.16,1,.3,1);}
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -70,6 +70,32 @@ stroke-width:6;fill:none;}
 @keyframes wmIn{to{opacity:1;transform:translateX(0);}}
 @keyframes logoShift{to{transform:translateX(0) scale(1);}}
 @keyframes fadeUp{to{opacity:1;transform:translateY(0);}}
+
+/* --- nút FOLLOW: con trỏ di vào, bấm, chữ đổi thành FOLLOWING ---
+   Hai nhãn xếp CHỒNG trong cùng ô lưới nên bề ngang nút bằng nhãn dài nhất,
+   đổi chữ không làm nút nhảy kích thước. */
+.follow{margin-top:var(--follow-gap);position:relative;display:grid;
+place-items:center;padding:var(--follow-pad);border-radius:999px;
+background:var(--accent);color:#fff;font-weight:900;letter-spacing:1.5px;
+font-size:var(--follow-fs);box-shadow:0 14px 34px rgba(37,99,235,.38);
+opacity:0;transform:scale(.88);
+animation:followIn .5s var(--ease) 2.55s forwards, followPress .3s ease-in-out 3.85s;}
+.follow .lbl{grid-area:1/1;white-space:nowrap;}
+.follow .lbl-b{opacity:0;animation:swapIn .001s linear 3.95s forwards;}
+.follow .lbl-a{animation:swapOut .001s linear 3.95s forwards;}
+.cursor{position:absolute;right:calc(var(--cursor-w) * -0.2);
+bottom:calc(var(--cursor-w) * -1.1);width:var(--cursor-w);height:auto;
+opacity:0;transform:translate(90px,110px);
+animation:cursorIn .35s ease-out 3.05s forwards,
+          cursorMove .85s var(--ease) 3.05s forwards,
+          cursorTap .3s ease-in-out 3.85s;}
+@keyframes followIn{to{opacity:1;transform:scale(1);}}
+@keyframes followPress{50%{transform:scale(.93);}}
+@keyframes swapIn{to{opacity:1;}}
+@keyframes swapOut{to{opacity:0;}}
+@keyframes cursorIn{to{opacity:1;}}
+@keyframes cursorMove{to{transform:translate(0,0);}}
+@keyframes cursorTap{50%{transform:translate(0,0) scale(.82);}}
 </style></head>
 <body><div id="root" data-composition-id="main" data-start="0" data-duration="20" data-width="1080" data-height="1920">
 
@@ -124,6 +150,7 @@ m-533 -975 c-53 -56 -136 -82 -209 -64 -160 38 -215 237 -98 358 l31 33 150
 
 <div class="tagline"></div>
 <div class="url"></div>
+<div class="follow"></div>
 </div>
 <script>(function(){
 var v=(window.__hyperframes&&typeof window.__hyperframes.getVariables==="function")?window.__hyperframes.getVariables():{};
@@ -131,9 +158,11 @@ var root=document.getElementById("root");
 
 var GEO={
   portrait:{css:{"--logo-w":"600px","--tag-gap":"34px","--tag-fs":"34px",
-                 "--url-gap":"46px","--url-fs":"38px"}},
+                 "--url-gap":"46px","--url-fs":"38px",
+                 "--follow-gap":"56px","--follow-pad":"30px 96px","--follow-fs":"46px","--cursor-w":"66px"}},
   landscape:{css:{"--logo-w":"520px","--tag-gap":"26px","--tag-fs":"28px",
-                  "--url-gap":"34px","--url-fs":"32px"}}
+                  "--url-gap":"34px","--url-fs":"32px",
+                  "--follow-gap":"38px","--follow-pad":"22px 70px","--follow-fs":"34px","--cursor-w":"50px"}}
 };
 var W=+root.getAttribute("data-width")||1080,H=+root.getAttribute("data-height")||1920;
 var G=GEO[W>=H?"landscape":"portrait"];
@@ -150,6 +179,18 @@ if(v.url){
   span.textContent=String(v.url);
   urlEl.appendChild(span);
 }else{urlEl.style.display="none";}
+
+/* Nút FOLLOW — chỉ hiện khi script bật, vì cảnh MỞ không cần. */
+var fw=document.querySelector(".follow");
+if(v.follow){
+  var a=String(v.follow_label||"FOLLOW");
+  var b=String(v.follow_label_after||"FOLLOWING");
+  fw.innerHTML='<span class="lbl lbl-a"></span><span class="lbl lbl-b"></span>'
+    +'<svg class="cursor" viewBox="0 0 24 24" fill="#0A1532" stroke="#fff" stroke-width="1.4">'
+    +'<path d="M5 2.5 L5 19 L9.2 15.2 L11.8 21 L14.6 19.7 L12 14 L18 13.6 Z"/></svg>';
+  fw.querySelector(".lbl-a").textContent=a;
+  fw.querySelector(".lbl-b").textContent=b;
+}else{fw.style.display="none";}
 
 /* HyperFrames 0.6.94 thoát code 1 ("zero duration") nếu frame thuần CSS không
    khai báo timeline. Stub này đủ để nó nhận data-duration. */

@@ -105,7 +105,13 @@
             letter-spacing: 1px;
             opacity: 0.94;
         }
-    </style>
+    
+        /* Bản Light: icon phải ĐẬM màu brand. Bản gốc để opacity 0.92 cho
+           chữ trắng trên nền tối; giữ nguyên trên nền giấy thì icon nhạt nhoà. */
+        .socials .icon { opacity: 1 !important; }
+        .socials .icon svg { fill: #0A1532 !important; }
+        .footer .url { color: #0A1532 !important; opacity: 1 !important; }
+</style>
 </head>
 <body>
     <div class="scrim-top"></div>

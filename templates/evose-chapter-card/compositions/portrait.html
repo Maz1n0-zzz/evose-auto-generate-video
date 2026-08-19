@@ -84,12 +84,16 @@ var GEO={
     css:{"--banner-x":"90px","--banner-top":"150px","--banner-pad":"40px 56px",
          "--banner-radius":"26px","--title-fs":"58px","--sub-fs":"36px","--sub-gap":"14px",
          "--mascot-w":"520px","--mascot-h":"640px"},
+    solo:{"--title-fs":"78px","--sub-fs":"42px","--banner-pad":"54px 70px",
+          "--banner-radius":"32px","--sub-gap":"18px"},
     js:{fsScale:1}
   },
   landscape:{
     css:{"--banner-x":"260px","--banner-top":"90px","--banner-pad":"30px 48px",
          "--banner-radius":"22px","--title-fs":"48px","--sub-fs":"30px","--sub-gap":"10px",
          "--mascot-w":"400px","--mascot-h":"520px"},
+    solo:{"--title-fs":"62px","--sub-fs":"34px","--banner-pad":"40px 58px",
+          "--banner-radius":"26px","--sub-gap":"14px"},
     js:{fsScale:1}
   }
 };
@@ -111,13 +115,22 @@ if(v.media){
   root.classList.add("has-media");
 }
 
+/* Không có ảnh nền thì banner là thứ DUY NHẤT trên khung — để nguyên cỡ
+   "nhãn đè lên ảnh" sẽ thành một mẩu nhỏ lọt thỏm, lệch hẳn nhịp so với
+   các cảnh khác trong cùng video. Phóng to lên cho cân. */
+if(!v.media){
+  var big=G.solo;
+  for(var bk in big)root.style.setProperty(bk,big[bk]);
+}
+
 set(".b-title",v.title||"Phần 1 — Vai trò");
 set(".b-sub",v.subtitle);
 
 /* Tiêu đề dài thì thu nhỏ để banner không phình quá 3 dòng. */
 var t=String(v.title||"");
 if(t.length>34){
-  var base=parseInt(G.css["--title-fs"],10);
+  var base=parseInt(getComputedStyle(root).getPropertyValue("--title-fs"),10)
+           ||parseInt(G.css["--title-fs"],10);
   root.style.setProperty("--title-fs",Math.round(base*(t.length>52?.68:.82))+"px");
 }
 

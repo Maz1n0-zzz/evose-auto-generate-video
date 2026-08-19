@@ -132,9 +132,29 @@ animation:cursorIn .3s ease-out 2.75s forwards,
 /* Xoáy xong mới tới lượt wordmark, nếu không hai chuyển động chồng lên nhau. */
 #root.swirl .logo{animation-delay:1.95s;}
 #root.swirl .logo .wm{animation-delay:2.00s;}
+
+/* --- CẢNH MỞ CÓ TỰA BÀI ---
+   Giữ nguyên hoạt cảnh gốc: monogram hiện giữa khung rồi cụm dịch trái trong
+   lúc phần bên phải lộ ra. Khác ở chỗ phần lộ ra là TỰA BÀI VIẾT chứ không
+   phải wordmark "Evose". Dùng đúng font và màu brand.
+   Khoảng dịch đo bằng JS ngay lúc dựng (đồng bộ, không chờ tải gì) nên
+   HyperFrames tua khung nào cũng ra đúng. */
+#root.has-headline .logo .wm{display:none;}
+.lockup{display:flex;align-items:center;justify-content:center;
+gap:var(--lk-gap);width:100%;padding:0 var(--lk-pad);
+transform:translateX(var(--lk-shift,0px));
+animation:lockupShift .8s var(--ease) 1.05s forwards;}
+.lockup .logo{width:var(--sym-w);flex:none;animation:none;transform:none;}
+.vtitle{font-weight:800;color:var(--navy);font-size:var(--vt-fs);
+line-height:1.14;letter-spacing:-1px;text-align:left;max-width:var(--vt-max);
+opacity:0;transform:translateX(-30px);
+animation:vtitleIn .7s var(--ease) 1.10s forwards;}
+@keyframes lockupShift{to{transform:translateX(0);}}
+@keyframes vtitleIn{to{opacity:1;transform:translateX(0);}}
 </style></head>
 <body><div id="root" data-composition-id="main" data-start="0" data-duration="20" data-width="1920" data-height="1080">
 
+<div class="lockup">
 <svg class="logo" viewBox="0 0 568.170399 141.238092" xmlns="http://www.w3.org/2000/svg">
 <g transform="translate(-136.116800,483.879246) scale(0.100000,-0.100000)" fill="currentColor" stroke="none">
 <g class="sym">
@@ -183,6 +203,8 @@ m-533 -975 c-53 -56 -136 -82 -209 -64 -160 38 -215 237 -98 358 l31 33 150
 </g>
 </g>
 </svg>
+<div class="vtitle"></div>
+</div>
 
 <div class="tagline"></div>
 <div class="url"></div>
@@ -195,9 +217,11 @@ var root=document.getElementById("root");
 var GEO={
   portrait:{css:{"--logo-w":"600px","--tag-gap":"34px","--tag-fs":"34px",
                  "--url-gap":"46px","--url-fs":"38px",
+                 "--sym-w":"190px","--lk-gap":"40px","--lk-pad":"70px","--vt-fs":"66px","--vt-max":"640px",
                  "--follow-gap":"56px","--follow-pad":"30px 96px","--follow-fs":"46px","--cursor-w":"66px"}},
   landscape:{css:{"--logo-w":"520px","--tag-gap":"26px","--tag-fs":"28px",
                   "--url-gap":"34px","--url-fs":"32px",
+                  "--sym-w":"150px","--lk-gap":"32px","--lk-pad":"180px","--vt-fs":"52px","--vt-max":"900px",
                   "--follow-gap":"38px","--follow-pad":"22px 70px","--follow-fs":"34px","--cursor-w":"50px"}}
 };
 var W=+root.getAttribute("data-width")||1080,H=+root.getAttribute("data-height")||1920;
@@ -205,6 +229,21 @@ var G=GEO[W>=H?"landscape":"portrait"];
 for(var k in G.css)root.style.setProperty(k,G.css[k]);
 
 if(v.intro==="swirl")root.classList.add("swirl");
+
+/* Tựa bài: thay chỗ của wordmark. Cắt viewBox còn đúng phần monogram (0→140
+   trong hệ toạ độ viewBox gốc rộng 568) để không thừa khoảng trống bên phải. */
+var vt=document.querySelector(".vtitle");
+if(v.headline){
+  root.classList.add("has-headline");
+  vt.textContent=String(v.headline);
+  var svgEl=document.querySelector(".logo");
+  svgEl.setAttribute("viewBox","0 0 140 141.238092");
+  /* Ban đầu đẩy cả cụm sang phải đúng nửa bề ngang phần tựa + khoảng cách,
+     để monogram nằm giữa khung; khi tựa hiện thì kéo về 0 cho cụm cân lại. */
+  var gap=parseInt(getComputedStyle(root).getPropertyValue("--lk-gap"),10)||40;
+  var w=vt.getBoundingClientRect().width;
+  root.style.setProperty("--lk-shift",Math.round((w+gap)/2)+"px");
+}else{vt.style.display="none";}
 
 var tag=document.querySelector(".tagline");
 if(v.tagline){tag.textContent=String(v.tagline);}else{tag.style.display="none";}

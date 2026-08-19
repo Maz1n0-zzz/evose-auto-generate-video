@@ -48,7 +48,11 @@ display:flex;flex-direction:column;align-items:center;justify-content:center;}
    monogram, chia bề rộng viewBox (monogram 0→120, wordmark 199→554/568). */
 transform:translateX(calc(var(--logo-w) * 0.5122)) scale(1.3);
 animation:logoShift .75s var(--ease) 1.10s forwards;}
-.logo .sym{opacity:0;transform-origin:60px 70px;
+.logo .sym{opacity:0;
+/* transform-box:fill-box → tâm biến đổi lấy theo hộp bao của CHÍNH nhóm này.
+   Không có nó thì transform-origin tính trong hệ toạ độ SVG đã bị nhóm cha
+   bóp scale(0.1,-0.1), tâm xoay rơi ra ngoài khung và logo bay đi mất. */
+transform-box:fill-box;transform-origin:center;
 animation:symIn .6s var(--ease) .15s forwards;}
 .logo .wm{opacity:0;transform:translateX(-26px);
 animation:wmIn .6s var(--ease) 1.15s forwards;}
@@ -96,6 +100,27 @@ animation:cursorIn .35s ease-out 3.05s forwards,
 @keyframes cursorIn{to{opacity:1;}}
 @keyframes cursorMove{to{transform:translate(0,0);}}
 @keyframes cursorTap{50%{transform:translate(0,0) scale(.82);}}
+
+/* --- CẢNH MỞ: logo xoáy vào ---
+   Monogram bay vào trong lúc đang xoay và nhoè, rồi tụ lại đúng nét. Bật bằng
+   slot `intro: "swirl"`; cảnh KẾT không bật để logo hiện thẳng, không rườm rà.
+   Xoay nhiều vòng (-560deg) + blur lớn ban đầu tạo cảm giác vệt xoáy; blur tan
+   nhanh hơn góc xoay nên nét logo hiện rõ trước khi dừng hẳn. */
+#root.swirl .logo .sym{
+  animation:swirlIn 1.7s cubic-bezier(.33,.06,.2,1) .05s forwards;}
+/* Các mốc phần trăm chia đều tiến trình để pha vệt nhoè kịp NHÌN THẤY. Dồn hết
+   vào một đường cong ease mạnh thì 80% chuyển động xảy ra trong 20% thời gian
+   đầu — mắt chỉ kịp thấy logo quay, mất hẳn cảm giác xoáy. */
+@keyframes swirlIn{
+  0%  {opacity:0;  transform:rotate(-620deg) scale(3.2);filter:blur(40px);}
+  18% {opacity:.85;transform:rotate(-430deg) scale(2.5);filter:blur(30px);}
+  42% {opacity:1;  transform:rotate(-250deg) scale(1.9);filter:blur(18px);}
+  68% {opacity:1;  transform:rotate(-105deg) scale(1.35);filter:blur(8px);}
+  100%{opacity:1;  transform:rotate(0) scale(1);filter:blur(0);}
+}
+/* Xoáy xong mới tới lượt wordmark, nếu không hai chuyển động chồng lên nhau. */
+#root.swirl .logo{animation-delay:1.95s;}
+#root.swirl .logo .wm{animation-delay:2.00s;}
 </style></head>
 <body><div id="root" data-composition-id="main" data-start="0" data-duration="20" data-width="1080" data-height="1920">
 
@@ -167,6 +192,8 @@ var GEO={
 var W=+root.getAttribute("data-width")||1080,H=+root.getAttribute("data-height")||1920;
 var G=GEO[W>=H?"landscape":"portrait"];
 for(var k in G.css)root.style.setProperty(k,G.css[k]);
+
+if(v.intro==="swirl")root.classList.add("swirl");
 
 var tag=document.querySelector(".tagline");
 if(v.tagline){tag.textContent=String(v.tagline);}else{tag.style.display="none";}

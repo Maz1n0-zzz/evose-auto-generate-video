@@ -1,0 +1,140 @@
+<!-- SINH TỰ ĐỘNG bởi scripts/gen-aspect.py — ĐỪNG SỬA TRỰC TIẾP.
+     Sửa compositions/portrait.html rồi chạy lại script. -->
+<!doctype html><html lang="vi"><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=1920, height=1080"/><title>Evose Chapter Card</title>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,600;0,700;0,800;0,900;1,800;1,900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"/>
+<style>
+/* ------------------------------------------------------------------
+   EVOSE CHAPTER CARD — banner đen bo tròn công bố một phần/bước.
+   Token gốc: templates/EVOSE-LIGHT-TOKENS.css (sửa ở đó trước).
+
+   Hai chế độ:
+   - CÓ `media`  → ảnh phủ toàn khung, banner neo trên đỉnh (như reference:
+                   banner đè lên màn hình app đang cuộn).
+   - KHÔNG media → nền dot-grid, banner canh giữa khung cho cân.
+
+   Dùng chung một file cho 9:16 và 16:9 — xem scripts/gen-aspect.py.
+   ------------------------------------------------------------------ */
+:root{--paper:#f2f2f0;--dot:#d6d6d1;--ink:#0a0a0a;--ink-soft:#6b7280;
+--font:'Hanken Grotesk',-apple-system,'Segoe UI',sans-serif;--font-mono:'JetBrains Mono',ui-monospace,monospace;
+--ease:cubic-bezier(.16,1,.3,1);}
+*{margin:0;padding:0;box-sizing:border-box;}
+
+/* ↓↓↓ 3 dòng khung — chỗ DUY NHẤT khác nhau giữa 9:16 và 16:9 ↓↓↓ */
+html,body{width:1920px;height:1080px;}
+#root{width:1920px;height:1080px;}
+/* ↑↑↑ (dòng thứ 3 là data-width/data-height trên #root dưới <body>) */
+
+html,body{overflow:hidden;font-family:var(--font);color:var(--ink);}
+#root{position:relative;overflow:hidden;
+background-color:var(--paper);
+background-image:radial-gradient(circle,var(--dot) 1.35px,transparent 1.35px);
+background-size:26px 26px;}
+
+/* --- ảnh nền (tuỳ chọn) + ken-burns chậm bám nhịp lời đọc --- */
+.media{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+transform-origin:50% 42%;opacity:0;
+animation:mediaIn .6s var(--ease) forwards, kenburns 20s linear forwards;}
+.media.contain{object-fit:contain;}
+
+/* --- banner ---
+   ÔM SÁT chữ (width:max-content) chứ không kéo hết chiều ngang: reference cũng
+   vậy — banner ngắn khi tiêu đề ngắn. Kéo full khiến khung 16:9 bị dẹt như
+   thanh ngang. max-width chặn để tiêu đề dài vẫn xuống dòng trong khung. */
+.banner{position:absolute;left:50%;width:max-content;
+max-width:calc(100% - var(--banner-x) * 2);
+padding:var(--banner-pad);background:var(--ink);border-radius:var(--banner-radius);
+text-align:center;box-shadow:0 14px 40px rgba(10,10,10,.28);
+opacity:0;animation:bannerIn .6s var(--ease) .15s forwards;}
+/* Có ảnh: neo đỉnh. Không ảnh: canh giữa khung. */
+#root.has-media .banner{top:var(--banner-top);
+transform:translateX(-50%) translateY(-34px) scale(.97);}
+#root:not(.has-media) .banner{top:50%;
+transform:translateX(-50%) translateY(calc(-50% - 34px)) scale(.97);
+animation-name:bannerInMid;}
+
+.b-title{font-style:italic;font-weight:900;color:#fff;text-transform:uppercase;
+font-size:var(--title-fs);line-height:1.1;letter-spacing:.5px;
+opacity:0;animation:fadeUp .5s var(--ease) .35s forwards;}
+.b-sub{margin-top:var(--sub-gap);font-weight:600;color:#d6d6d1;
+font-size:var(--sub-fs);line-height:1.25;
+opacity:0;animation:fadeUp .5s var(--ease) .55s forwards;}
+
+/* --- mascot (PNG alpha từ evose-brand-kit/mascot/) --- */
+.mascot{position:absolute;bottom:0;width:var(--mascot-w);height:var(--mascot-h);
+object-fit:contain;object-position:bottom center;pointer-events:none;
+opacity:0;transform:translateY(70px);animation:mascotIn .6s var(--ease) .8s forwards;}
+.mascot.right{right:40px;}
+.mascot.left{left:40px;}
+
+@keyframes mediaIn{to{opacity:1;}}
+@keyframes kenburns{from{scale:1;}to{scale:1.07;}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+@keyframes bannerIn{to{opacity:1;transform:translateX(-50%) translateY(0) scale(1);}}
+@keyframes bannerInMid{to{opacity:1;transform:translateX(-50%) translateY(-50%) scale(1);}}
+@keyframes mascotIn{to{opacity:1;transform:translateY(0);}}
+</style></head>
+<body><div id="root" data-composition-id="main" data-start="0" data-duration="20" data-width="1920" data-height="1080">
+<div class="banner"><div class="b-title"></div><div class="b-sub"></div></div>
+</div>
+<script>(function(){
+var v=(window.__hyperframes&&typeof window.__hyperframes.getVariables==="function")?window.__hyperframes.getVariables():{};
+var root=document.getElementById("root");
+
+var GEO={
+  portrait:{
+    css:{"--banner-x":"90px","--banner-top":"150px","--banner-pad":"40px 56px",
+         "--banner-radius":"26px","--title-fs":"58px","--sub-fs":"36px","--sub-gap":"14px",
+         "--mascot-w":"520px","--mascot-h":"640px"},
+    js:{fsScale:1}
+  },
+  landscape:{
+    css:{"--banner-x":"260px","--banner-top":"90px","--banner-pad":"30px 48px",
+         "--banner-radius":"22px","--title-fs":"48px","--sub-fs":"30px","--sub-gap":"10px",
+         "--mascot-w":"400px","--mascot-h":"520px"},
+    js:{fsScale:1}
+  }
+};
+var W=+root.getAttribute("data-width")||1080,H=+root.getAttribute("data-height")||1920;
+var G=GEO[W>=H?"landscape":"portrait"];
+for(var k in G.css)root.style.setProperty(k,G.css[k]);
+
+function set(sel,val){var e=document.querySelector(sel);
+  if(!e)return;
+  if(val==null||val===""){e.style.display="none";return;}
+  e.textContent=String(val);}
+
+/* Ảnh nền: chèn TRƯỚC banner để banner luôn nằm trên. */
+if(v.media){
+  var img=document.createElement("img");
+  img.className="media"+(v.media_fit==="contain"?" contain":"");
+  img.src=String(v.media);
+  root.insertBefore(img,root.firstChild);
+  root.classList.add("has-media");
+}
+
+set(".b-title",v.title||"Phần 1 — Vai trò");
+set(".b-sub",v.subtitle);
+
+/* Tiêu đề dài thì thu nhỏ để banner không phình quá 3 dòng. */
+var t=String(v.title||"");
+if(t.length>34){
+  var base=parseInt(G.css["--title-fs"],10);
+  root.style.setProperty("--title-fs",Math.round(base*(t.length>52?.68:.82))+"px");
+}
+
+if(v.mascot){
+  var m=document.createElement("img");
+  m.className="mascot "+(v.mascot_side==="left"?"left":"right");
+  m.src=String(v.mascot);
+  var sc=parseFloat(v.mascot_scale);
+  if(sc>0){m.style.width=(parseInt(G.css["--mascot-w"],10)*sc)+"px";
+           m.style.height=(parseInt(G.css["--mascot-h"],10)*sc)+"px";}
+  root.appendChild(m);
+}
+
+/* HyperFrames 0.6.94 thoát code 1 ("zero duration") nếu frame thuần CSS không
+   khai báo timeline. Stub này đủ để nó nhận data-duration. */
+window.__timelines=window.__timelines||{};
+window.__timelines["main"]={pause:function(){},seek:function(){},paused:function(){return true;}};
+})();</script></body></html>

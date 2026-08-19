@@ -82,16 +82,34 @@ nét nối chấm, một màu nhấn duy nhất, mascot robot 3D, **không** gra
    Phải sửa thành `{ "overlay": true, "style": "light" }`, nếu không lần chạy
    `/create-template-video` sau sẽ tự tắt overlay và mất logo.
 
-2. **Nút FOLLOW ở cảnh kết** — Mazino muốn giống bộ cũ: nút bo tròn màu xanh
-   ghi "FOLLOW", con trỏ chuột di vào bấm, chữ đổi thành "FOLLOWING". Chưa làm.
+2. **CẢNH MỞ KIỂU MỚI — việc lớn nhất còn lại.** Mazino muốn:
+   - Logo Evose **xoáy tròn** hiện vào — vệt xoáy nhoè tụ dần lại thành monogram.
+   - Monogram đứng giữa khung, rồi **wordmark chạy từ phải sang trái** hiện ra.
+   - Cảnh này dài **đúng 3 giây, CHỈ CÓ NHẠC** — không tiêu đề, không giọng đọc.
+   - Cảnh 2 mới bắt đầu lời đọc.
 
-3. **Icon mạng xã hội ở footer overlay** — Mazino thấy còn nhạt, muốn đậm
-   thành màu brand navy `#0A1532`.
+   **Vướng kiến trúc, phải giải trước:** schema bắt `voiceText` tối thiểu 1 ký
+   tự và `scenes[0].type` phải là `hook`; pipeline dựng mốc thời gian từ độ dài
+   file giọng của từng cảnh, nên một cảnh CÂM sẽ làm lệch toàn bộ. Hai hướng:
+   - (a) cho phép `voiceText: ""` → pipeline chèn 3 giây lặng đúng chỗ khi ghép
+     giọng (sửa `concatWithSilence` và bảng `sceneStarts` trong
+     `template-pipeline.ts` bước 4).
+   - (b) dựng cảnh mở thành **bumper** ghép trước ở bước 7, rồi `adelay` toàn
+     bộ track giọng thêm 3 giây.
 
-4. Chưa merge `feat/evose-light-templates` vào `main`, chưa push lên remote
+   Hướng (a) gọn hơn và giữ mọi thứ trong cùng một mô hình cảnh.
+
+   Hiệu ứng xoáy: thêm keyframe `rotate` + `filter: blur()` giảm dần cho
+   `.logo .sym` trong `evose-logo-card`, kích hoạt bằng một slot mới
+   (vd `intro: "swirl"`) để cảnh kết không bị ảnh hưởng.
+
+3. ~~Icon mạng xã hội đậm màu brand~~ — XONG.
+4. ~~Nút FOLLOW ở cảnh kết~~ — XONG (slot `follow: true` của `evose-logo-card`).
+
+5. Chưa merge `feat/evose-light-templates` vào `main`, chưa push lên remote
    `evose` (`git push evose main` — KHÔNG dùng `origin`).
 
-5. Phương án C (nhúng video/quay màn hình thật làm nền) đã bàn nhưng **hoãn
+6. Phương án C (nhúng video/quay màn hình thật làm nền) đã bàn nhưng **hoãn
    lại**. Video mẫu của designer có ~40% thời lượng là quay app thật; bộ Light
    hiện chỉ nhúng được ảnh tĩnh.
 

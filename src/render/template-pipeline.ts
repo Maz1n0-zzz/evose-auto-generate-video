@@ -187,6 +187,7 @@ export async function runTemplatePipeline(scriptPath: string): Promise<void> {
       videoPath,
       durationSec: videoDurationSec,
       useOverlay: script.brand.overlay,
+      style: script.brand.style,
     });
   } catch (e) {
     console.error("[evose] Bước hoàn thiện lỗi (video.mp4 vẫn dùng được):", e);

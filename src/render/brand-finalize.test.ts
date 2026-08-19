@@ -96,4 +96,15 @@ describe("resolveBrandAssets", () => {
         expect(overlayPng).toBe("/repo/evose-brand-kit/overlays/overlay-frame.png");
         expect(musicMp3).toBe("/repo/evose-brand-kit/music/background.mp3");
     });
+
+    test('style "light" lấy đúng file overlay bản sáng', () => {
+        // Lấy nhầm bản dark cho bộ evose-* thì video ra hai vệt đen chắn ngang.
+        const { overlayPng } = resolveBrandAssets("/repo/output/bai-001", "light");
+        expect(overlayPng).toBe("/repo/evose-brand-kit/overlays/overlay-frame-light.png");
+    });
+
+    test("không truyền style thì mặc định dark (giữ hành vi cũ)", () => {
+        const { overlayPng } = resolveBrandAssets("/repo/output/bai-001");
+        expect(overlayPng).toContain("overlay-frame.png");
+    });
 });

@@ -72,11 +72,17 @@ export function buildFinalizeArgs(spec: FinalizeSpec): string[] {
     return args;
 }
 
+export type OverlayStyle = "dark" | "light";
+
 /** Vị trí các tài nguyên thương hiệu, tính từ thư mục output của một video. */
-export function resolveBrandAssets(outputDir: string): { overlayPng: string; musicMp3: string } {
+export function resolveBrandAssets(
+    outputDir: string,
+    style: OverlayStyle = "dark",
+): { overlayPng: string; musicMp3: string } {
     const kitDir = resolve(outputDir, "..", "..", "evose-brand-kit");
+    const file = style === "light" ? "overlay-frame-light.png" : "overlay-frame.png";
     return {
-        overlayPng: join(kitDir, "overlays", "overlay-frame.png"),
+        overlayPng: join(kitDir, "overlays", file),
         musicMp3: join(kitDir, "music", "background.mp3"),
     };
 }
@@ -87,18 +93,20 @@ export interface FinalizeOptions {
     durationSec: number;
     /** false → bỏ overlay, vẫn giữ nhạc nền. */
     useOverlay: boolean;
+    /** Kiểu overlay: `dark` cho bộ frame-*, `light` cho bộ evose-*. */
+    style?: OverlayStyle;
 }
 
 /** Chạy ffmpeg. Không có overlay lẫn nhạc thì bỏ qua hẳn, không tạo file thừa. */
 export async function runBrandFinalize(opts: FinalizeOptions): Promise<string | null> {
-    const { outputDir, videoPath, durationSec, useOverlay } = opts;
-    const { overlayPng, musicMp3 } = resolveBrandAssets(outputDir);
+    const { outputDir, videoPath, durationSec, useOverlay, style = "dark" } = opts;
+    const { overlayPng, musicMp3 } = resolveBrandAssets(outputDir, style);
 
     const overlay = useOverlay && existsSync(overlayPng) ? overlayPng : null;
     const music = existsSync(musicMp3) ? musicMp3 : null;
 
     console.log(
-        `\n[evose] Finalize: overlay=${overlay ? "có" : useOverlay ? "không thấy file" : "tắt theo script"}` +
+        `\n[evose] Finalize: overlay=${overlay ? style : useOverlay ? "không thấy file" : "tắt theo script"}` +
         ` music=${music ? "có" : "không thấy file"}`,
     );
     if (!overlay && !music) {

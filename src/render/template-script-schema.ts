@@ -56,8 +56,16 @@ export const TemplateScriptSchema = z.object({
    * kết, giống video mẫu. Nhạc nền không chịu ảnh hưởng của cờ này.
    */
   brand: z
-    .object({ overlay: z.boolean().default(true) })
-    .default({ overlay: true }),
+    .object({
+      overlay: z.boolean().default(true),
+      /**
+       * Kiểu overlay. `dark` là lớp chữ trắng trên dải tối — hợp bộ `frame-*`
+       * nền tối. `light` là chữ navy trên dải giấy mờ — dùng cho bộ `evose-*`
+       * nền sáng, vì dải tối đặt lên nền giấy sẽ thành hai vệt đen chắn ngang.
+       */
+      style: z.enum(["dark", "light"]).default("dark"),
+    })
+    .default({ overlay: true, style: "dark" }),
   scenes: z
     .array(TemplateScene)
     .min(3)

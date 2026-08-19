@@ -77,41 +77,41 @@ nét nối chấm, một màu nhấn duy nhất, mascot robot 3D, **không** gra
 
 ## ⚠️ VIỆC CÒN DANG DỞ
 
-1. **`templates/CATALOG.md` và `.claude/skills/create-template-video/SKILL.md`
-   đang GHI SAI** — vẫn bảo `brand.overlay: false` là bắt buộc cho bộ Light.
-   Phải sửa thành `{ "overlay": true, "style": "light" }`, nếu không lần chạy
-   `/create-template-video` sau sẽ tự tắt overlay và mất logo.
+1. **Kho logo + font brand** — Mazino có nhắc muốn làm nhưng CHƯA mô tả rõ là
+   gì (một trang tra cứu bộ nhận diện? một thư mục asset chuẩn hoá?). Hỏi lại
+   trước khi bắt tay.
 
-2. **CẢNH MỞ KIỂU MỚI — việc lớn nhất còn lại.** Mazino muốn:
-   - Logo Evose **xoáy tròn** hiện vào — vệt xoáy nhoè tụ dần lại thành monogram.
-   - Monogram đứng giữa khung, rồi **wordmark chạy từ phải sang trái** hiện ra.
-   - Cảnh này dài **đúng 3 giây, CHỈ CÓ NHẠC** — không tiêu đề, không giọng đọc.
-   - Cảnh 2 mới bắt đầu lời đọc.
+2. **Phương án C — nhúng video quay màn hình thật làm nền.** Đã bàn, hoãn lại.
+   Video mẫu của designer có ~40% thời lượng là quay app thật; bộ Light hiện
+   chỉ nhúng được ảnh tĩnh (có cuộn). Hướng làm: template render lớp chữ nền
+   trong suốt rồi ffmpeg overlay lên clip nền — giống cách `runBrandFinalize`
+   đang đè overlay PNG. Ẩn số cần kiểm trước: HyperFrames 0.6.94 có xuất được
+   video có kênh alpha không.
 
-   **Vướng kiến trúc, phải giải trước:** schema bắt `voiceText` tối thiểu 1 ký
-   tự và `scenes[0].type` phải là `hook`; pipeline dựng mốc thời gian từ độ dài
-   file giọng của từng cảnh, nên một cảnh CÂM sẽ làm lệch toàn bộ. Hai hướng:
-   - (a) cho phép `voiceText: ""` → pipeline chèn 3 giây lặng đúng chỗ khi ghép
-     giọng (sửa `concatWithSilence` và bảng `sceneStarts` trong
-     `template-pipeline.ts` bước 4).
-   - (b) dựng cảnh mở thành **bumper** ghép trước ở bước 7, rồi `adelay` toàn
-     bộ track giọng thêm 3 giây.
+3. **Chưa merge và chưa push.** Nhánh `feat/evose-light-templates`.
+   Push bằng `git push evose feat/evose-light-templates` — remote `evose`,
+   KHÔNG dùng `origin` (không có quyền).
 
-   Hướng (a) gọn hơn và giữ mọi thứ trong cùng một mô hình cảnh.
+## Đã làm xong sau đợt T1–T7
 
-   Hiệu ứng xoáy: thêm keyframe `rotate` + `filter: blur()` giảm dần cho
-   `.logo .sym` trong `evose-logo-card`, kích hoạt bằng một slot mới
-   (vd `intro: "swirl"`) để cảnh kết không bị ảnh hưởng.
-
-3. ~~Icon mạng xã hội đậm màu brand~~ — XONG.
-4. ~~Nút FOLLOW ở cảnh kết~~ — XONG (slot `follow: true` của `evose-logo-card`).
-
-5. Chưa merge `feat/evose-light-templates` vào `main`, chưa push lên remote
-   `evose` (`git push evose main` — KHÔNG dùng `origin`).
-
-6. Phương án C (nhúng video/quay màn hình thật làm nền) đã bàn nhưng **hoãn
-   lại**. Video mẫu của designer có ~40% thời lượng là quay app thật; bộ Light
-   hiện chỉ nhúng được ảnh tĩnh.
+- Overlay bản Light bật trên mọi cảnh (`brand.style: "light"`), icon mạng xã
+  hội đậm màu navy.
+- Cảnh kết có nút FOLLOW: con trỏ đi từ ngoài khung vào, bấm, chữ đổi thành
+  FOLLOWING (`follow: true`).
+- Cảnh mở dùng slot `headline` + `subheadline`: tựa bài cỡ lớn canh giữa, có
+  dải màu brand chạy ngang chữ để bắt mắt. Bỏ monogram khỏi khung vì header
+  overlay đã có logo.
+- `evose-title-card` mặc định chữ THẲNG (tilt 0, không italic). Kiểu nghiêng
+  sticker vẫn bật lại được bằng `tilt` khác 0 + `italic: true`.
+- Thẻ cảm xúc cho `eleven_v3`, tự bỏ thẻ ở `script.txt` và ở provider khác.
+- Cảnh CÂM: `voiceText: ""` + `silentSec` (hiện không dùng nhưng còn trong code).
+- `padSec`: nối lặng vào file giọng của một cảnh để nó đứng lâu hơn.
+- `OUTRO_HOLD_SEC` 3 → 1.2 giây.
+- Nhạc nền: bản mới, `volume 0.30`, ducking `ratio 4 / threshold 0.10`.
+- `CATALOG.md` và `SKILL.md` đã sửa đúng theo `overlay: true, style: "light"`,
+  và thêm Step 3b BẮT BUỘC chụp ảnh bài báo khi nguồn là URL.
+- Hiệu ứng xoáy logo (`intro: "swirl"`) — có trong code nhưng KHÔNG dùng ở
+  cảnh mở nữa vì Mazino đã đổi sang kiểu tựa bài cỡ lớn.
 
 ## Cách chạy
 

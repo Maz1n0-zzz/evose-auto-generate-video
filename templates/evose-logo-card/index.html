@@ -140,17 +140,30 @@ animation:cursorIn .3s ease-out 2.75s forwards,
    Khoảng dịch đo bằng JS ngay lúc dựng (đồng bộ, không chờ tải gì) nên
    HyperFrames tua khung nào cũng ra đúng. */
 #root.has-headline .logo .wm{display:none;}
-.lockup{display:flex;align-items:center;justify-content:center;
-gap:var(--lk-gap);width:100%;padding:0 var(--lk-pad);
-transform:translateX(var(--lk-shift,0px));
-animation:lockupShift .8s var(--ease) 1.05s forwards;}
-.lockup .logo{width:var(--sym-w);flex:none;animation:none;transform:none;}
-.vtitle{font-weight:800;color:var(--navy);font-size:var(--vt-fs);
-line-height:1.14;letter-spacing:-1px;text-align:left;max-width:var(--vt-max);
-opacity:0;transform:translateX(-30px);
-animation:vtitleIn .7s var(--ease) 1.10s forwards;}
-@keyframes lockupShift{to{transform:translateX(0);}}
-@keyframes vtitleIn{to{opacity:1;transform:translateX(0);}}
+.lockup{display:flex;flex-direction:column;align-items:center;
+justify-content:center;width:100%;padding:0 var(--lk-pad);}
+/* Có tựa bài thì BỎ HẲN monogram trong khung — header của overlay đã mang
+   logo rồi, để thêm ở đây chỉ tổ chiếm chỗ của thứ cần bắt mắt. */
+#root.has-headline .logo{display:none;}
+.vtitle{font-weight:900;font-size:var(--vt-fs);line-height:1.08;
+letter-spacing:-2px;text-align:center;max-width:var(--vt-max);
+/* Dải màu chạy ngang chữ: navy -> xanh brand -> navy, lặp mãi. Đây là phần
+   "bắt mắt" — chỉ dùng hai màu trong bộ nhận diện nên không loè loẹt.
+   background-size 250% để dải rộng hơn chữ, dịch background-position mới
+   tạo được cảm giác màu chạy qua. */
+background:linear-gradient(100deg,var(--navy) 0%,var(--navy) 28%,
+  var(--accent) 46%,#60a5fa 55%,var(--accent) 64%,var(--navy) 82%,var(--navy) 100%);
+background-size:250% 100%;background-position:100% 0;
+-webkit-background-clip:text;background-clip:text;color:transparent;
+opacity:0;transform:translateY(34px) scale(.96);
+animation:vtitleIn .75s var(--ease) .25s forwards,
+          hueSweep 3.2s linear 1.0s infinite;}
+.vsub{margin-top:var(--vs-gap);font-size:var(--vs-fs);font-weight:600;
+color:var(--ink-soft);line-height:1.35;text-align:center;max-width:var(--vt-max);
+opacity:0;transform:translateY(20px);
+animation:vtitleIn .6s var(--ease) .85s forwards;}
+@keyframes vtitleIn{to{opacity:1;transform:translateY(0) scale(1);}}
+@keyframes hueSweep{from{background-position:100% 0;}to{background-position:-150% 0;}}
 </style></head>
 <body><div id="root" data-composition-id="main" data-start="0" data-duration="20" data-width="1920" data-height="1080">
 
@@ -204,6 +217,7 @@ m-533 -975 c-53 -56 -136 -82 -209 -64 -160 38 -215 237 -98 358 l31 33 150
 </g>
 </svg>
 <div class="vtitle"></div>
+<div class="vsub"></div>
 </div>
 
 <div class="tagline"></div>
@@ -217,11 +231,11 @@ var root=document.getElementById("root");
 var GEO={
   portrait:{css:{"--logo-w":"600px","--tag-gap":"34px","--tag-fs":"34px",
                  "--url-gap":"46px","--url-fs":"38px",
-                 "--sym-w":"190px","--lk-gap":"40px","--lk-pad":"70px","--vt-fs":"66px","--vt-max":"640px",
+                 "--lk-pad":"70px","--vt-max":"920px","--vs-gap":"46px","--vs-fs":"38px",
                  "--follow-gap":"56px","--follow-pad":"30px 96px","--follow-fs":"46px","--cursor-w":"66px"}},
   landscape:{css:{"--logo-w":"520px","--tag-gap":"26px","--tag-fs":"28px",
                   "--url-gap":"34px","--url-fs":"32px",
-                  "--sym-w":"150px","--lk-gap":"32px","--lk-pad":"180px","--vt-fs":"52px","--vt-max":"900px",
+                  "--lk-pad":"180px","--vt-max":"1400px","--vs-gap":"32px","--vs-fs":"30px",
                   "--follow-gap":"38px","--follow-pad":"22px 70px","--follow-fs":"34px","--cursor-w":"50px"}}
 };
 var W=+root.getAttribute("data-width")||1080,H=+root.getAttribute("data-height")||1920;
@@ -236,13 +250,13 @@ var vt=document.querySelector(".vtitle");
 if(v.headline){
   root.classList.add("has-headline");
   vt.textContent=String(v.headline);
-  var svgEl=document.querySelector(".logo");
-  svgEl.setAttribute("viewBox","0 0 140 141.238092");
-  /* Ban đầu đẩy cả cụm sang phải đúng nửa bề ngang phần tựa + khoảng cách,
-     để monogram nằm giữa khung; khi tựa hiện thì kéo về 0 cho cụm cân lại. */
-  var gap=parseInt(getComputedStyle(root).getPropertyValue("--lk-gap"),10)||40;
-  var w=vt.getBoundingClientRect().width;
-  root.style.setProperty("--lk-shift",Math.round((w+gap)/2)+"px");
+  /* Cỡ chữ tự co theo độ dài tựa để luôn lấp đầy khung mà không tràn. */
+  var n=String(v.headline).length;
+  var big=(W>=H)?(n<=28?112:n<=46?92:n<=66?74:62)
+                :(n<=28?150:n<=46?118:n<=66?96:80);
+  root.style.setProperty("--vt-fs",big+"px");
+  var sub=document.querySelector(".vsub");
+  if(v.subheadline)sub.textContent=String(v.subheadline);else sub.style.display="none";
 }else{vt.style.display="none";}
 
 var tag=document.querySelector(".tagline");

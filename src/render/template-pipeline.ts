@@ -16,6 +16,7 @@ import { composeTemplate } from "./template-composer.js";
 import { fitClipToDuration, concatVideos, muxAudioOntoVideo } from "./video-tools.js";
 import { log } from "../utils/logger.js";
 import { runBrandFinalize } from "./brand-finalize.js";
+import { hasAudioTags, stripAudioTags } from "../utils/audio-tags.js";
 
 
 const TOTAL_STEPS = 8;
@@ -43,11 +44,25 @@ export async function runTemplatePipeline(scriptPath: string): Promise<void> {
 
   // STEP 2 — script.txt for CapCut
   log.step(2, TOTAL_STEPS, "Write script.txt");
-  await writeFile(join(outputDir, "script.txt"), script.scenes.map((s) => s.voiceText).join("\n\n"));
+  // Bỏ thẻ cảm xúc: file này để CapCut bắt phụ đề, thẻ mà lọt vào sẽ hiện
+  // lên màn hình.
+  await writeFile(
+    join(outputDir, "script.txt"),
+    script.scenes.map((s) => stripAudioTags(s.voiceText)).join("\n\n"),
+  );
 
   // STEP 3 — TTS per scene (idempotent)
   log.step(3, TOTAL_STEPS, "TTS each scene");
   const ttsClient = createTtsClient(cfg);
+  // Chỉ ElevenLabs hiểu thẻ cảm xúc. Provider khác sẽ ĐỌC TO chữ trong ngoặc
+  // vuông, nên phải bỏ trước khi gửi.
+  const keepTags = cfg.ttsProvider === "elevenlabs";
+  const taggedScenes = script.scenes.filter((s) => hasAudioTags(s.voiceText)).length;
+  if (taggedScenes > 0 && !keepTags) {
+    log.info(
+      `  ${taggedScenes} cảnh có thẻ cảm xúc — provider "${cfg.ttsProvider}" không hiểu, sẽ bỏ thẻ`,
+    );
+  }
   const limit = pLimit(cfg.ttsConcurrency);
   const voiceDir = join(outputDir, "voice");
   await mkdir(voiceDir, { recursive: true });
@@ -61,8 +76,9 @@ export async function runTemplatePipeline(scriptPath: string): Promise<void> {
           log.info(`  scene ${scene.id}: REUSE mp3 (${dur.toFixed(2)}s)`);
           return { id: scene.id, path: out, durationSec: dur };
         }
-        log.info(`  TTS scene ${scene.id} (${scene.voiceText.length} chars)...`);
-        await ttsClient.generate(scene.voiceText, out, srtOut);
+        const spoken = keepTags ? scene.voiceText : stripAudioTags(scene.voiceText);
+        log.info(`  TTS scene ${scene.id} (${spoken.length} chars)...`);
+        await ttsClient.generate(spoken, out, srtOut);
         const dur = await getDurationSec(out);
         log.info(`  scene ${scene.id}: ${dur.toFixed(2)}s`);
         return { id: scene.id, path: out, durationSec: dur };

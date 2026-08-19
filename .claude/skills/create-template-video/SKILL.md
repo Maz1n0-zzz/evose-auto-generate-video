@@ -205,9 +205,57 @@ Bảng đầy đủ (áp dụng cho `voiceText`):
 
 - Dấu thập phân: dùng `chấm` (nói tự nhiên) hoặc `phẩy` (trang trọng) — chọn nhất quán.
 - Acronym tiếng Anh: `AI`/`GPT` thường OK; nếu đọc sai thì viết phiên âm `ây ai` / `gí pi tí`, `API` → `ây pi ai`.
-- **`voiceText` TUYỆT ĐỐI KHÔNG có emoji/icon, không có URL** và không có `→ & % $ # + =` (giọng đọc sạch). Brand (Apple, OpenAI, TikTok) giữ nguyên. Kết câu bằng `.` hoặc `?` để có ngắt nghỉ tự nhiên.
+- **`voiceText` TUYỆT ĐỐI KHÔNG có emoji/icon, không có URL** (ngoặc vuông `[...]` được phép — xem mục thẻ cảm xúc bên dưới) và không có `→ & % $ # + =` (giọng đọc sạch). Brand (Apple, OpenAI, TikTok) giữ nguyên. Kết câu bằng `.` hoặc `?` để có ngắt nghỉ tự nhiên.
 - **`inputs` (chữ HIỂN THỊ trên màn hình) ĐƯỢC PHÉP dùng emoji/icon** để sinh động (🔥 🚀 ✨ ⚡ 📈 ⚠️ → …) — render màu OK. Giữ định dạng số đẹp ("5.5", "82%"). Tách biệt hoàn toàn với voiceText.
   - Dùng emoji **vừa phải** (0–1 icon mỗi field, đặt ở nhãn/headline/CTA ngắn — vd kicker "🔥 Tin nóng", cta "Theo dõi ngay →"). ĐỪNG nhét emoji vào chữ lớn pop từng ký tự (vd `hero` của build-minimal) vì sẽ vỡ animation.
+
+### 🎭 Thẻ cảm xúc cho giọng đọc (model `eleven_v3`)
+
+Giọng đọc dùng ElevenLabs `eleven_v3` — model này hiểu **thẻ chỉ dẫn diễn xuất**
+đặt trong ngoặc vuông và KHÔNG phát âm chúng. Thẻ giúp giọng lên xuống theo nội
+dung thay vì đọc đều một mạch.
+
+Pipeline tự bỏ thẻ khi ghi `script.txt` (file cho CapCut bắt phụ đề) và khi gọi
+TTS không phải ElevenLabs, nên cứ viết thẳng thẻ vào `voiceText`.
+
+**Bộ thẻ được dùng — chỉ dùng đúng những chuỗi này, viết thường:**
+
+| Thẻ | Khi nào |
+|---|---|
+| `[curious]` | Đặt câu hỏi, gợi tò mò |
+| `[excited]` | Tin vui, con số ấn tượng, điểm nhấn |
+| `[thoughtful]` | Giải thích, phân tích, rút ra bài học |
+| `[serious]` | Cảnh báo, nêu rủi ro, nói điều quan trọng |
+| `[warm]` | Lời khuyên, câu kết thân thiện, CTA |
+| `[sighs]` | Nêu cái bất tiện, cái mệt mỏi của cách làm cũ |
+| `[laughs]` | Chỗ nhẹ nhàng, đùa nhẹ — rất hạn chế dùng |
+
+**Quy tắc đặt thẻ — quan trọng, đặt sai thì giọng nghe giả:**
+
+- **Tối đa 1 thẻ mỗi cảnh, và KHÔNG phải cảnh nào cũng cần.** Khoảng **một nửa
+  số cảnh để trống thẻ** là hợp lý. Nhồi thẻ vào mọi câu khiến giọng nhấn nhá
+  liên tục, nghe kịch và mệt.
+- Đặt thẻ **ngay trước câu** mà nó chi phối, cách một dấu cách:
+  `[curious] Vì sao tính từ lại vô dụng?`
+- **Thẻ đặt giữa câu thì đặt trước mệnh đề**, đừng chèn giữa cụm từ.
+- Thẻ **không tính** vào giới hạn số từ mỗi cảnh.
+- Cảnh hook và cảnh outro nên có thẻ (mở phải hút, kết phải ấm).
+- **Không tự chế thẻ mới** ngoài bảng trên. Thẻ lạ thì model đọc thành chữ.
+- Muốn ngắt nghỉ thì dùng dấu ba chấm `...` hoặc tách câu, **đừng** dùng thẻ.
+
+**Ví dụ một cảnh:**
+
+```json
+{
+  "id": "s4",
+  "type": "body",
+  "voiceText": "[sighs] Trước đây mỗi lần cần một video, bạn phải ngồi cắt ghép cả buổi tối.",
+  "templateId": "evose-statement",
+  "inputs": { "lines": ["Cách làm cũ"], "hero": "Cả buổi tối", "badge": "no" }
+}
+```
+
+---
 
 ### Step 6: Tự kiểm tra
 
@@ -219,6 +267,8 @@ Bảng đầy đủ (áp dụng cho `voiceText`):
 - [ ] Có template nào lặp quá 2 lần không?
 - [ ] Số liệu trong chart có phải số THẬT từ bài không? (không bịa để lấy cớ dùng chart)
 - [ ] `voiceText` còn thuật ngữ nào người thường không hiểu ngay mà chưa giải thích không?
+- [ ] Thẻ cảm xúc: có cảnh nào quá 1 thẻ không? Có ít nhất một nửa số cảnh KHÔNG có thẻ chứ?
+- [ ] Mọi thẻ đều nằm trong bảng cho phép, viết thường, đặt trước câu?
 
 - scenes[0]=hook, scene cuối=outro; mỗi templateId ∈ CATALOG; mỗi inputs đủ slot bắt buộc;
 - **Hook `voiceText` ≤18 từ.** Chữ trên hình phải ngắn hơn nữa.

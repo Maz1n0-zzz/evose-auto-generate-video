@@ -41,6 +41,10 @@ background-size:26px 26px;
 display:flex;flex-direction:column;align-items:center;justify-content:center;}
 
 .logo{width:var(--logo-w);height:auto;color:var(--navy);display:block;
+/* <svg> mặc định XÉN nội dung theo khung nhìn của nó. Hiệu ứng xoáy phóng
+   monogram lên 3.2 lần kèm blur 40px nên tràn ra ngoài và bị cắt thành một ô
+   vuông. overflow:visible cho nó vẽ tràn ra. */
+overflow:visible;
 /* Ban đầu phóng to 1.3 và đẩy sang phải để MONOGRAM nằm đúng giữa khung; khi
    wordmark hiện thì thu về 1 và kéo về 0 cho cả cụm cân lại — reference cũng
    phóng monogram lúc nó đứng một mình.

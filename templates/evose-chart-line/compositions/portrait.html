@@ -1,0 +1,164 @@
+<!doctype html><html lang="vi"><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=1080, height=1920"/><title>Evose Chart Line</title>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"/>
+<style>
+/* ------------------------------------------------------------------
+   EVOSE CHART LINE — xu hướng theo thời gian.
+   Token gốc: EVOSE-LIGHT-TOKENS.css.
+
+   Port từ frame-chart-line-v2: giữ nguyên phép làm mượt bằng cubic
+   bezier (điểm điều khiển đặt tại trung điểm hoành độ), draw-on bằng
+   stroke-dashoffset và dot pop so le. Chỉ thay lớp trình bày.
+
+   Dùng chung một file cho 9:16 và 16:9 — xem scripts/gen-aspect.py.
+   ------------------------------------------------------------------ */
+:root{--paper:#f2f2f0;--dot:#d6d6d1;--ink:#0a0a0a;--ink-soft:#6b7280;
+--chip-2:#e7e7e3;--chip-2-line:#d2d2cc;--accent:#2563eb;--mark:rgba(37,99,235,.28);
+--font:'Hanken Grotesk',-apple-system,'Segoe UI',sans-serif;--font-mono:'JetBrains Mono',ui-monospace,monospace;
+--ease:cubic-bezier(.16,1,.3,1);}
+*{margin:0;padding:0;box-sizing:border-box;}
+
+/* ↓↓↓ 3 dòng khung — chỗ DUY NHẤT khác nhau giữa 9:16 và 16:9 ↓↓↓ */
+html,body{width:1080px;height:1920px;}
+#root{width:1080px;height:1920px;}
+/* ↑↑↑ (dòng thứ 3 là data-width/data-height trên #root dưới <body>) */
+
+html,body{overflow:hidden;font-family:var(--font);color:var(--ink);}
+#root{position:relative;overflow:hidden;
+background-color:var(--paper);
+background-image:radial-gradient(circle,var(--dot) 1.35px,transparent 1.35px);
+background-size:26px 26px;}
+
+.eyebrow{position:absolute;left:var(--pad-x);top:var(--eyebrow-y);
+font-family:var(--font-mono);font-weight:500;font-size:var(--eyebrow-fs);
+letter-spacing:5px;text-transform:uppercase;color:var(--ink-soft);
+opacity:0;animation:fadeIn .5s var(--ease) .1s forwards;}
+.title{position:absolute;left:var(--pad-x);right:var(--pad-x);top:var(--title-y);
+font-weight:900;font-size:var(--title-fs);line-height:1.06;letter-spacing:-1.5px;
+opacity:0;transform:translateY(26px);animation:fadeUp .6s var(--ease) .3s forwards;}
+.title .hl{background:linear-gradient(transparent 58%,var(--mark) 58%);}
+.caption{position:absolute;left:var(--pad-x);right:var(--pad-x);bottom:var(--cap-y);
+font-size:var(--cap-fs);font-weight:600;color:var(--ink-soft);line-height:1.32;
+opacity:0;transform:translateY(18px);animation:fadeUp .6s var(--ease) 2.1s forwards;}
+
+.plot{position:absolute;left:var(--pad-x);right:var(--pad-x);top:var(--plot-y);}
+.plot svg{width:100%;height:auto;display:block;overflow:visible;}
+.axis{position:absolute;left:var(--pad-x);right:var(--pad-x);top:var(--axis-y);
+display:flex;justify-content:space-between;}
+.xlbl{font-size:var(--lbl-fs);font-weight:700;color:var(--ink-soft);
+flex:1;text-align:center;opacity:0;animation:fadeIn .5s var(--ease) forwards;}
+
+@keyframes fadeIn{to{opacity:1;}}
+@keyframes fadeUp{to{opacity:1;transform:translateY(0);}}
+@keyframes dotPop{from{opacity:0;transform:scale(0);}to{opacity:1;transform:scale(1);}}
+</style></head>
+<body><div id="root" data-composition-id="main" data-start="0" data-duration="20" data-width="1080" data-height="1920">
+<div class="eyebrow"></div><h1 class="title"></h1>
+<div class="plot"><svg id="plot" xmlns="http://www.w3.org/2000/svg"></svg></div>
+<div class="axis" id="axis"></div>
+<div class="caption"></div>
+</div>
+<script>(function(){
+var v=(window.__hyperframes&&typeof window.__hyperframes.getVariables==="function")?window.__hyperframes.getVariables():{};
+var root=document.getElementById("root");
+var NS="http://www.w3.org/2000/svg";
+
+var GEO={
+  portrait:{css:{"--pad-x":"90px","--eyebrow-y":"200px","--eyebrow-fs":"26px",
+                 "--title-y":"258px","--title-fs":"70px","--cap-y":"180px","--cap-fs":"38px",
+                 "--plot-y":"680px","--axis-y":"1290px","--lbl-fs":"32px"},
+             js:{W:900,H:560,stroke:8,dot:15}},
+  landscape:{css:{"--pad-x":"140px","--eyebrow-y":"90px","--eyebrow-fs":"22px",
+                  "--title-y":"132px","--title-fs":"54px","--cap-y":"64px","--cap-fs":"30px",
+                  "--plot-y":"290px","--axis-y":"790px","--lbl-fs":"26px"},
+             js:{W:1640,H:460,stroke:7,dot:13}}
+};
+var W=+root.getAttribute("data-width")||1080,H=+root.getAttribute("data-height")||1920;
+var G=GEO[W>=H?"landscape":"portrait"];
+for(var k in G.css)root.style.setProperty(k,G.css[k]);
+var CFG=G.js;
+
+function set(sel,val){var e=document.querySelector(sel);
+  if(!e)return; if(val==null||val===""){e.style.display="none";return;} e.textContent=String(val);}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+
+set(".eyebrow",v.label);
+set(".caption",v.caption);
+document.querySelector(".title").innerHTML=
+  esc(v.title||"").replace(/\{([^}]+)\}/g,'<span class="hl">$1</span>');
+
+var points=v.points;
+if(typeof points==="string"){try{points=JSON.parse(points);}catch(e){points=[];}}
+if(!Array.isArray(points)||points.length<2)
+  points=[{label:"T1",value:12},{label:"T2",value:28},{label:"T3",value:45},
+          {label:"T4",value:38},{label:"T5",value:62},{label:"T6",value:80}];
+
+/* Toạ độ: chừa lề trên/dưới cho chấm khỏi bị cắt ở mép khung vẽ. */
+var pw=CFG.W,ph=CFG.H,padT=30,padB=30,padL=20,padR=20;
+var vals=points.map(function(p){return +p.value||0;});
+var minV=Math.min.apply(null,vals),maxV=Math.max.apply(null,vals);
+if(maxV===minV){minV=Math.max(0,minV-10);maxV+=10;}
+var n=points.length;
+var xs=points.map(function(_,i){return padL+(pw-padL-padR)*i/(n-1);});
+var ys=points.map(function(p){
+  return padT+(ph-padT-padB)*(1-((+p.value||0)-minV)/(maxV-minV));});
+
+var svg=document.getElementById("plot");
+svg.setAttribute("viewBox","0 0 "+pw+" "+ph);
+
+/* Đường lưới ngang mảnh cho dễ đọc mức. */
+[0,0.5,1].forEach(function(f){
+  var y=padT+(ph-padT-padB)*f;
+  var g=document.createElementNS(NS,"line");
+  g.setAttribute("x1",0);g.setAttribute("x2",pw);
+  g.setAttribute("y1",y);g.setAttribute("y2",y);
+  g.setAttribute("stroke",f===1?"#0a0a0a":"#d2d2cc");
+  g.setAttribute("stroke-width",f===1?3:2);
+  svg.appendChild(g);
+});
+
+/* Làm mượt: điểm điều khiển đặt tại trung điểm hoành độ hai đầu đoạn. */
+var d="M"+xs[0]+","+ys[0];
+for(var i=1;i<n;i++){
+  var mx=(xs[i-1]+xs[i])/2;
+  d+=" C"+mx+","+ys[i-1]+" "+mx+","+ys[i]+" "+xs[i]+","+ys[i];
+}
+var path=document.createElementNS(NS,"path");
+path.setAttribute("d",d);
+path.setAttribute("fill","none");
+path.setAttribute("stroke","#2563eb");
+path.setAttribute("stroke-width",CFG.stroke);
+path.setAttribute("stroke-linecap","round");
+path.setAttribute("stroke-linejoin","round");
+svg.appendChild(path);
+
+var len=path.getTotalLength?path.getTotalLength():pw*2;
+path.style.strokeDasharray=len;
+path.style.strokeDashoffset=len;
+var st=document.createElement("style");
+st.textContent="@keyframes drawLine{from{stroke-dashoffset:"+len+"px}to{stroke-dashoffset:0}}";
+document.head.appendChild(st);
+path.style.animation="drawLine 1.2s cubic-bezier(.16,1,.3,1) .6s both";
+
+var axis=document.getElementById("axis");
+points.forEach(function(p,i){
+  var dot=document.createElementNS(NS,"circle");
+  dot.setAttribute("cx",xs[i]);dot.setAttribute("cy",ys[i]);dot.setAttribute("r",CFG.dot);
+  dot.setAttribute("fill","#2563eb");
+  dot.setAttribute("stroke","#f2f2f0");
+  dot.setAttribute("stroke-width",5);
+  dot.style.transformOrigin=xs[i]+"px "+ys[i]+"px";
+  dot.style.animation="dotPop .4s cubic-bezier(.34,1.56,.64,1) "+(0.8+i*0.12).toFixed(2)+"s both";
+  svg.appendChild(dot);
+
+  var lbl=document.createElement("div");
+  lbl.className="xlbl";lbl.textContent=p.label||"";
+  lbl.style.animationDelay=(1.2+i*0.1).toFixed(2)+"s";
+  axis.appendChild(lbl);
+});
+
+/* HyperFrames 0.6.94 thoát code 1 ("zero duration") nếu frame thuần CSS không
+   khai báo timeline. Stub này đủ để nó nhận data-duration. */
+window.__timelines=window.__timelines||{};
+window.__timelines["main"]={pause:function(){},seek:function(){},paused:function(){return true;}};
+})();</script></body></html>

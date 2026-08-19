@@ -28,10 +28,16 @@
   --chip-2: #e7e7e3;
   --chip-2-line: #d2d2cc;
 
-  /* --- accent: CHỈ cho badge + annotation --- */
+  /* --- accent: CHỈ cho badge, annotation và số liệu biểu đồ --- */
   --ok: #22c55e;             /* ✅ đúng */
   --no: #ef4444;             /* ❌ sai, khoanh tay */
-  --mark: #3b82f6;           /* highlight chữ */
+  --accent: #2563eb;         /* màu dữ liệu biểu đồ (theo CLAUDE.md) */
+  --mark: rgba(37, 99, 235, .28);  /* dải bút dạ sau chữ được nhấn */
+
+  /* Ba mức nhấn trong biểu đồ, thống nhất với ngôn ngữ chip:
+       --accent  = cột/cung ĐANG nhấn
+       --ink     = mức thường
+       --chip-2  = mức bị làm mờ (active: false)                        */
 
   /* --- chữ --- */
   --font: 'Hanken Grotesk', -apple-system, 'Segoe UI', sans-serif;

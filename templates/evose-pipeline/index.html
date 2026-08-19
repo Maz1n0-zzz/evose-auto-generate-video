@@ -1,0 +1,150 @@
+<!-- SINH TỰ ĐỘNG bởi scripts/gen-aspect.py — ĐỪNG SỬA TRỰC TIẾP.
+     Sửa compositions/portrait.html rồi chạy lại script. -->
+<!doctype html><html lang="vi"><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=1920, height=1080"/><title>Evose Pipeline</title>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"/>
+<style>
+/* ------------------------------------------------------------------
+   EVOSE PIPELINE — quy trình 3–6 bước dọc, mỗi bước có icon + tiêu đề
+   + mô tả. Token gốc: EVOSE-LIGHT-TOKENS.css.
+
+   Thay frame-pipeline-flow. Khác evose-node-diagram ở chỗ node-diagram
+   chỉ có chip chữ trần dùng để ĐỐI CHIẾU hai nhánh; còn cái này diễn
+   giải TỪNG BƯỚC nên mỗi bước cần chỗ cho mô tả.
+
+   Bước cuối tô đậm (nền ink) vì đó là kết quả — giống bộ cũ.
+   Dùng chung một file cho 9:16 và 16:9 — xem scripts/gen-aspect.py.
+   ------------------------------------------------------------------ */
+:root{--paper:#f2f2f0;--dot:#d6d6d1;--ink:#0a0a0a;--ink-soft:#6b7280;
+--chip-2:#e7e7e3;--chip-2-line:#d2d2cc;--accent:#2563eb;--mark:rgba(37,99,235,.28);
+--ink-line:rgba(10,10,10,.42);
+--dash:repeating-linear-gradient(to bottom,var(--ink-line) 0 6px,transparent 6px 16px);
+--font:'Hanken Grotesk',-apple-system,'Segoe UI',sans-serif;--font-mono:'JetBrains Mono',ui-monospace,monospace;
+--ease:cubic-bezier(.16,1,.3,1);}
+*{margin:0;padding:0;box-sizing:border-box;}
+
+/* ↓↓↓ 3 dòng khung — chỗ DUY NHẤT khác nhau giữa 9:16 và 16:9 ↓↓↓ */
+html,body{width:1920px;height:1080px;}
+#root{width:1920px;height:1080px;}
+/* ↑↑↑ (dòng thứ 3 là data-width/data-height trên #root dưới <body>) */
+
+html,body{overflow:hidden;font-family:var(--font);color:var(--ink);}
+#root{position:relative;overflow:hidden;
+background-color:var(--paper);
+background-image:radial-gradient(circle,var(--dot) 1.35px,transparent 1.35px);
+background-size:26px 26px;}
+
+.eyebrow{position:absolute;left:var(--pad-x);top:var(--eyebrow-y);
+font-family:var(--font-mono);font-weight:500;font-size:var(--eyebrow-fs);
+letter-spacing:5px;text-transform:uppercase;color:var(--ink-soft);
+opacity:0;animation:fadeIn .5s var(--ease) .1s forwards;}
+.title{position:absolute;left:var(--pad-x);right:var(--pad-x);top:var(--title-y);
+font-weight:900;font-size:var(--title-fs);line-height:1.06;letter-spacing:-1.5px;
+opacity:0;transform:translateY(26px);animation:fadeUp .6s var(--ease) .3s forwards;}
+.title .hl{background:linear-gradient(transparent 58%,var(--mark) 58%);}
+.caption{position:absolute;left:var(--pad-x);right:var(--pad-x);bottom:var(--cap-y);
+font-size:var(--cap-fs);font-weight:600;color:var(--ink-soft);line-height:1.32;
+opacity:0;transform:translateY(18px);animation:fadeUp .6s var(--ease) 2.2s forwards;}
+
+.steps{position:absolute;left:var(--pad-x);right:var(--pad-x);top:var(--steps-y);
+display:flex;flex-direction:column;align-items:stretch;}
+
+.step{display:flex;align-items:center;gap:var(--step-gap);
+background:#fff;border:2px solid var(--chip-2-line);border-radius:var(--step-radius);
+padding:var(--step-pad);box-shadow:0 6px 16px rgba(10,10,10,.06);
+opacity:0;transform:translateY(24px);animation:fadeUp .5s var(--ease) forwards;}
+.step.last{background:var(--ink);border-color:var(--ink);}
+.step.last .st{color:#fff;}
+.step.last .sd{color:#c9c9c4;}
+
+.sicon{flex:none;width:var(--icon);height:var(--icon);border-radius:var(--icon-radius);
+display:flex;align-items:center;justify-content:center;font-size:var(--icon-fs);
+background:var(--chip-2);}
+.step.last .sicon{background:rgba(255,255,255,.14);}
+.sbody{flex:1;min-width:0;}
+.st{font-size:var(--st-fs);font-weight:800;line-height:1.15;}
+.sd{margin-top:6px;font-size:var(--sd-fs);font-weight:600;color:var(--ink-soft);line-height:1.25;}
+.snum{flex:none;font-family:var(--font-mono);font-weight:700;font-size:var(--num-fs);
+color:var(--chip-2-line);}
+.step.last .snum{color:rgba(255,255,255,.35);}
+
+/* Nối các bước bằng nét chấm — cùng ngôn ngữ với evose-node-diagram. */
+.link{align-self:center;width:3px;height:var(--link-h);background-image:var(--dash);
+clip-path:inset(0 0 100% 0);animation:drawDown .3s ease-out forwards;}
+
+@keyframes fadeIn{to{opacity:1;}}
+@keyframes fadeUp{to{opacity:1;transform:translateY(0);}}
+@keyframes drawDown{to{clip-path:inset(0 0 0 0);}}
+</style></head>
+<body><div id="root" data-composition-id="main" data-start="0" data-duration="20" data-width="1920" data-height="1080">
+<div class="eyebrow"></div><h1 class="title"></h1><div class="steps"></div><div class="caption"></div>
+</div>
+<script>(function(){
+var v=(window.__hyperframes&&typeof window.__hyperframes.getVariables==="function")?window.__hyperframes.getVariables():{};
+var root=document.getElementById("root");
+
+var GEO={
+  portrait:{css:{"--pad-x":"80px","--eyebrow-y":"200px","--eyebrow-fs":"26px",
+                 "--title-y":"256px","--title-fs":"68px","--cap-y":"150px","--cap-fs":"36px",
+                 "--steps-y":"520px","--step-gap":"30px","--step-pad":"30px 36px",
+                 "--step-radius":"24px","--link-h":"34px",
+                 "--icon":"92px","--icon-radius":"22px","--icon-fs":"46px",
+                 "--st-fs":"40px","--sd-fs":"28px","--num-fs":"38px"}},
+  landscape:{css:{"--pad-x":"200px","--eyebrow-y":"80px","--eyebrow-fs":"22px",
+                  "--title-y":"120px","--title-fs":"50px","--cap-y":"56px","--cap-fs":"28px",
+                  "--steps-y":"250px","--step-gap":"22px","--step-pad":"16px 26px",
+                  "--step-radius":"18px","--link-h":"18px",
+                  "--icon":"60px","--icon-radius":"16px","--icon-fs":"30px",
+                  "--st-fs":"28px","--sd-fs":"21px","--num-fs":"26px"}}
+};
+var W=+root.getAttribute("data-width")||1080,H=+root.getAttribute("data-height")||1920;
+var G=GEO[W>=H?"landscape":"portrait"];
+for(var k in G.css)root.style.setProperty(k,G.css[k]);
+
+function set(sel,val){var e=document.querySelector(sel);
+  if(!e)return; if(val==null||val===""){e.style.display="none";return;} e.textContent=String(val);}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+
+set(".eyebrow",v.label);
+set(".caption",v.caption);
+document.querySelector(".title").innerHTML=
+  esc(v.title||"").replace(/\{([^}]+)\}/g,'<span class="hl">$1</span>');
+
+var steps=v.steps;
+if(typeof steps==="string"){try{steps=JSON.parse(steps);}catch(e){steps=[];}}
+if(!Array.isArray(steps)||!steps.length)
+  steps=[{icon:"🔗",title:"Nhập link",desc:"Dán đường dẫn bài viết"},
+         {icon:"🤖",title:"AI phân tích",desc:"Bóc tách ý chính"},
+         {icon:"📝",title:"Sinh kịch bản",desc:"Chia cảnh, viết lời đọc"},
+         {icon:"🎬",title:"Dựng + lồng tiếng",desc:"Ghép hình và giọng"},
+         {icon:"📱",title:"Xuất video dọc",desc:"Sẵn sàng đăng"}];
+steps=steps.slice(0,6);
+
+var box=document.querySelector(".steps");
+steps.forEach(function(s,i){
+  if(i){
+    var lk=document.createElement("div");lk.className="link";
+    lk.style.animationDelay=(0.55+i*0.22-0.10).toFixed(2)+"s";
+    box.appendChild(lk);
+  }
+  var row=document.createElement("div");
+  row.className="step"+(i===steps.length-1?" last":"");
+  row.style.animationDelay=(0.55+i*0.22).toFixed(2)+"s";
+
+  var ic=document.createElement("div");ic.className="sicon";ic.textContent=s.icon||"•";
+  var body=document.createElement("div");body.className="sbody";
+  var t=document.createElement("div");t.className="st";t.textContent=s.title||"";
+  body.appendChild(t);
+  if(s.desc){var d=document.createElement("div");d.className="sd";d.textContent=s.desc;body.appendChild(d);}
+  var num=document.createElement("div");num.className="snum";
+  num.textContent=("0"+(i+1)).slice(-2);
+
+  row.appendChild(ic);row.appendChild(body);row.appendChild(num);
+  box.appendChild(row);
+});
+
+/* HyperFrames 0.6.94 thoát code 1 ("zero duration") nếu frame thuần CSS không
+   khai báo timeline. Stub này đủ để nó nhận data-duration. */
+window.__timelines=window.__timelines||{};
+window.__timelines["main"]={pause:function(){},seek:function(){},paused:function(){return true;}};
+})();</script></body></html>

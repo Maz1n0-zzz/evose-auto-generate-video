@@ -1,0 +1,141 @@
+<!doctype html><html lang="vi"><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=1080, height=1920"/><title>Evose Stat Hero</title>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"/>
+<style>
+/* ------------------------------------------------------------------
+   EVOSE STAT HERO — MỘT con số lớn duy nhất.
+   Token gốc: EVOSE-LIGHT-TOKENS.css.
+
+   Thay frame-vignelli + frame-pentagram-stat (cả hai đều nền tối neon).
+   Dùng khi con số KHÔNG phải phần trăm — phần trăm thì evose-chart-donut
+   hợp hơn vì có vòng tỉ lệ để so sánh trực quan.
+
+   Số dùng JetBrains Mono theo brand (CLAUDE.md: font numbers), chữ dùng
+   Hanken Grotesk. Cỡ số tự co theo độ dài để "1,2 triệu" không tràn khung.
+
+   Dùng chung một file cho 9:16 và 16:9 — xem scripts/gen-aspect.py.
+   ------------------------------------------------------------------ */
+:root{--paper:#f2f2f0;--dot:#d6d6d1;--ink:#0a0a0a;--ink-soft:#6b7280;
+--chip-2:#e7e7e3;--chip-2-line:#d2d2cc;--accent:#2563eb;
+--font:'Hanken Grotesk',-apple-system,'Segoe UI',sans-serif;--font-mono:'JetBrains Mono',ui-monospace,monospace;
+--ease:cubic-bezier(.16,1,.3,1);}
+*{margin:0;padding:0;box-sizing:border-box;}
+
+/* ↓↓↓ 3 dòng khung — chỗ DUY NHẤT khác nhau giữa 9:16 và 16:9 ↓↓↓ */
+html,body{width:1080px;height:1920px;}
+#root{width:1080px;height:1920px;}
+/* ↑↑↑ (dòng thứ 3 là data-width/data-height trên #root dưới <body>) */
+
+html,body{overflow:hidden;font-family:var(--font);color:var(--ink);}
+#root{position:relative;overflow:hidden;
+background-color:var(--paper);
+background-image:radial-gradient(circle,var(--dot) 1.35px,transparent 1.35px);
+background-size:26px 26px;}
+
+.stage{position:absolute;left:var(--pad-x);right:var(--pad-x);
+top:var(--stage-top);bottom:var(--stage-bottom);
+display:flex;flex-direction:column;align-items:center;justify-content:center;}
+
+.eyebrow{font-family:var(--font-mono);font-weight:500;font-size:var(--eyebrow-fs);
+letter-spacing:5px;text-transform:uppercase;color:var(--ink-soft);text-align:center;
+opacity:0;animation:fadeIn .5s var(--ease) .15s forwards;}
+
+.figure{margin-top:var(--fig-gap);display:flex;align-items:baseline;justify-content:center;
+font-family:var(--font-mono);font-weight:700;line-height:.94;color:var(--ink);
+letter-spacing:-4px;
+opacity:0;transform:translateY(34px) scale(.94);
+animation:figIn .7s var(--ease) .40s forwards;}
+.figure .unit{font-size:var(--unit-fs);color:var(--ink-soft);letter-spacing:-1px;margin-left:10px;}
+
+/* Gạch nhấn dưới con số, quét ra từ giữa. */
+.rule{margin-top:var(--rule-gap);height:var(--rule-h);width:var(--rule-w);
+background:var(--accent);border-radius:99px;
+clip-path:inset(0 50% 0 50%);animation:wipe .5s var(--ease) .95s forwards;}
+
+.label{margin-top:var(--label-gap);text-align:center;
+font-size:var(--label-fs);font-weight:900;text-transform:uppercase;
+line-height:1.12;letter-spacing:.3px;
+opacity:0;transform:translateY(20px);animation:fadeUp .55s var(--ease) 1.15s forwards;}
+.note{margin-top:var(--note-gap);text-align:center;max-width:var(--note-w);
+font-size:var(--note-fs);font-weight:600;color:var(--ink-soft);line-height:1.32;
+opacity:0;transform:translateY(18px);animation:fadeUp .55s var(--ease) 1.4s forwards;}
+
+.mascot{position:absolute;bottom:0;width:var(--mascot-w);height:var(--mascot-h);
+object-fit:contain;object-position:bottom center;pointer-events:none;
+opacity:0;transform:translateY(70px);animation:fadeUp .6s var(--ease) 1.7s forwards;}
+.mascot.right{right:30px;}
+.mascot.left{left:30px;}
+
+@keyframes fadeIn{to{opacity:1;}}
+@keyframes fadeUp{to{opacity:1;transform:translateY(0);}}
+@keyframes figIn{to{opacity:1;transform:translateY(0) scale(1);}}
+@keyframes wipe{to{clip-path:inset(0 0 0 0);}}
+</style></head>
+<body><div id="root" data-composition-id="main" data-start="0" data-duration="20" data-width="1080" data-height="1920">
+<div class="stage">
+  <div class="eyebrow"></div>
+  <div class="figure"><span id="figEl"></span><span class="unit" id="unitEl"></span></div>
+  <div class="rule"></div>
+  <div class="label"></div>
+  <div class="note"></div>
+</div>
+</div>
+<script>(function(){
+var v=(window.__hyperframes&&typeof window.__hyperframes.getVariables==="function")?window.__hyperframes.getVariables():{};
+var root=document.getElementById("root");
+
+var GEO={
+  portrait:{css:{"--pad-x":"80px","--stage-top":"200px","--stage-bottom":"340px",
+                 "--eyebrow-fs":"28px","--fig-gap":"40px","--unit-fs":"88px",
+                 "--rule-gap":"44px","--rule-h":"12px","--rule-w":"320px",
+                 "--label-gap":"46px","--label-fs":"58px",
+                 "--note-gap":"30px","--note-fs":"36px","--note-w":"820px",
+                 "--mascot-w":"460px","--mascot-h":"580px"},
+             js:{avail:900,figMax:300,figMin:110}},
+  landscape:{css:{"--pad-x":"160px","--stage-top":"110px","--stage-bottom":"110px",
+                  "--eyebrow-fs":"24px","--fig-gap":"26px","--unit-fs":"64px",
+                  "--rule-gap":"28px","--rule-h":"9px","--rule-w":"240px",
+                  "--label-gap":"28px","--label-fs":"44px",
+                  "--note-gap":"20px","--note-fs":"28px","--note-w":"900px",
+                  "--mascot-w":"340px","--mascot-h":"430px"},
+             js:{avail:1300,figMax:230,figMin:90}}
+};
+var W=+root.getAttribute("data-width")||1080,H=+root.getAttribute("data-height")||1920;
+var G=GEO[W>=H?"landscape":"portrait"];
+for(var k in G.css)root.style.setProperty(k,G.css[k]);
+var CFG=G.js;
+
+function set(sel,val){var e=document.querySelector(sel);
+  if(!e)return; if(val==null||val===""){e.style.display="none";return;} e.textContent=String(val);}
+
+set(".eyebrow",v.label);
+set(".label",v.headline);
+set(".note",v.note);
+
+var fig=String(v.figure==null?"87":v.figure).trim();
+var unit=v.unit!=null?String(v.unit):"";
+document.getElementById("figEl").textContent=fig;
+var uEl=document.getElementById("unitEl");
+if(unit)uEl.textContent=unit;else uEl.style.display="none";
+
+/* JetBrains Mono rộng đều 0.6em mỗi ký tự, nên ước được cỡ vừa khung.
+   Đơn vị tính bằng ~0.5 lần chiều rộng một chữ số. */
+var slots=fig.length+unit.length*0.5;
+document.querySelector(".figure").style.fontSize=
+  Math.max(CFG.figMin,Math.min(CFG.figMax,Math.round(CFG.avail/(slots*0.62))))+"px";
+
+if(v.mascot){
+  var m=document.createElement("img");
+  m.className="mascot "+(v.mascot_side==="left"?"left":"right");
+  m.src=String(v.mascot);
+  var sc=parseFloat(v.mascot_scale);
+  if(sc>0){m.style.width=(parseInt(G.css["--mascot-w"],10)*sc)+"px";
+           m.style.height=(parseInt(G.css["--mascot-h"],10)*sc)+"px";}
+  root.appendChild(m);
+}
+
+/* HyperFrames 0.6.94 thoát code 1 ("zero duration") nếu frame thuần CSS không
+   khai báo timeline. Stub này đủ để nó nhận data-duration. */
+window.__timelines=window.__timelines||{};
+window.__timelines["main"]={pause:function(){},seek:function(){},paused:function(){return true;}};
+})();</script></body></html>

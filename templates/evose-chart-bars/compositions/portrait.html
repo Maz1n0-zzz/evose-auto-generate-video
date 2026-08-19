@@ -1,0 +1,139 @@
+<!doctype html><html lang="vi"><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=1080, height=1920"/><title>Evose Chart Bars</title>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"/>
+<style>
+/* ------------------------------------------------------------------
+   EVOSE CHART BARS — biểu đồ cột. Token gốc: EVOSE-LIGHT-TOKENS.css.
+
+   Port từ frame-chart-bars-v2: giữ nguyên cách tính tỉ lệ cột và nhịp
+   stagger; chỉ thay lớp trình bày (bỏ nền tối + blob + gradient).
+   Ba mức nhấn theo ngôn ngữ chip: accent = cột nhấn, ink = thường,
+   chip-2 = làm mờ (active:false).
+
+   Cú pháp {từ} trong `title` tô một dải bút dạ phía sau chữ.
+   Dùng chung một file cho 9:16 và 16:9 — xem scripts/gen-aspect.py.
+   ------------------------------------------------------------------ */
+:root{--paper:#f2f2f0;--dot:#d6d6d1;--ink:#0a0a0a;--ink-soft:#6b7280;
+--chip-2:#e7e7e3;--chip-2-line:#d2d2cc;--accent:#2563eb;--mark:rgba(37,99,235,.28);
+--font:'Hanken Grotesk',-apple-system,'Segoe UI',sans-serif;--font-mono:'JetBrains Mono',ui-monospace,monospace;
+--ease:cubic-bezier(.16,1,.3,1);}
+*{margin:0;padding:0;box-sizing:border-box;}
+
+/* ↓↓↓ 3 dòng khung — chỗ DUY NHẤT khác nhau giữa 9:16 và 16:9 ↓↓↓ */
+html,body{width:1080px;height:1920px;}
+#root{width:1080px;height:1920px;}
+/* ↑↑↑ (dòng thứ 3 là data-width/data-height trên #root dưới <body>) */
+
+html,body{overflow:hidden;font-family:var(--font);color:var(--ink);}
+#root{position:relative;overflow:hidden;
+background-color:var(--paper);
+background-image:radial-gradient(circle,var(--dot) 1.35px,transparent 1.35px);
+background-size:26px 26px;}
+
+.eyebrow{position:absolute;left:var(--pad-x);top:var(--eyebrow-y);
+font-family:var(--font-mono);font-weight:500;font-size:var(--eyebrow-fs);
+letter-spacing:5px;text-transform:uppercase;color:var(--ink-soft);
+opacity:0;animation:fadeIn .5s var(--ease) .1s forwards;}
+.title{position:absolute;left:var(--pad-x);right:var(--pad-x);top:var(--title-y);
+font-weight:900;font-size:var(--title-fs);line-height:1.06;letter-spacing:-1.5px;
+opacity:0;transform:translateY(26px);animation:fadeUp .6s var(--ease) .3s forwards;}
+.title .hl{background:linear-gradient(transparent 58%,var(--mark) 58%);}
+.caption{position:absolute;left:var(--pad-x);right:var(--pad-x);bottom:var(--cap-y);
+font-size:var(--cap-fs);font-weight:600;color:var(--ink-soft);line-height:1.32;
+opacity:0;transform:translateY(18px);animation:fadeUp .6s var(--ease) 1.9s forwards;}
+
+.chart{position:absolute;left:var(--pad-x);right:var(--pad-x);
+top:var(--chart-top);height:var(--chart-h);
+display:flex;align-items:flex-end;justify-content:center;gap:var(--bar-gap);
+padding-bottom:var(--axis-gap);border-bottom:3px solid var(--ink);}
+.col{flex:1;max-width:var(--bar-max);height:100%;position:relative;
+display:flex;flex-direction:column;align-items:center;justify-content:flex-end;}
+.bar{width:100%;height:0;border-radius:12px 12px 0 0;background:var(--ink);
+animation:barGrow .9s var(--ease) forwards;}
+.bar.on{background:var(--accent);}
+.bar.off{background:var(--chip-2);border:2px solid var(--chip-2-line);border-bottom:none;}
+/* Nằm trong luồng ngay trên cột (không position:absolute) — đặt tuyệt đối
+   theo .col sẽ dính lên đỉnh khung vẽ chứ không bám đầu cột. Nhờ ở trong
+   luồng, nhãn còn được cột đẩy lên trong lúc cột mọc. */
+.val{margin-bottom:14px;
+font-family:var(--font-mono);font-weight:700;font-size:var(--val-fs);color:var(--ink);
+opacity:0;animation:fadeUp .5s var(--ease) forwards;}
+.lbl{position:absolute;bottom:calc(var(--axis-gap) * -1 - var(--lbl-off));
+font-size:var(--lbl-fs);font-weight:700;color:var(--ink-soft);text-align:center;
+white-space:nowrap;opacity:0;animation:fadeIn .5s var(--ease) forwards;}
+.lbl.on{color:var(--ink);}
+
+@keyframes fadeIn{to{opacity:1;}}
+@keyframes fadeUp{to{opacity:1;transform:translateY(0);}}
+@keyframes barGrow{to{height:var(--h);}}
+</style></head>
+<body><div id="root" data-composition-id="main" data-start="0" data-duration="20" data-width="1080" data-height="1920">
+<div class="eyebrow"></div><h1 class="title"></h1><div class="chart"></div><div class="caption"></div>
+</div>
+<script>(function(){
+var v=(window.__hyperframes&&typeof window.__hyperframes.getVariables==="function")?window.__hyperframes.getVariables():{};
+var root=document.getElementById("root");
+
+var GEO={
+  portrait:{css:{"--pad-x":"90px","--eyebrow-y":"200px","--eyebrow-fs":"26px",
+                 "--title-y":"258px","--title-fs":"72px","--cap-y":"180px","--cap-fs":"38px",
+                 "--chart-top":"620px","--chart-h":"900px","--bar-gap":"40px","--bar-max":"170px",
+                 "--axis-gap":"0px","--val-fs":"42px",
+                 "--lbl-off":"56px","--lbl-fs":"32px"}},
+  landscape:{css:{"--pad-x":"140px","--eyebrow-y":"90px","--eyebrow-fs":"22px",
+                  "--title-y":"132px","--title-fs":"56px","--cap-y":"70px","--cap-fs":"30px",
+                  "--chart-top":"300px","--chart-h":"560px","--bar-gap":"46px","--bar-max":"180px",
+                  "--axis-gap":"0px","--val-fs":"34px",
+                  "--lbl-off":"46px","--lbl-fs":"26px"}}
+};
+var W=+root.getAttribute("data-width")||1080,H=+root.getAttribute("data-height")||1920;
+var G=GEO[W>=H?"landscape":"portrait"];
+for(var k in G.css)root.style.setProperty(k,G.css[k]);
+
+function set(sel,val){var e=document.querySelector(sel);
+  if(!e)return; if(val==null||val===""){e.style.display="none";return;} e.textContent=String(val);}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+
+set(".eyebrow",v.label);
+set(".caption",v.caption);
+/* {từ} → dải bút dạ. Escape trước rồi mới chèn thẻ, tránh nội dung tự chèn HTML. */
+document.querySelector(".title").innerHTML=
+  esc(v.title||"").replace(/\{([^}]+)\}/g,'<span class="hl">$1</span>');
+
+var bars=v.bars;
+if(typeof bars==="string"){try{bars=JSON.parse(bars);}catch(e){bars=[];}}
+if(!Array.isArray(bars)||!bars.length)
+  bars=[{label:"Quý 1",value:32},{label:"Quý 2",value:48},
+        {label:"Quý 3",value:71,active:true},{label:"Quý 4",value:59}];
+
+var maxV=Math.max.apply(null,bars.map(function(b){return +b.value||0;}));
+if(maxV<=0)maxV=1;
+var chart=document.querySelector(".chart");
+bars.forEach(function(b,i){
+  /* Sàn 6% để cột giá trị rất nhỏ vẫn nhìn thấy được. */
+  var pct=Math.max(6,Math.round((+b.value||0)/maxV*100));
+  var delay=0.75+i*0.14;
+  var col=document.createElement("div");col.className="col";
+
+  var val=document.createElement("div");val.className="val";
+  val.textContent=(b.value!=null?b.value:"")+(b.unit||"");
+  val.style.animationDelay=(delay+0.72).toFixed(2)+"s";
+
+  var bar=document.createElement("div");
+  bar.className="bar"+(b.active===false?" off":(b.active?" on":""));
+  bar.style.setProperty("--h",pct+"%");
+  bar.style.animationDelay=delay.toFixed(2)+"s";
+
+  var lbl=document.createElement("div");lbl.className="lbl"+(b.active?" on":"");
+  lbl.textContent=b.label||"";
+  lbl.style.animationDelay=(delay+0.3).toFixed(2)+"s";
+
+  col.appendChild(val);col.appendChild(bar);col.appendChild(lbl);
+  chart.appendChild(col);
+});
+
+/* HyperFrames 0.6.94 thoát code 1 ("zero duration") nếu frame thuần CSS không
+   khai báo timeline. Stub này đủ để nó nhận data-duration. */
+window.__timelines=window.__timelines||{};
+window.__timelines["main"]={pause:function(){},seek:function(){},paused:function(){return true;}};
+})();</script></body></html>

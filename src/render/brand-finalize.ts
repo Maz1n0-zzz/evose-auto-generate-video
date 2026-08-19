@@ -55,9 +55,12 @@ export function buildFinalizeArgs(spec: FinalizeSpec): string[] {
         // nâng lại ở khoảng lặng — nếu chỉ hạ volume cố định thì lúc im lặng
         // nhạc sẽ nhỏ một cách vô lý.
         filters.push(
-            `[${mi}:a]volume=0.28[mus];` +
+            // 0.30 = mức nhạc nền Mazino chốt. ratio hạ từ 10 xuống 4 và
+            // threshold nâng từ 0.04 lên 0.10: mức cũ dìm nhạc gần như tắt hẳn
+            // mỗi khi có giọng, mà video nói gần liên tục nên nghe như MẤT nhạc.
+            `[${mi}:a]volume=0.30[mus];` +
             `[0:a]asplit=2[vm][vs];` +
-            `[mus][vs]sidechaincompress=threshold=0.04:ratio=10:attack=80:release=400[md];` +
+            `[mus][vs]sidechaincompress=threshold=0.10:ratio=4:attack=100:release=600[md];` +
             `[vm][md]amix=inputs=2:duration=first:dropout_transition=0[ao]`,
         );
         amap = "[ao]";

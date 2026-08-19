@@ -18,7 +18,9 @@ const TemplateScene = z.object({
   id: z.string().min(1),
   type: z.enum(["hook", "body", "outro"]),
   /** Spoken narration (Vietnamese, spelled-out numbers — see skill rules). */
-  voiceText: z.string().min(1),
+  voiceText: z.string(),
+  /** Độ dài cảnh câm (giây). Chỉ dùng khi voiceText là chuỗi rỗng. */
+  silentSec: z.number().min(0.5).max(15).default(3),
   /** Folder name under templates/, e.g. "frame-bold-poster". */
   templateId: z.string().min(1),
   /** Text slots for the template's data-composition-variables. */

@@ -9,6 +9,7 @@ import {
   getDurationSec,
   concatWithSilence,
   mixSfxOntoVoice,
+  makeSilence,
   type SfxMixSpec,
 } from "../assets/audio-tools.js";
 import { indexSfxLibrary, pickSfxForScene, defaultPlayback } from "../assets/sfx-selector.js";
@@ -75,6 +76,13 @@ export async function runTemplatePipeline(scriptPath: string): Promise<void> {
           const dur = await getDurationSec(out);
           log.info(`  scene ${scene.id}: REUSE mp3 (${dur.toFixed(2)}s)`);
           return { id: scene.id, path: out, durationSec: dur };
+        }
+        // Cảnh câm: dựng đoạn lặng thay vì gọi TTS. Vì vẫn sinh ra một file
+        // giọng thật nên mốc thời gian và bước cắt clip phía sau không đổi.
+        if (!scene.voiceText.trim()) {
+          log.info(`  scene ${scene.id}: CÂM ${scene.silentSec}s (không gọi TTS)`);
+          await makeSilence(scene.silentSec, out);
+          return { id: scene.id, path: out, durationSec: scene.silentSec };
         }
         const spoken = keepTags ? scene.voiceText : stripAudioTags(scene.voiceText);
         log.info(`  TTS scene ${scene.id} (${spoken.length} chars)...`);

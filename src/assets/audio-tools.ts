@@ -230,3 +230,23 @@ export async function mixSfxOntoVoice(
 
   await run("ffmpeg", ffArgs);
 }
+
+/**
+ * Tạo một file mp3 CÂM dài `sec` giây.
+ *
+ * Dùng cho cảnh không có lời đọc (vd cảnh mở chỉ có nhạc). Làm ra một file
+ * giọng THẬT thay vì xử lý cảnh câm như trường hợp đặc biệt, nhờ vậy mọi bước
+ * phía sau — ghép giọng, tính mốc thời gian, cắt clip theo giọng — chạy y
+ * nguyên, không phải sửa gì.
+ */
+export async function makeSilence(sec: number, outPath: string): Promise<void> {
+  const { spawn } = await import("node:child_process");
+  const args = ["-y", "-loglevel", "error", "-f", "lavfi",
+    "-i", "anullsrc=r=44100:cl=mono", "-t", String(sec),
+    "-c:a", "libmp3lame", "-b:a", "128k", outPath];
+  await new Promise<void>((res, rej) => {
+    const p = spawn("ffmpeg", args, { stdio: ["ignore", "ignore", "inherit"] });
+    p.on("close", (c) => (c === 0 ? res() : rej(new Error(`makeSilence ffmpeg thoát mã ${c}`))));
+    p.on("error", rej);
+  });
+}

@@ -24,14 +24,17 @@ Template lo toàn bộ thiết kế và chuyển động; bạn chỉ viết ch�
 ```json
 {
   "aspect": "9:16",
-  "brand": { "overlay": false }
+  "brand": { "overlay": true, "style": "light" }
 }
 ```
 
-`brand.overlay: false` là **bắt buộc** với bộ Light. Bộ cũ dựa vào lớp overlay
-header/footer để có nhận diện trên từng cảnh; bộ Light thì không — nhận diện chỉ
-nằm ở cảnh mở và cảnh kết. Quên đặt `false` thì overlay của bộ cũ sẽ đè lên và
-phá bố cục. Nhạc nền vẫn chạy bình thường, không phụ thuộc cờ này.
+`style: "light"` là **bắt buộc** với bộ Light. Overlay có hai bản: bản `dark`
+(chữ trắng trên dải tối, cho bộ `frame-*`) và bản `light` (chữ navy trên dải
+giấy mờ). Đặt nhầm `dark` lên nền giấy sẽ thành hai vệt đen chắn ngang trên dưới.
+
+Overlay mang logo Evose.ai ở đỉnh và dãy icon mạng xã hội + `app.evose.ai` ở
+chân khung, xuất hiện trên **mọi cảnh**. Vì vậy nội dung của template phải bắt
+đầu từ **y ≥ 260px** để không bị dải header đè lên.
 
 ## Slot dùng chung
 

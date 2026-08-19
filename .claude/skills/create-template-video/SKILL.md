@@ -14,20 +14,19 @@ Bộ `frame-*` cũ chỉ giữ để render lại video đã làm trước đây
 
 ```json
 "aspect": "9:16",
-"brand": { "overlay": false }
+"brand": { "overlay": true, "style": "light" }
 ```
 
-`brand.overlay: false` là **bắt buộc**. Bộ cũ dựa vào lớp overlay header/footer
-để có nhận diện trên từng cảnh; bộ Light thì không — nhận diện chỉ nằm ở cảnh mở
-và cảnh kết. Quên đặt `false` thì overlay của bộ cũ đè lên và phá bố cục.
+`style: "light"` là **bắt buộc**. Overlay có hai bản; đặt nhầm bản `dark` lên nền
+giấy sáng sẽ thành hai vệt đen chắn ngang trên dưới khung.
 
 ### Nhận diện
 
 | Chỗ | Cách làm |
 |---|---|
-| Cảnh mở | `evose-logo-card`, để trống `tagline` và `url` |
-| Cảnh kết | `evose-logo-card` với `tagline: "Begin a new era"` và `url: "https://evose.ai/"` |
-| Giữa video | **Không đặt logo, không đặt footer.** Mascot đã mang monogram Evose trên ngực |
+| Cảnh mở | `evose-logo-card` + `"intro": "swirl"`, để trống `tagline`/`url` |
+| Cảnh kết | `evose-logo-card` với `tagline: "Begin a new era"`, `url: "https://evose.ai/"` và `"follow": true` (nút FOLLOW có con trỏ bấm) |
+| Giữa video | Overlay tự lo logo + icon mạng xã hội. **Đừng điền thêm logo hay footer vào inputs** |
 | `metadata.channel` | `"EVOSE"` |
 
 ### Outro CTA — BẮT BUỘC
@@ -73,6 +72,20 @@ Phát hiện input rồi lấy nội dung:
     Fail (paywall/JS/4xx) → bảo user lưu nội dung vào `.txt` rồi gọi lại. Stop.
 - **File `.txt`** → `Read`; title = dòng đầu (≤80 ký tự), content = phần còn lại, ogImage = `null`, domain = `"local"`.
 - slug = ASCII không dấu (bỏ dấu tiếng Việt, đ→d), ≤40 ký tự; timestamp = `YYYYMMDD-HHmm`; `outputDir = output/<slug>-<timestamp>/`; `mkdir -p`.
+
+### Step 3b: Chụp ảnh bài báo — BẮT BUỘC khi nguồn là URL
+
+```bash
+node scripts/capture-screenshot.js --url "<url bài>" --out <outputDir>/shot.png --mode news
+```
+
+Rồi dùng ảnh đó cho **một cảnh `evose-screenshot`** trong thân bài để trích
+nguồn. Không có bước này thì video thiếu hẳn phần dẫn chứng, người xem không
+thấy bài gốc trông thế nào.
+
+- Nguồn là báo → `--mode news`, đặt `hl_top`/`hl_height` soi vào tiêu đề.
+- Nguồn là GitHub hoặc trang dài → `--mode github`, đặt `pan: "-65%"` để cuộn.
+- Chụp lỗi (trang chặn bot) → bỏ cảnh screenshot, ghi rõ trong báo cáo cuối.
 
 ### Step 4: Chọn template
 
@@ -120,7 +133,7 @@ Cấu trúc bắt buộc:
     "version": "1.0",
     "renderer": "hyperframes",
     "aspect": "9:16",
-    "brand": { "overlay": false },
+    "brand": { "overlay": true, "style": "light" },
     "metadata"    "voice": { "provider": "omnivoice", "speed": 1.0 },
     "scenes": [
         /* 8–12 scene: 1 hook + 6–10 body + 1 outro */
@@ -261,7 +274,9 @@ TTS không phải ElevenLabs, nên cứ viết thẳng thẻ vào `voiceText`.
 
 **🔴 CHECKLIST (bắt buộc kiểm trước khi ghi script.json):**
 - [ ] Mọi `templateId` đều bắt đầu bằng `evose-`? (không sót `frame-` nào)
-- [ ] Có `"brand": { "overlay": false }` chưa?
+- [ ] Có `"brand": { "overlay": true, "style": "light" }` chưa?
+- [ ] Cảnh mở có `"intro": "swirl"`, cảnh kết có `"follow": true` chưa?
+- [ ] Nguồn là URL thì đã chụp màn hình và có cảnh `evose-screenshot` chưa?
 - [ ] Cảnh đầu và cảnh cuối đều là `evose-logo-card`?
 - [ ] Hai cảnh liền nhau có trùng template không?
 - [ ] Có template nào lặp quá 2 lần không?

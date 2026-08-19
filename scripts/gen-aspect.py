@@ -15,6 +15,7 @@ này dùng được cho MỌI template evose-*, không cần bảng riêng cho t
 """
 import io
 import os
+import re
 import sys
 
 PORTRAIT_W, PORTRAIT_H = 1080, 1920
@@ -37,6 +38,40 @@ BANNER = (
 )
 
 
+def check_css_comments(html, path):
+    """Bắt lỗi comment CSS đóng sớm.
+
+    Viết một đường dẫn có ký tự đại diện trong comment CSS (dạng sao + gạch
+    chéo) sẽ ĐÓNG comment ngay tại đó. Phần chữ còn lại thành CSS rác và trình
+    duyệt nuốt luôn khối quy tắc kế tiếp — thường là :root, tức mất sạch biến
+    màu. Frame render ra trắng trơn và KHÔNG có thông báo lỗi nào, nên phải
+    chặn ở đây.
+    """
+    for m in re.finditer(r"<style[^>]*>(.*?)</style>", html, re.S | re.I):
+        css, base = m.group(1), m.start(1)
+        i, in_comment, start = 0, False, 0
+        while i < len(css) - 1:
+            two = css[i:i + 2]
+            if not in_comment and two == "/*":
+                in_comment, start, i = True, i, i + 2
+            elif in_comment and two == "*/":
+                in_comment, i = False, i + 2
+            elif not in_comment and two == "*/":
+                line = html.count("\n", 0, base + i) + 1
+                raise SystemExit(
+                    "%s dòng %d: gặp dấu đóng comment CSS khi không ở trong "
+                    "comment.\nGần như chắc chắn là một comment đã bị đóng sớm "
+                    "(hay gặp khi gõ đường dẫn có ký tự đại diện). Hậu quả: "
+                    "khối quy tắc ngay sau đó bị nuốt và frame render ra "
+                    "trắng trơn, không báo lỗi." % (path, line)
+                )
+            else:
+                i += 1
+        if in_comment:
+            line = html.count("\n", 0, base + start) + 1
+            raise SystemExit("%s dòng %d: comment CSS chưa được đóng." % (path, line))
+
+
 def build(tpl_dir):
     src = os.path.join(tpl_dir, "compositions", "portrait.html")
     dst = os.path.join(tpl_dir, "index.html")
@@ -44,6 +79,7 @@ def build(tpl_dir):
         raise SystemExit("Không thấy %s" % src)
 
     s = io.open(src, encoding="utf-8").read()
+    check_css_comments(s, src)
     for a, b in SUBS:
         if a not in s:
             raise SystemExit(

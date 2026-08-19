@@ -1,0 +1,194 @@
+<!-- SINH TỰ ĐỘNG bởi scripts/gen-aspect.py — ĐỪNG SỬA TRỰC TIẾP.
+     Sửa compositions/portrait.html rồi chạy lại script. -->
+<!doctype html><html lang="vi"><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=1920, height=1080"/><title>Evose Statement</title>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+/* ------------------------------------------------------------------
+   EVOSE STATEMENT — câu chốt. Token gốc: templates/EVOSE-LIGHT-TOKENS.css.
+
+   Dựng theo frame 1:40–1:43 của reference:
+     ❌ badge trên  →  chip dẫn "TÍNH TỪ KHÔNG DẠY ĐƯỢC AI"
+                    →  chip hero "VÍ DỤ"
+     ✅ badge KHỔNG LỒ nổi ở góc dưới phải, mascot tràn mép dưới trái.
+
+   Đây là frame TO TIẾNG nhất của cả video nên mọi thứ đều cỡ lớn: chip
+   chiếm ~70% bề ngang, badge dưới ~38%, mascot cố tình bị khung cắt bớt.
+   Làm nhỏ lại là mất hết sức nặng của câu chốt.
+
+   Dùng chung một file cho 9:16 và 16:9 — xem scripts/gen-aspect.py.
+   ------------------------------------------------------------------ */
+:root{--paper:#f2f2f0;--dot:#d6d6d1;--ink:#0a0a0a;
+--chip-2:#e7e7e3;--chip-2-line:#d2d2cc;--ok:#22c55e;--no:#ef4444;
+--font:'Hanken Grotesk',-apple-system,'Segoe UI',sans-serif;
+--radius:18px;--shadow:0 8px 22px rgba(10,10,10,.16);--ease:cubic-bezier(.16,1,.3,1);}
+*{margin:0;padding:0;box-sizing:border-box;}
+
+/* ↓↓↓ 3 dòng khung — chỗ DUY NHẤT khác nhau giữa 9:16 và 16:9 ↓↓↓ */
+html,body{width:1920px;height:1080px;}
+#root{width:1920px;height:1080px;}
+/* ↑↑↑ (dòng thứ 3 là data-width/data-height trên #root dưới <body>) */
+
+html,body{overflow:hidden;font-family:var(--font);color:var(--ink);}
+#root{position:relative;overflow:hidden;
+background-color:var(--paper);
+background-image:radial-gradient(circle,var(--dot) 1.35px,transparent 1.35px);
+background-size:26px 26px;}
+
+.media{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+transform-origin:50% 42%;opacity:0;
+animation:mediaIn .6s var(--ease) forwards, kenburns 20s linear forwards;}
+.media.contain{object-fit:contain;}
+
+/* Neo TRÊN chứ không canh giữa: nửa dưới khung dành cho badge lớn + mascot. */
+.stage{position:absolute;left:var(--stage-x);right:var(--stage-x);top:var(--stage-top);
+display:flex;flex-direction:column;align-items:center;gap:var(--stack-gap);}
+
+.chip{display:inline-flex;align-items:center;justify-content:center;text-align:center;
+padding:var(--chip-pad);border-radius:var(--radius);font-weight:800;line-height:1.16;
+text-transform:uppercase;letter-spacing:.2px;color:#fff;background:var(--ink);
+box-shadow:var(--shadow);max-width:100%;
+opacity:0;transform:translateY(28px) scale(.94);
+animation:nodeIn .55s var(--ease) forwards;}
+.chip.mute{background:var(--chip-2);color:var(--ink);border:2px solid var(--chip-2-line);box-shadow:none;}
+.hero{font-size:var(--hero-fs);padding:var(--hero-pad);letter-spacing:-1px;white-space:nowrap;}
+
+.badge{display:flex;align-items:center;justify-content:center;flex:none;
+opacity:0;transform:scale(.4);animation:popIn .55s var(--ease) forwards;}
+.badge.no{background:var(--no);border-radius:24%;}
+.badge.ok{background:var(--ok);border-radius:50%;}
+.badge svg{width:55%;height:55%;stroke:#fff;stroke-width:10;fill:none;
+stroke-linecap:round;stroke-linejoin:round;}
+
+.badge-top{width:var(--badge-top-size);height:var(--badge-top-size);}
+.badge-top.no{box-shadow:0 12px 30px rgba(239,68,68,.34);}
+.badge-top.ok{box-shadow:0 12px 30px rgba(34,197,94,.34);}
+
+/* Badge kết luận: nổi lớn ở nửa dưới, cố ý chồng lên vùng mascot. */
+.badge-float{position:absolute;width:var(--badge-big);height:var(--badge-big);
+bottom:var(--badge-big-bottom);}
+.badge-float.right{right:var(--badge-big-x);}
+.badge-float.left{left:var(--badge-big-x);}
+.badge-float.no{box-shadow:0 18px 46px rgba(239,68,68,.34);}
+.badge-float.ok{box-shadow:0 18px 46px rgba(34,197,94,.34);}
+
+/* Mascot cỡ lớn, cố ý cho tràn khỏi mép — reference cũng cắt cụt như vậy. */
+.mascot{position:absolute;bottom:0;width:var(--mascot-w);height:var(--mascot-h);
+object-fit:contain;object-position:bottom center;pointer-events:none;
+opacity:0;transform:translateY(80px);animation:mascotIn .6s var(--ease) forwards;}
+.mascot.right{right:var(--mascot-x);}
+.mascot.left{left:var(--mascot-x);}
+
+@keyframes mediaIn{to{opacity:1;}}
+@keyframes kenburns{from{scale:1;}to{scale:1.07;}}
+@keyframes nodeIn{to{opacity:1;transform:translateY(0) scale(1);}}
+@keyframes popIn{to{opacity:1;transform:scale(1);}}
+@keyframes mascotIn{to{opacity:1;transform:translateY(0);}}
+</style></head>
+<body><div id="root" data-composition-id="main" data-start="0" data-duration="20" data-width="1920" data-height="1080">
+<div class="stage"></div>
+</div>
+<script>(function(){
+var v=(window.__hyperframes&&typeof window.__hyperframes.getVariables==="function")?window.__hyperframes.getVariables():{};
+var root=document.getElementById("root");
+
+var GEO={
+  portrait:{
+    css:{"--stage-x":"90px","--stage-top":"250px","--stack-gap":"46px",
+         "--chip-pad":"30px 46px","--hero-pad":"34px 70px",
+         "--badge-top-size":"160px","--badge-big":"400px",
+         "--badge-big-bottom":"520px","--badge-big-x":"70px",
+         "--mascot-w":"720px","--mascot-h":"1120px","--mascot-x":"-50px"},
+    js:{lineFs:58,heroAvail:760,heroMax:150,heroMin:72}
+  },
+  landscape:{
+    css:{"--stage-x":"120px","--stage-top":"110px","--stack-gap":"28px",
+         "--chip-pad":"20px 34px","--hero-pad":"22px 52px",
+         "--badge-top-size":"104px","--badge-big":"240px",
+         "--badge-big-bottom":"120px","--badge-big-x":"90px",
+         "--mascot-w":"440px","--mascot-h":"560px","--mascot-x":"-30px"},
+    js:{lineFs:42,heroAvail:820,heroMax:110,heroMin:52}
+  }
+};
+var W=+root.getAttribute("data-width")||1080,H=+root.getAttribute("data-height")||1920;
+var G=GEO[W>=H?"landscape":"portrait"];
+for(var k in G.css)root.style.setProperty(k,G.css[k]);
+var CFG=G.js;
+
+var d=0.20;
+function next(){var t=d;d+=0.30;return t.toFixed(2)+"s";}
+function arr(x){if(typeof x==="string"){try{var p=JSON.parse(x);if(Array.isArray(p))return p;}catch(e){}
+  return String(x).split(/\r?\n/);}return Array.isArray(x)?x:[];}
+function badgeSvg(kind){
+  return kind==="ok"
+    ? '<svg viewBox="0 0 100 100"><path d="M22 52 L42 72 L78 30"/></svg>'
+    : '<svg viewBox="0 0 100 100"><path d="M28 28 L72 72 M72 28 L28 72"/></svg>';
+}
+
+if(v.media){
+  var img=document.createElement("img");
+  img.className="media"+(v.media_fit==="contain"?" contain":"");
+  img.src=String(v.media);
+  root.insertBefore(img,root.firstChild);
+}
+
+var stage=document.querySelector(".stage");
+
+/* Badge nhỏ phía trên — gắn nhãn cho cái ĐANG BỊ phủ nhận. */
+if(v.badge_top){
+  var bt=document.createElement("div");
+  bt.className="badge badge-top "+(v.badge_top==="ok"?"ok":"no");
+  bt.innerHTML=badgeSvg(v.badge_top);
+  bt.style.animationDelay=next();
+  stage.appendChild(bt);
+}
+
+arr(v.lines).map(function(s){return String(s==null?"":s).trim();})
+            .filter(function(s){return s.length;})
+            .forEach(function(t){
+  var c=document.createElement("div");
+  c.className="chip"+(v.lines_tone==="mute"?" mute":"");
+  c.textContent=t;
+  c.style.fontSize=CFG.lineFs+"px";
+  c.style.animationDelay=next();
+  stage.appendChild(c);
+});
+
+/* Hero giữ trên MỘT dòng (white-space:nowrap) nên cỡ chữ phải tự co. */
+var hero=String(v.hero==null?"":v.hero).trim();
+if(hero){
+  root.style.setProperty("--hero-fs",Math.max(CFG.heroMin,Math.min(CFG.heroMax,
+    Math.round(CFG.heroAvail/(hero.length*0.58))))+"px");
+  var hc=document.createElement("div");
+  hc.className="chip hero"+(v.hero_tone==="mute"?" mute":"");
+  hc.textContent=hero;
+  hc.style.animationDelay=next();
+  stage.appendChild(hc);
+}
+
+/* Badge kết luận cỡ lớn ở nửa dưới. */
+if(v.badge){
+  var bf=document.createElement("div");
+  bf.className="badge badge-float "+(v.badge==="ok"?"ok":"no")
+               +" "+(v.badge_side==="left"?"left":"right");
+  bf.innerHTML=badgeSvg(v.badge);
+  bf.style.animationDelay=next();
+  root.appendChild(bf);
+}
+
+if(v.mascot){
+  var m=document.createElement("img");
+  m.className="mascot "+(v.mascot_side==="right"?"right":"left");
+  m.src=String(v.mascot);
+  var sc=parseFloat(v.mascot_scale);
+  if(sc>0){m.style.width=(parseInt(G.css["--mascot-w"],10)*sc)+"px";
+           m.style.height=(parseInt(G.css["--mascot-h"],10)*sc)+"px";}
+  m.style.animationDelay=(d+0.15).toFixed(2)+"s";
+  root.appendChild(m);
+}
+
+/* HyperFrames 0.6.94 thoát code 1 ("zero duration") nếu frame thuần CSS không
+   khai báo timeline. Stub này đủ để nó nhận data-duration. */
+window.__timelines=window.__timelines||{};
+window.__timelines["main"]={pause:function(){},seek:function(){},paused:function(){return true;}};
+})();</script></body></html>

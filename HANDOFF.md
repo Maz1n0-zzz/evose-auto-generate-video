@@ -75,31 +75,83 @@ nét nối chấm, một màu nhấn duy nhất, mascot robot 3D, **không** gra
   `overlay-frame-light.html` bằng `generate-overlay-png.sh` (Chrome headless).
 - Mascot: `evose-brand-kit/mascot/` — 14 tư thế PNG alpha, xem README ở đó.
 
-## 🎙️ Giọng đọc lệch ngữ điệu giữa các cảnh — CHƯA GIẢI XONG
+## 🎙️ Giọng đọc lệch ngữ điệu giữa các cảnh — CÒN, và với v3 thì BẾ TẮC
 
 Mỗi cảnh là một lần gọi API riêng nên ElevenLabs không biết mạch câu, tự chọn
 ngữ điệu mở đầu mỗi lần → cao độ và nhịp lệch nhau, nghe rõ ở chỗ chuyển cảnh.
 `eleven_v3` nhạy hơn vì biểu cảm mạnh.
 
-**Đã thử cách 1 (`previous_text` / `next_text`) — KHÔNG dùng được với v3.**
-API trả **400** khi gửi hai tham số này cùng `eleven_v3`. Code vẫn giữ nhưng
-đã chặn theo model (`supportsStitching` trong `elevenlabs-client.ts`): chỉ gửi
-với dòng v2 (`multilingual_v2`, `flash_v2_5`, `turbo_v2_5`).
+### Kết luận đã kiểm bằng API thật (2026-08-20)
 
-### Ba cách còn lại, xếp theo hiệu quả
+ElevenLabs có đúng **hai** cơ chế nối ngữ điệu, và **`eleven_v3` từ chối cả
+hai**:
 
-1. **`previous_request_ids` / `next_request_ids`** (mảng, tối đa 3) — cho model
-   nghe lại chính đoạn vừa tạo, liên tục nhất. Phải bắt `request-id` từ header
-   phản hồi và buộc chạy tuần tự (`TTS_CONCURRENCY` đang là 1 nên đã sẵn điều
-   kiện). **Cần kiểm xem v3 có nhận không** — rất có thể cũng 400 như trên.
+| Cơ chế | Với `eleven_v3` | Với `eleven_flash_v2_5` |
+|---|---|---|
+| `previous_text` / `next_text` | 400 | nhận |
+| `previous_request_ids` / `next_request_ids` | 400 `unsupported_model` | **nhận** |
+
+Nguyên văn lỗi của v3:
+
+> Providing previous_request_ids or next_request_ids is not yet supported with
+> the 'eleven_v3' model.
+
+Kiểm lại bất cứ lúc nào (ElevenLabs có thể mở hỗ trợ sau):
+
+```bash
+npx tsx scripts/probe-elevenlabs-stitching.ts eleven_v3 eleven_flash_v2_5
+```
+
+Tốn 2 lần gọi API cho mỗi model, không ghi file âm thanh.
+
+### Đã hiện thực: nối bằng `previous_request_ids`
+
+Cơ chế liên tục nhất — cho model nghe lại chính đoạn vừa tạo, không chỉ đọc
+lời cảnh kề. Code đã xong trong `elevenlabs-client.ts` +
+`template-pipeline.ts`, gác sau `supportsRequestIdChaining()`:
+
+- Với **v3**: không gửi tham số nối nào. Không có tác dụng gì.
+- Với **dòng v2**: tự bật, và pipeline **ép gọi tuần tự** (bỏ qua
+  `TTS_CONCURRENCY`) vì phải có kết quả cảnh trước mới gọi được cảnh sau.
+
+Chuỗi id **đứt** khi một cảnh không sinh id mới — dùng lại mp3 cũ hoặc cảnh câm.
+Khi đó chuỗi bị xoá, cảnh sau không nối vào id của một cảnh xa hơn. Hệ quả:
+render lại **riêng một cảnh** thì cảnh đó không nối được với hàng xóm; muốn
+liền mạch phải xoá cả thư mục `voice/` và sinh lại từ đầu.
+
+### Còn hai đường, Mazino chọn
+
+1. **Đổi sang `eleven_flash_v2_5`** — nối có hiệu lực NGAY, không phải sửa
+   dòng code nào (chỉ đổi `ELEVENLABS_MODEL_ID` trong `.env.local`). Đổi lại:
+   mất biểu cảm của v3, và **thẻ cảm xúc `[excited]` trở thành vô nghĩa** —
+   `audio-tags.ts` vẫn gửi thẻ đi vì provider là ElevenLabs, nhưng v2 không
+   hiểu. Cần kiểm xem v2 có đọc to thẻ ra không; nếu có thì phải bỏ thẻ theo
+   model chứ không theo provider. Rẻ hơn v3 một nửa.
 2. **Đọc một lần rồi cắt** — gọi 1 lần cho toàn bộ lời, dùng endpoint có
-   timestamp để cắt theo cảnh. Đồng nhất tuyệt đối nhưng phải viết lại bước 3
-   của pipeline.
-3. **Đổi sang `eleven_flash_v2_5`** — mất biểu cảm nhưng dùng được cách 1 ngay,
-   và rẻ hơn một nửa.
+   timestamp để cắt theo cảnh. Đồng nhất tuyệt đối và GIỮ được v3, nhưng phải
+   viết lại bước 3 của pipeline và mất tính idempotent theo từng cảnh.
 
-Chênh lệch **âm lượng** là vấn đề riêng, xử bằng `loudnorm` của ffmpeg lúc ghép
-giọng — chưa làm.
+## 🔊 Chênh lệch âm lượng — ĐO RỒI, HOÁ RA KHÔNG PHẢI VẤN ĐỀ
+
+Handoff cũ ghi cần xử bằng `loudnorm`. Đã đo thật 12 cảnh của
+`output/ai-my-canh-tranh-gia-trung-quoc-20260819-2240/voice/`:
+
+```
+I (LUFS)  : -15.95 … -17.38   → chênh 1.43 dB
+True peak : -1.87 … -4.23     → chênh 2.36 dB
+```
+
+Chênh 1.43 dB là **dưới ngưỡng tai nghe ra**. ElevenLabs đã tự chuẩn hoá đầu
+ra, và mức nó trả về (~-16.5 LUFS) trùng luôn với mức đích thường dùng cho
+tiếng nói trên mạng xã hội. Nói cách khác: **cái Mazino nghe thấy ở chỗ chuyển
+cảnh là lệch NGỮ ĐIỆU, không phải lệch âm lượng.**
+
+Vẫn đã thêm bước chuẩn hoá vào `concatWithSilence` — nhưng hiểu đúng nó là
+**lưới an toàn** cho cảnh cá biệt bị lệch, không phải bản vá cho thứ đang hỏng.
+Cách làm: đo trước rồi áp **gain tĩnh** đưa mỗi cảnh về `TARGET_LUFS` (-16),
+CỐ Ý không chạy `loudnorm` ghi đè vì nó nén dải động và làm giọng nghe bẹt.
+Hai lớp chặn: trần +12 dB (đoạn gần im lặng không bị thổi tiếng ồn lên) và hạ
+gain khi đỉnh sắp vượt -1 dBTP.
 
 ## ⚠️ VIỆC CÒN DANG DỞ
 

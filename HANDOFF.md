@@ -58,9 +58,9 @@ nét nối chấm, một màu nhấn duy nhất, mascot robot 3D, **không** gra
 
 - TTS: **ElevenLabs**, giọng "Nhật Phong - Narrative & Compelling" (nam, giọng
   Bắc). Key nằm trong `.env.local`.
-- Model: **đã chốt `eleven_flash_v2_5`** để nối được ngữ điệu giữa các cảnh —
-  xem mục "Giọng đọc" bên dưới. ⚠️ `.env.local` vẫn ghi `eleven_v3`, **Mazino
-  phải tự sửa** thì mới thành mặc định.
+- Model: **`eleven_v3`, giữ nguyên** — Mazino nghe so ba model và chốt v3 hay
+  nhất. Ngữ điệu liền mạch giải bằng cách đọc một lần cả bài, không phải bằng
+  cách đổi model. Xem mục "Giọng đọc" bên dưới.
 - **Claude KHÔNG đọc/ghi được `.env*`** — bị chặn bởi quy tắc quyền. Muốn
   đổi thì Mazino tự sửa file. Chạy thử thì đè bằng biến môi trường ngoài dòng
   lệnh: `ELEVENLABS_MODEL_ID=... npm run pipeline -- ...` (dotenv không ghi đè
@@ -68,7 +68,8 @@ nét nối chấm, một màu nhấn duy nhất, mascot robot 3D, **không** gra
 - OmniVoice không còn trên máy (không tìm thấy dấu vết). Đừng đề xuất lại.
 - Thẻ cảm xúc `[excited]`, `[sighs]`… viết thẳng vào `voiceText`;
   `src/utils/audio-tags.ts` tự bỏ thẻ khi ghi `script.txt` và khi model không
-  hiểu thẻ. **Với `flash_v2_5` thì thẻ luôn bị bỏ** — chỉ `eleven_v3` hiểu.
+  hiểu thẻ. Chỉ `eleven_v3` hiểu thẻ, mà cũng **không đáng tin** — xem mục thẻ
+  cảm xúc bên dưới.
 
 ## Thương hiệu
 
@@ -80,7 +81,10 @@ nét nối chấm, một màu nhấn duy nhất, mascot robot 3D, **không** gra
   `overlay-frame-light.html` bằng `generate-overlay-png.sh` (Chrome headless).
 - Mascot: `evose-brand-kit/mascot/` — 14 tư thế PNG alpha, xem README ở đó.
 
-## 🎙️ Giọng đọc lệch ngữ điệu giữa các cảnh — CÒN, và với v3 thì BẾ TẮC
+## 🎙️ Giọng đọc lệch ngữ điệu giữa các cảnh — ĐÃ GIẢI XONG
+
+> Kết luận nằm ở mục "ĐÃ GIẢI XONG" phía dưới. Phần ngay sau đây là quá trình
+> loại trừ, giữ lại để đừng ai đi lại những đường đã bít.
 
 Mỗi cảnh là một lần gọi API riêng nên ElevenLabs không biết mạch câu, tự chọn
 ngữ điệu mở đầu mỗi lần → cao độ và nhịp lệch nhau, nghe rõ ở chỗ chuyển cảnh.
@@ -124,7 +128,54 @@ Khi đó chuỗi bị xoá, cảnh sau không nối vào id của một cảnh x
 render lại **riêng một cảnh** thì cảnh đó không nối được với hàng xóm; muốn
 liền mạch phải xoá cả thư mục `voice/` và sinh lại từ đầu.
 
-### ⚠️ `flash_v2_5` ĐỌC SAI DẤU THANH — đang cân nhắc lại
+### ✅ ĐÃ GIẢI XONG: giữ `eleven_v3`, đọc MỘT LẦN cả bài rồi cắt
+
+Mazino nghe ba mẫu và chốt: **v3 hay nhất**, `multilingual_v2` nghe như người
+nước ngoài tập nói tiếng Việt, `flash_v2_5` nuốt dấu thanh. Vậy phải giữ v3,
+mà v3 lại chặn mọi cơ chế nối — nên bỏ hẳn việc gọi riêng từng cảnh.
+
+**Cách làm:** nối lời cả bài thành một chuỗi (ngăn bằng `\n\n`), gọi
+`/with-timestamps` MỘT lần, rồi cắt theo mốc thời gian từng ký tự. Cả bài là
+một mạch đọc nên không còn chỗ nào để ngữ điệu lệch.
+
+Code: `src/tts/single-take.ts` (phần tính thuần) + `renderSingleTake` trong
+`template-pipeline.ts`. Quãng nghỉ model tự chèn giữa hai đoạn bị **gọt bỏ**,
+chỉ chừa 0.12s hai đầu — không gọt thì video phình từ 96.78s lên 110.26s.
+
+Lời quá 2900 ký tự, hoặc chỉ một cảnh có lời, thì tự quay về cách gọi từng cảnh.
+
+**Cái mất:** không render lại riêng một cảnh được nữa. Thiếu dù chỉ một file
+giọng là đọc lại CẢ BÀI (một lần gọi API), vì đọc bù riêng một cảnh thì rơi
+đúng vào chỗ ngữ điệu sẽ lệch.
+
+**Nhịp đọc chậm hơn ~7%** — video mẫu 103.68s so với 96.78s. Đọc liền mạch thì
+model nói có nhịp hơn. Muốn kéo về nhịp cũ thì thêm `speed` vào `voice_settings`
+(ElevenLabs cho 0.7–1.2), chưa làm.
+
+### 🎭 Thẻ cảm xúc của v3 KHÔNG đáng tin — đã có cơ chế chặn
+
+v3 thỉnh thoảng **ĐỌC TO** thẻ thay vì hiểu là chỉ dẫn. Đã gặp thật:
+`[curious]` phát thành tiếng ngay đầu video, nghe ra **"CU Arius"**. Cùng một
+chuỗi đầu vào chạy bốn lần thì trượt một — không tránh được bằng cách viết lời
+khác, và cũng không phải do `voice_settings` (đã loại trừ bằng thực nghiệm).
+
+Đọc một lần cả bài làm chuyện này nguy hiểm hơn hẳn: trước đây một lần xui chỉ
+hỏng một cảnh, nay hỏng nguyên video.
+
+**Cách chặn** (`findSpokenTags`): thẻ bị đọc thì mỗi chữ cái tốn thời gian như
+chữ thường; thẻ hiểu đúng thì cả thẻ gộp lại chỉ tốn một khoảnh khắc, dài bao
+nhiêu chữ cũng vậy. Chia thời lượng cho số ký tự là tách được — 0.069 so với
+0.164, ngưỡng đặt ở **0.12 giây/ký tự**. Dữ liệu có sẵn trong phản hồi nên
+không tốn thêm lần gọi nào.
+
+⚠️ **Đừng dùng tổng thời lượng làm thước.** `[sighs]` tốn 0.48s vì nó thở dài
+THẬT — dài hơn cả `[curious]` bị đọc to khi chia đều ra từng ký tự. Tôi đã thử
+thước đó trước và nó cho kết quả sai.
+
+Bắt được thì đọc lại, tối đa 2 lượt; vẫn hỏng thì **bỏ hẳn thẻ rồi đọc lại**,
+lần đó chắc chắn sạch. Kiểm trên video mẫu: bắt đúng ngay lần render đầu tiên.
+
+### Ghi chú lịch sử: `flash_v2_5` đọc sai dấu thanh
 
 Mazino nghe bản dựng lại và bắt được lỗi: **"tháng bảy" đọc thành "tháng bay"**.
 Đã kiểm lời trong `script.json` — viết đúng chữ "tháng bảy", không dùng chữ số,
@@ -236,15 +287,8 @@ thật ra dài 96.78s.
 
 ## ⚠️ VIỆC CÒN DANG DỞ
 
-0. **Chọn model rồi sửa `ELEVENLABS_MODEL_ID` trong `.env.local`.** Việc duy
-   nhất Claude không làm hộ được (bị chặn ghi `.env*`).
-   - Nghe ba mẫu ở `output/_model-compare/` trước.
-   - `flash_v2_5` đã bị loại trên thực tế vì **nuốt dấu thanh** ("tháng bảy" →
-     "tháng bay").
-   - Nhiều khả năng chọn `eleven_multilingual_v2` — nối được ngữ điệu mà không
-     phải bản chưng cất. **Chưa ai nghe kiểm dấu thanh của nó.**
-   - Nghe thấy vẫn sai thì chỉ còn đường quay về `eleven_v3` và làm "đọc một
-     lần rồi cắt" — cách duy nhất vừa giữ chất giọng vừa liền mạch.
+0. **Không phải đổi model nữa.** `.env.local` đang là `eleven_v3` — ĐÚNG rồi,
+   cứ để nguyên. Mọi thứ chạy trên v3.
 
 1. **Kho logo + font brand** — Mazino có nhắc muốn làm nhưng CHƯA mô tả rõ là
    gì (một trang tra cứu bộ nhận diện? một thư mục asset chuẩn hoá?). Hỏi lại
@@ -335,4 +379,4 @@ Muốn dựng lại chỉ phần tiếng mà không tốn lần gọi API nào: 
 `REUSE mp3` và chỉ khâu ghép chạy lại.
 
 Video mẫu đã dựng: `output/ai-my-canh-tranh-gia-trung-quoc-20260819-2240/`
-(99.58 giây, 12 cảnh, đã dựng lại bằng `flash_v2_5`) — dùng để đối chiếu.
+(103.68 giây, 12 cảnh, dựng bằng `eleven_v3` đọc một lần) — dùng để đối chiếu.

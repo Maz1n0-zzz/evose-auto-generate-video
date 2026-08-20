@@ -117,6 +117,23 @@ describe("ElevenLabsClient — eleven_v3 chặn mọi cơ chế nối", () => {
   });
 });
 
+describe("ElevenLabsClient — thẻ cảm xúc theo model", () => {
+  // Đúng ngược chiều với khả năng nối: đổi v3 sang v2 thì được nối ngữ điệu
+  // nhưng mất thẻ cảm xúc. Gác sai chỗ này thì v2 sẽ ĐỌC TO chữ "excited".
+  it("chỉ eleven_v3 hiểu thẻ", () => {
+    expect(client("eleven_v3").supportsAudioTags()).toBe(true);
+    expect(client("eleven_flash_v2_5").supportsAudioTags()).toBe(false);
+    expect(client("eleven_multilingual_v2").supportsAudioTags()).toBe(false);
+  });
+
+  it("không model nào vừa nối được vừa hiểu thẻ", () => {
+    for (const m of ["eleven_v3", "eleven_flash_v2_5", "eleven_multilingual_v2", "eleven_turbo_v2_5"]) {
+      const c = client(m);
+      expect(c.supportsAudioTags() && c.supportsRequestIdChaining()).toBe(false);
+    }
+  });
+});
+
 describe("ElevenLabsClient — lỗi", () => {
   it("401 báo sai API key và không thử lại", async () => {
     nock(BASE).post(`/v1/text-to-speech/${VOICE}`).reply(401, "nope");

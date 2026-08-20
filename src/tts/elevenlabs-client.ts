@@ -60,6 +60,17 @@ export class ElevenLabsClient implements TtsClient {
   }
 
   /**
+   * Chỉ `eleven_v3` hiểu thẻ cảm xúc như chỉ dẫn diễn xuất. Dòng v2 sẽ ĐỌC TO
+   * chữ trong ngoặc, nên gửi thẻ cho v2 là hỏng lời đọc.
+   *
+   * Đúng ngược chiều với `supportsRequestIdChaining` — đây chính là cái giá
+   * phải trả khi đổi v3 sang v2 để lấy khả năng nối ngữ điệu.
+   */
+  supportsAudioTags(): boolean {
+    return this.model.startsWith("eleven_v3");
+  }
+
+  /**
    * `ctx` cấp ngữ cảnh để ngữ điệu nối liền giữa các cảnh. Không có nó thì mỗi
    * cảnh là một lần gọi độc lập, model tự chọn ngữ điệu mở đầu nên cao độ và
    * nhịp lệch nhau, nghe rõ ở chỗ chuyển cảnh.

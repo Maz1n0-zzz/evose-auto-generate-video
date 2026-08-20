@@ -58,14 +58,14 @@ export async function runTemplatePipeline(scriptPath: string): Promise<void> {
   // STEP 3 — TTS per scene (idempotent)
   log.step(3, TOTAL_STEPS, "TTS each scene");
   const ttsClient = createTtsClient(cfg);
-  // Chỉ ElevenLabs hiểu thẻ cảm xúc. Provider khác sẽ ĐỌC TO chữ trong ngoặc
-  // vuông, nên phải bỏ trước khi gửi.
-  const keepTags = cfg.ttsProvider === "elevenlabs";
+  // Chỉ vài MODEL hiểu thẻ cảm xúc (hiện chỉ eleven_v3). Model không hiểu sẽ
+  // ĐỌC TO chữ trong ngoặc vuông, nên phải bỏ thẻ trước khi gửi.
+  const keepTags = ttsClient.supportsAudioTags?.() ?? false;
   const taggedScenes = script.scenes.filter((s) => hasAudioTags(s.voiceText)).length;
   if (taggedScenes > 0 && !keepTags) {
-    log.info(
-      `  ${taggedScenes} cảnh có thẻ cảm xúc — provider "${cfg.ttsProvider}" không hiểu, sẽ bỏ thẻ`,
-    );
+    const which =
+      cfg.ttsProvider === "elevenlabs" ? `model "${cfg.elevenlabsModelId}"` : `provider "${cfg.ttsProvider}"`;
+    log.info(`  ${taggedScenes} cảnh có thẻ cảm xúc — ${which} không hiểu, sẽ bỏ thẻ`);
   }
   // Nối ngữ điệu bằng request-id: cho model nghe lại chính đoạn vừa tạo. Chỉ
   // đúng khi các cảnh gọi lần lượt, vì phải có kết quả cảnh trước mới gọi được

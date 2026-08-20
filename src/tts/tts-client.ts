@@ -44,6 +44,13 @@ export interface TtsClient {
    * không — nối kiểu này chỉ đúng khi các cảnh chạy lần lượt.
    */
   supportsRequestIdChaining?(): boolean;
+
+  /**
+   * Có hiểu thẻ cảm xúc (`[excited]`) như chỉ dẫn diễn xuất không. Không hiểu
+   * thì phải bỏ thẻ trước khi gửi, nếu không máy sẽ ĐỌC TO chữ trong ngoặc.
+   * Đây là chuyện của từng MODEL chứ không phải từng provider.
+   */
+  supportsAudioTags?(): boolean;
 }
 
 import type { Config } from "../config.js";

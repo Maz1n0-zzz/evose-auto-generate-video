@@ -124,7 +124,33 @@ Khi đó chuỗi bị xoá, cảnh sau không nối vào id của một cảnh x
 render lại **riêng một cảnh** thì cảnh đó không nối được với hàng xóm; muốn
 liền mạch phải xoá cả thư mục `voice/` và sinh lại từ đầu.
 
-### ✅ ĐÃ CHỌN: `eleven_flash_v2_5` (Mazino chốt 2026-08-20)
+### ⚠️ `flash_v2_5` ĐỌC SAI DẤU THANH — đang cân nhắc lại
+
+Mazino nghe bản dựng lại và bắt được lỗi: **"tháng bảy" đọc thành "tháng bay"**.
+Đã kiểm lời trong `script.json` — viết đúng chữ "tháng bảy", không dùng chữ số,
+nên **lỗi ở model chứ không ở lời**. `eleven_flash_v2_5` là bản chưng cất cho
+nhanh và rẻ; đánh đổi nằm ở chỗ này, nó nuốt dấu thanh tiếng Việt.
+
+**`eleven_multilingual_v2` là đường ra:** đã kiểm, **cũng nhận
+`previous_request_ids`** — tức giữ được khả năng nối ngữ điệu — mà là bản chất
+lượng đầy đủ, không phải bản chưng cất. Cũng không hiểu thẻ cảm xúc (chỉ v3
+hiểu), và cũng trả về ~-22 LUFS như flash nên bước chuẩn hoá âm lượng vẫn cần y
+nguyên.
+
+Ba mẫu đọc cùng một câu để nghe so đã dựng sẵn ở `output/_model-compare/`.
+Dựng lại bất cứ lúc nào, với bất cứ từ nào nghi đọc sai:
+
+```bash
+npx tsx scripts/compare-tts-models.ts "Cuối tháng bảy, giá giảm tám mươi phần trăm."
+```
+
+| Model | Nối ngữ điệu | Thẻ cảm xúc | Dấu thanh tiếng Việt |
+|---|---|---|---|
+| `eleven_v3` | ❌ | ✅ | tốt |
+| `eleven_multilingual_v2` | ✅ | ❌ | **cần nghe thử** |
+| `eleven_flash_v2_5` | ✅ | ❌ | ❌ nuốt dấu |
+
+### Đã chốt trước đó: `eleven_flash_v2_5` (2026-08-20)
 
 ⚠️ **`.env.local` VẪN ĐANG LÀ `eleven_v3` — Mazino phải tự sửa.** Claude bị
 chặn ghi `.env*`. Video mẫu dựng lại bằng cách đè biến môi trường ngoài dòng
@@ -210,12 +236,15 @@ thật ra dài 96.78s.
 
 ## ⚠️ VIỆC CÒN DANG DỞ
 
-0. **Sửa `ELEVENLABS_MODEL_ID` trong `.env.local` thành `eleven_flash_v2_5`.**
-   Việc duy nhất Claude không làm hộ được. Chưa sửa thì mọi lần chạy vẫn ra
-   `eleven_v3` — tức không nối được ngữ điệu, đúng thứ vừa bỏ công giải.
-   Sau khi sửa, nên **nghe lại một video** xem việc mất biểu cảm của v3 có
-   chấp nhận được không; không chấp nhận thì quay về v3 và làm đường "đọc một
-   lần rồi cắt".
+0. **Chọn model rồi sửa `ELEVENLABS_MODEL_ID` trong `.env.local`.** Việc duy
+   nhất Claude không làm hộ được (bị chặn ghi `.env*`).
+   - Nghe ba mẫu ở `output/_model-compare/` trước.
+   - `flash_v2_5` đã bị loại trên thực tế vì **nuốt dấu thanh** ("tháng bảy" →
+     "tháng bay").
+   - Nhiều khả năng chọn `eleven_multilingual_v2` — nối được ngữ điệu mà không
+     phải bản chưng cất. **Chưa ai nghe kiểm dấu thanh của nó.**
+   - Nghe thấy vẫn sai thì chỉ còn đường quay về `eleven_v3` và làm "đọc một
+     lần rồi cắt" — cách duy nhất vừa giữ chất giọng vừa liền mạch.
 
 1. **Kho logo + font brand** — Mazino có nhắc muốn làm nhưng CHƯA mô tả rõ là
    gì (một trang tra cứu bộ nhận diện? một thư mục asset chuẩn hoá?). Hỏi lại

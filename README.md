@@ -65,9 +65,18 @@ ELEVENLABS_MODEL_ID=eleven_v3
 Key lấy ở [elevenlabs.io](https://elevenlabs.io/) → ảnh đại diện → **API Keys**.
 Voice ID lấy ở **Voice Library** → mở giọng muốn dùng → nút copy cạnh tên.
 
-> **Chọn model:** `eleven_v3` biểu cảm nhất và **có tiếng Việt**.
-> `eleven_flash_v2_5` rẻ hơn một nửa, cũng có tiếng Việt nhưng giọng phẳng hơn.
-> `eleven_multilingual_v2` **KHÔNG hỗ trợ tiếng Việt** — đừng dùng.
+> **Chọn model: cứ để `eleven_v3`.** Đã nghe so ba model trên cùng một câu
+> tiếng Việt:
+>
+> | Model | Kết quả |
+> |---|---|
+> | `eleven_v3` | ✅ hay nhất, biểu cảm và đúng dấu thanh |
+> | `eleven_flash_v2_5` | ❌ **nuốt dấu thanh** — "tháng bảy" đọc thành "tháng bay" |
+> | `eleven_multilingual_v2` | ❌ nghe như người nước ngoài tập nói tiếng Việt |
+>
+> Nghi model đọc sai từ nào thì dựng mẫu so bằng
+> `npx tsx scripts/compare-tts-models.ts "câu cần thử"` rồi nghe ở
+> `output/_model-compare/`.
 
 ---
 
@@ -190,21 +199,35 @@ headless (xem `generate-overlay-png.sh` để lấy tham số).
 - **Thẻ cảm xúc** `[curious]` `[excited]` `[thoughtful]` `[serious]` `[warm]`
   `[sighs]` — model `eleven_v3` đọc như chỉ dẫn diễn xuất, không phát âm chúng.
   Tối đa 1 thẻ mỗi cảnh, khoảng một nửa số cảnh nên để trống. Pipeline tự bỏ thẻ
-  khi ghi `script.txt` và khi dùng TTS khác.
+  khi ghi `script.txt` và khi model không hiểu thẻ.
+  > v3 thỉnh thoảng lỡ **đọc to** thẻ (khoảng 1/4 số lần). Pipeline tự phát hiện
+  > qua mốc thời gian rồi đọc lại, hết lượt thì bỏ thẻ đọc lại — nên video giao
+  > ra luôn sạch. Thấy dòng `⚠ model ĐỌC TO thẻ cảm xúc` trong log là cơ chế
+  > này vừa chạy, không phải lỗi cần sửa.
 - **`voiceText: ""` + `silentSec`** cho cảnh câm chỉ có nhạc.
 
 ---
 
 ## Chạy lại nhanh
 
-Cả file giọng lẫn clip đều **idempotent** — có sẵn thì dùng lại. Sửa một cảnh thì
-chỉ cần xoá đúng cảnh đó:
+Cả file giọng lẫn clip đều **idempotent** — có sẵn thì dùng lại.
 
 ```bash
-rm output/<slug>/clips/scene-s7*.mp4     # dựng lại riêng cảnh 7
-rm output/<slug>/voice/scene-s7.mp3      # đọc lại lời cảnh 7
+rm output/<slug>/clips/scene-s7*.mp4     # dựng lại riêng cảnh 7 (chỉ phần hình)
 npm run pipeline -- output/<slug>/script.json
 ```
+
+**Phần hình** sửa lẻ được từng cảnh. **Phần tiếng thì không**: cả bài được đọc
+trong MỘT lần gọi để ngữ điệu liền mạch, nên xoá một file giọng là đọc lại toàn
+bộ. Muốn sửa lời thì xoá cả thư mục:
+
+```bash
+rm -rf output/<slug>/voice                # đọc lại cả bài
+npm run pipeline -- output/<slug>/script.json
+```
+
+Đọc bù riêng một cảnh sẽ rơi đúng vào chỗ ngữ điệu bị lệch — chính thứ mà cách
+đọc một lần sinh ra để tránh.
 
 ---
 

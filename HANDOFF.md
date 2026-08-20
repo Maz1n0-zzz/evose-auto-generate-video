@@ -88,9 +88,18 @@ nét nối chấm, một màu nhấn duy nhất, mascot robot 3D, **không** gra
    đang đè overlay PNG. Ẩn số cần kiểm trước: HyperFrames 0.6.94 có xuất được
    video có kênh alpha không.
 
-3. **Chưa merge và chưa push.** Nhánh `feat/evose-light-templates`.
-   Push bằng `git push evose feat/evose-light-templates` — remote `evose`,
-   KHÔNG dùng `origin` (không có quyền).
+3. **README bản tiếng Anh.** Bản cập nhật lớn chỉ viết lại `README.md` bằng
+   tiếng Việt và đã xoá `README.vi.md` (trùng nội dung). Cần bản tiếng Anh cho
+   người ngoài thì dịch lại từ `README.md`.
+
+4. **Đã merge và push.** `main` trên remote `evose` đã có toàn bộ.
+   Push bằng `git push evose main` — KHÔNG dùng `origin` (không có quyền).
+
+## Bản cập nhật lớn (2026-08-20)
+
+- **Đã XOÁ toàn bộ 20 template `frame-*`.** Lấy lại được ở lịch sử git nếu cần.
+- `README.md` viết lại hoàn toàn cho bộ Light; `README.vi.md` bị xoá vì trùng.
+- `CATALOG.md` cắt bỏ phần tài liệu bộ cũ.
 
 ## Đã làm xong sau đợt T1–T7
 

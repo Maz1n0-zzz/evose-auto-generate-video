@@ -1,570 +1,227 @@
-<a id="top"></a>
-
 <div align="center">
 
-<img src="./assets/logo.svg" alt="Evose" width="96" />
+# Evose Auto Generate Video
 
-<h1>Mazino&nbsp;·&nbsp;Template&nbsp;Video</h1>
+**Dán một link bài báo — nhận về video dọc 9:16 đã lồng tiếng, ghép nhạc, sẵn sàng đăng.**
 
-<p><b>A Vietnamese article in. A 9:16 short out.</b><br/>
-One command · zero editing · deterministic renders.</p>
-
-<p>
-<img alt="Node" src="https://img.shields.io/badge/Node-%E2%89%A522-339933?style=flat-square&logo=node.js&logoColor=white" />
-<img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-6-3178C6?style=flat-square&logo=typescript&logoColor=white" />
-<img alt="HyperFrames" src="https://img.shields.io/badge/HyperFrames-0.6.94-ec4899?style=flat-square" />
-<img alt="OmniVoice" src="https://img.shields.io/badge/TTS-OmniVoice_%7C_ElevenLabs-f59e0b?style=flat-square" />
-<img alt="Format" src="https://img.shields.io/badge/9%3A16-1080%C3%971920-0ea5e9?style=flat-square" />
-<img alt="License" src="https://img.shields.io/badge/License-MIT-10b981?style=flat-square" />
-</p>
-
-<p><b>🌐 English</b> · <a href="README.vi.md">Tiếng Việt</a></p>
-
-<sub>
-<a href="#-quick-start"><b>Quick Start</b></a> ·
-<a href="#-how-it-works"><b>How It Works</b></a> ·
-<a href="#-usage"><b>Usage</b></a> ·
-<a href="#-templates"><b>Templates</b></a>
-</sub>
+`Node ≥ 22` · `TypeScript` · `HyperFrames` · `ElevenLabs` · `1080×1920`
 
 </div>
 
 ---
 
-<div align="center">
-<img src="./docs/preview.png" alt="Evose Studio — giao diện web tạo video tự động" width="900" style="border-radius:12px;border:1px solid #e2e2dd;" />
-<br/><sub><i>Evose Studio · v4.2 — Web UI (mở <code>app.html</code> trong trình duyệt)</i></sub>
-</div>
+## Nó làm gì
 
-<div align="center">
-<img src="./assets/pipeline.svg" alt="url / .txt → Claude Code (/create-template-video) → pipeline (OmniVoice · SFX · HyperFrames · FFmpeg) → video.mp4 + voice.mp3 + script.txt" width="860" />
-</div>
+Bạn đưa một link bài báo tiếng Việt (hoặc một file `.txt`). Pipeline sẽ:
 
-> **The split that makes it reliable:** AI handles _content_ (the script + template choices),
-> deterministic code handles _production_ (the pixels). The same `script.json` always renders the
-> same video — no surprises, no manual editing.
+1. Đọc bài, viết kịch bản chia cảnh
+2. Chụp ảnh bài gốc để trích nguồn
+3. Lồng tiếng từng cảnh bằng ElevenLabs
+4. Dựng hình từng cảnh bằng template có sẵn
+5. Cắt mỗi cảnh khớp đúng độ dài lời đọc, ghép lại, trộn nhạc nền
+6. Đè lớp nhận diện Evose lên toàn bộ
 
-You supply the **text**. The templates own all the design, layout, and motion. The pipeline does
-TTS, sound design, rendering, and the final mux — and hands you three files ready for
-CapCut / TikTok / Shorts / Reels:
+Kết quả trong `output/<slug>/`:
 
-| File         | What it's for                              |
-| ------------ | ------------------------------------------ |
-| `video.mp4`  | Final 9:16 video with voice + SFX baked in |
-| `voice.mp3`  | Narration track — drop into CapCut         |
-| `script.txt` | Plain text — CapCut auto-caption           |
+| File | Dùng để |
+|---|---|
+| `video-evose.mp4` | **Video hoàn chỉnh — dùng file này** |
+| `voice.mp3` | Riêng track giọng đọc, kéo vào CapCut |
+| `script.txt` | Text thô cho CapCut tự bắt phụ đề |
 
----
-
-<div align="center">
-
-### 🤖 Muốn tạo AI Agent của riêng bạn? Bắt đầu miễn phí tại Evose
-
-**Tự động hoá nội dung · Build AI Agent · Không cần code phức tạp**
-<br/><sub>Hướng dẫn từng bước · Cộng đồng tiếng Việt · Miễn phí</sub>
-
-<p><sub>
-Claude Code &nbsp;·&nbsp; MCP Servers &nbsp;·&nbsp; Subagents &nbsp;·&nbsp; Hooks &nbsp;·&nbsp; Skills &nbsp;·&nbsp; Auto-generate Video<br/>
-Đúng cách build agent &amp; tự động hoá như repo này — học tại <b>evose.ai</b>.
-</sub></p>
-
-[![Tạo AI Agent miễn phí tại Evose](https://img.shields.io/badge/▶_Tạo_AI_Agent_miễn_phí-10b981?style=for-the-badge&logoColor=white)](https://evose.ai/)
-
-</div>
+**AI chỉ lo phần chữ. Phần hình do code dựng, từng pixel một.** Nhờ vậy cùng một
+`script.json` thì lúc nào cũng ra đúng một video — không hên xui.
 
 ---
 
-## 🖥️ Evose Studio — Web UI
-
-`app.html` is a static planning UI — no server needed, runs entirely in your browser.
-
-**Open it:**
-
-```bash
-open app.html        # macOS
-start app.html       # Windows
-xdg-open app.html    # Linux
-```
-
-Or just double-click `app.html` in Finder / Explorer.
-
-**Features:**
-
-| Feature | Description |
-|---------|-------------|
-| **URL Input** | Paste an article link — the AI reads the content |
-| **Video Style** | Pick one of 11 frame templates (Creative Voltage, Glitch Title, …) |
-| **Aspect Ratio** | 9:16 · 16:9 · 1:1 |
-| **API Keys** | Save OpenAI/Gemini · ElevenLabs · GitHub Token to localStorage |
-| **Export** | Shows the CLI command to copy + run in terminal |
-
-**Workflow:**
-
-1. Paste an article URL in the top bar
-2. Select a template style from the frame cards
-3. Click **Xuất Video** — a CLI command appears in the log area
-4. Copy the command → run it in terminal → wait for `output/<slug>/video.mp4`
-
-> `app.html` is a planning surface only — render does **not** run in the browser.
-> After clicking Export, paste the generated command into your terminal:
-> ```bash
-> npm run pipeline -- output/<slug>/script.json
-> ```
-
----
-
-## 🚀 Quick Start
+## Bắt đầu
 
 ```bash
 git clone https://github.com/Maz1n0-zzz/evose-auto-generate-video.git
-cd AI-auto-generate-video
+cd evose-auto-generate-video
 npm install
-cp .env.example .env   # then edit .env — pick OmniVoice or ElevenLabs
 ```
 
-<table>
-<tr>
-<td valign="top" width="50%">
-
-**With Claude Code** — _recommended_
-
-```text
-/create-template-video https://evose.ai/some-article
-```
-
-Claude fetches the article, writes `script.json`, and runs the pipeline for you.
-
-</td>
-<td valign="top" width="50%">
-
-**Manual** — _bring your own `script.json`_
+**Cần có sẵn:** Node ≥ 22 · `ffmpeg` + `ffprobe` trong PATH · Google Chrome
+(HyperFrames dùng để render) · Python 3 (cho `scripts/gen-aspect.py`).
 
 ```bash
-npm run pipeline -- output/my-video/script.json
+brew install ffmpeg        # macOS
+sudo apt install ffmpeg    # Linux
+winget install Gyan.FFmpeg # Windows
 ```
 
-Full control over every scene and template.
+### Cấu hình giọng đọc
 
-</td>
-</tr>
-</table>
-
-A few minutes later → `output/<slug>/video.mp4` (1080×1920).
-
----
-
-## 🤖 Using with Claude Code
-
-This is how this repo was built and how it's designed to be used — Claude Code as the AI brain, the pipeline as the deterministic production engine.
-
-### 1. Install Claude Code
-
-```bash
-npm install -g @anthropic/claude-code
-```
-
-Or download from [claude.ai/download](https://claude.ai/download).
-
-### 2. Clone the repo and open it with Claude Code
-
-```bash
-git clone https://github.com/Maz1n0-zzz/evose-auto-generate-video.git
-cd AI-auto-generate-video
-npm install
-claude
-```
-
-The `/create-template-video` skill loads automatically when you open the project directory.
-
-### 3. Create a video
-
-```text
-/create-template-video https://your-article-url
-```
-
-Claude will:
-
-1. Fetch and summarize the article content
-2. Write `output/<slug>/script.json` — scene-by-scene template choices + Vietnamese TTS copy
-3. Run `npm run pipeline` automatically
-4. Return paths to `video.mp4`, `voice.mp3`, `script.txt`
-
-> The full authoring rules (template map, TTS number handling, Evose brand fields) live in
-> [`.claude/skills/create-template-video/SKILL.md`](.claude/skills/create-template-video/SKILL.md).
-
----
-
-## 🎥 Live demo
-
-### 👉 [**▶️ Xem hướng dẫn tạo AI Agent tại Evose**](https://evose.ai/) 👈
-
-[![Watch Demo](./assets/demo-frame.jpg)](https://evose.ai/)
-
----
-
-## 🧠 How It Works
-
-```mermaid
-flowchart LR
-    A["📰 URL / .txt"] -->|/create-template-video| B[Claude Code]
-    B -->|fetch + write text| C["script.json<br/>renderer: hyperframes"]
-    C -->|Zod validate| D[Template Pipeline]
-    D -->|TTS per scene| E[OmniVoice]
-    E -->|concat + SFX mix| F[voice.mp3]
-    D -->|render each template| G["HyperFrames<br/>Chromium"]
-    G -->|fit clip to narration| H["clips/scene-*.mp4"]
-    F --> I[mux audio]
-    H --> I
-    I -->|🎬| J["video.mp4<br/>1080×1920"]
-
-    style A fill:#0f172a,color:#fff,stroke:#334155
-    style B fill:#6366f1,color:#fff,stroke:#6366f1
-    style E fill:#f59e0b,color:#fff,stroke:#f59e0b
-    style G fill:#ec4899,color:#fff,stroke:#ec4899
-    style J fill:#10b981,color:#fff,stroke:#10b981
-```
-
-Eight deterministic steps in [`src/render/template-pipeline.ts`](src/render/template-pipeline.ts):
-
-| #   | Step             | Output                                                        |
-| --- | ---------------- | ------------------------------------------------------------- |
-| 1   | **Validate**     | `script.json` checked against the Zod schema                  |
-| 2   | **Caption text** | `script.txt` — all `voiceText` joined (CapCut auto-caption)   |
-| 3   | **TTS / scene**  | `voice/scene-<id>.mp3` via OmniVoice _(idempotent)_           |
-| 4   | **Concat voice** | `voice-raw.mp3` with 0.3s gaps + per-scene start times        |
-| 5   | **SFX mix**      | `voice.mp3` — sound effects layered onto the narration        |
-| 6   | **Render clips** | `clips/scene-<id>-fit.mp4` — template → MP4, fit to narration |
-| 7   | **Concat + mux** | `video-silent.mp4` → `video.mp4` (voice muxed in)             |
-| 8   | **Done**         | prints result paths + total duration                          |
-
----
-
-## ⚡ Setup
-
-<details open>
-<summary><b>Prerequisites</b></summary>
-
-<br/>
-
-| Item                  | Need       | Notes                                                                   |
-| --------------------- | ---------- | ----------------------------------------------------------------------- |
-| **Node.js**           | ≥ 22       | `node --version`                                                        |
-| **FFmpeg + ffprobe**  | any modern | must be in PATH (`ffmpeg -version`)                                     |
-| **Chrome / Chromium** | any        | used by HyperFrames to render each template                             |
-| **TTS**               | one of two | OmniVoice (local, free) **or** ElevenLabs (cloud) — see section below  |
-| **Claude Code CLI**   | optional   | only for the `/create-template-video` skill                             |
-
-**Install FFmpeg:**
-
-- **Windows** — `winget install Gyan.FFmpeg`
-- **macOS** — `brew install ffmpeg`
-- **Linux** — `sudo apt install ffmpeg`
-
-</details>
-
-<details open>
-<summary><b>🎙️ TTS Setup — Option A: OmniVoice (local, free, best for Vietnamese)</b></summary>
-
-<br/>
-
-OmniVoice runs on your machine — no API key, no cost, works offline.
-
-**1. Install sherpa-onnx** (the engine that powers OmniVoice):
-
-```bash
-# macOS / Linux
-pip install sherpa-onnx
-
-# Windows
-pip install sherpa-onnx
-```
-
-**2. Download a Vietnamese TTS model** — pick one from the [sherpa-onnx model list](https://k2-fsa.github.io/sherpa/onnx/tts/pretrained_models/vits.html):
-
-```bash
-# Example: vits-vn (fast, good quality)
-wget https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/vits-vn-hf-vivos.tar.bz2
-tar xf vits-vn-hf-vivos.tar.bz2
-```
-
-**3. Start the TTS server** (keep this terminal open):
-
-```bash
-python3 -m sherpa_onnx.server \
-  --vits-model=vits-vn-hf-vivos/model.onnx \
-  --vits-lexicon=vits-vn-hf-vivos/lexicon.txt \
-  --vits-tokens=vits-vn-hf-vivos/tokens.txt \
-  --port=8123
-```
-
-The server exposes `POST /tts` on port 8123 — exactly what the pipeline expects.
-
-**4. Configure `.env`** (copy `.env.example` → `.env`):
-
-```env
-TTS_PROVIDER=omnivoice
-OMNIVOICE_ENDPOINT=http://127.0.0.1:8123
-```
-
-</details>
-
-<details open>
-<summary><b>🎙️ TTS Setup — Option B: ElevenLabs (cloud, no local install needed)</b></summary>
-
-<br/>
-
-ElevenLabs works without any local server. You need an API key (free tier available).
-
-**1. Create an account** at [elevenlabs.io](https://elevenlabs.io/) and grab your API key from **Profile → API Keys**.
-
-**2. Pick a voice** — for Vietnamese content, choose a multilingual voice. Copy the **Voice ID** from the voice's detail page.
-
-> **Tip:** Search the Voice Library for "Vietnamese" or clone an existing voice to get a Voice ID.
-
-**3. Configure `.env`** (copy `.env.example` → `.env`):
+Tạo `.env.local` ở gốc repo (file này đã nằm trong `.gitignore`):
 
 ```env
 TTS_PROVIDER=elevenlabs
-ELEVENLABS_API_KEY=your_api_key_here
-ELEVENLABS_VOICE_ID=your_voice_id_here
-ELEVENLABS_MODEL_ID=eleven_multilingual_v2
+ELEVENLABS_API_KEY=<key của bạn>
+ELEVENLABS_VOICE_ID=<voice id>
+ELEVENLABS_MODEL_ID=eleven_v3
 ```
 
-`eleven_multilingual_v2` supports Vietnamese natively — no extra setup needed.
+Key lấy ở [elevenlabs.io](https://elevenlabs.io/) → ảnh đại diện → **API Keys**.
+Voice ID lấy ở **Voice Library** → mở giọng muốn dùng → nút copy cạnh tên.
 
-> **Cost note:** Free tier gives 10,000 characters/month. A typical 90-second video uses ~400 characters.
-
-</details>
-
-<details>
-<summary><b>Configuration reference — all env vars</b></summary>
-
-<br/>
-
-Copy `.env.example` to `.env` and fill in the relevant section:
-
-```bash
-cp .env.example .env
-```
-
-| Variable | Default | Description |
-|---|---|---|
-| `TTS_PROVIDER` | `omnivoice` | `omnivoice` or `elevenlabs` |
-| `OMNIVOICE_ENDPOINT` | `http://127.0.0.1:8123` | OmniVoice server URL |
-| `ELEVENLABS_API_KEY` | — | ElevenLabs API key |
-| `ELEVENLABS_VOICE_ID` | — | ElevenLabs Voice ID |
-| `ELEVENLABS_MODEL_ID` | `eleven_multilingual_v2` | ElevenLabs model |
-| `TTS_CONCURRENCY` | `1` | Parallel TTS calls (up to 3 for ElevenLabs) |
-
-</details>
+> **Chọn model:** `eleven_v3` biểu cảm nhất và **có tiếng Việt**.
+> `eleven_flash_v2_5` rẻ hơn một nửa, cũng có tiếng Việt nhưng giọng phẳng hơn.
+> `eleven_multilingual_v2` **KHÔNG hỗ trợ tiếng Việt** — đừng dùng.
 
 ---
 
-## 🎬 Usage
+## Dùng
 
-**Inside Claude Code** _(recommended)_ — pass a URL or a local `.txt`:
+### Cách 1 — với Claude Code (khuyến nghị)
 
-```text
-/create-template-video https://evose.ai/iphone-17-200mp
-/create-template-video news/my-article.txt
+```
+/create-template-video https://vnexpress.net/bai-viet-nao-do.html
 ```
 
-The skill reads the content, writes `script.json`, and runs the pipeline. Authoring rules
-(template mapping + Vietnamese TTS number handling) live in the
-[skill spec](.claude/skills/create-template-video/SKILL.md).
+Claude tự đọc bài, chọn template, viết `script.json` rồi chạy pipeline.
 
-**Or run the pipeline directly** on an existing `script.json`:
+### Cách 2 — tự viết kịch bản
 
 ```bash
-npm run pipeline -- output/<slug>/script.json
+npm run pipeline -- output/ten-thu-muc/script.json
 ```
 
-<details>
-<summary><b>📄 <code>script.json</code> shape</b> (template mode)</summary>
+---
 
-<br/>
+## Bộ template Evose Light
+
+12 template, nền giấy sáng có lưới chấm, chip đen bo tròn, một màu nhấn duy nhất,
+mascot robot. Không gradient, không dark mode.
+
+| Template | Dùng cho |
+|---|---|
+| `evose-logo-card` | Cảnh mở (tựa bài cỡ lớn) và cảnh kết (nút FOLLOW) |
+| `evose-node-diagram` | So sánh hai đường đi, sơ đồ chip nối nét chấm |
+| `evose-title-card` | Tuyên bố mạnh, chữ trắng viền đen dày |
+| `evose-chapter-card` | Công bố một phần / một bước |
+| `evose-statement` | Câu chốt, nêu vấn đề hoặc kết luận |
+| `evose-list` | Danh sách 2–5 mục có icon và nhãn mức độ |
+| `evose-stat-hero` | Một con số lớn không phải phần trăm |
+| `evose-pipeline` | Quy trình 3–6 bước |
+| `evose-chart-bars` | So sánh 2–6 mục có số liệu |
+| `evose-chart-donut` | Một tỉ lệ phần trăm |
+| `evose-chart-line` | Xu hướng theo thời gian |
+| `evose-screenshot` | Ảnh chụp màn hình, cuộn hoặc soi tiêu đề |
+
+Slot chi tiết của từng cái nằm trong [`templates/CATALOG.md`](templates/CATALOG.md).
+
+---
+
+## Sửa hoặc thêm template
+
+Mỗi template là **một file HTML tự chứa**, dùng chung cho cả 9:16 và 16:9. Mọi
+hằng số hình học nằm trong object `GEO` ở cuối `<script>`, chọn theo kích thước
+canvas lúc chạy.
+
+```bash
+# sửa compositions/portrait.html, rồi sinh lại bản 16:9:
+python3 scripts/gen-aspect.py templates/evose-<tên>
+```
+
+**Đừng sửa `index.html` bằng tay** — nó bị ghi đè mỗi lần chạy lệnh trên.
+
+### Ba cái bẫy đã trả giá mới biết
+
+1. **Đừng gõ dấu sao rồi gạch chéo trong comment CSS** (hay gặp khi viết đường
+   dẫn có ký tự đại diện). Nó đóng comment sớm, nuốt luôn khối `:root` phía sau,
+   và frame render ra **trắng trơn mà không báo lỗi**. `gen-aspect.py` có bộ chặn
+   lỗi này — đó là lý do phải chạy nó thay vì tự chép file.
+
+2. **Đừng gắn animation trong sự kiện bất đồng bộ** (`img.onload`…). HyperFrames
+   render bằng nhiều worker và tua đồng hồ ảo; animation gắn sau lúc tua sẽ bắt
+   đầu ở mốc khác nhau tuỳ worker, cho ra chuỗi frame lộn xộn. Cần đo đạc thì đo
+   đồng bộ ngay lúc dựng.
+
+3. **`<svg>` xén nội dung theo khung nhìn của nó.** Hiệu ứng phóng to hoặc blur
+   sẽ bị cắt cụt thành ô vuông nếu quên `overflow: visible`.
+
+---
+
+## Nhận diện thương hiệu
+
+`evose-brand-kit/` chứa logo (SVG + PNG), 14 tư thế mascot nền trong suốt, lớp
+overlay và nhạc nền.
 
 ```json
+"brand": { "overlay": true, "style": "light" }
+```
+
+Lớp overlay đè logo Evose ở đỉnh và dãy icon mạng xã hội ở chân khung, trên **mọi
+cảnh**. Có hai bản: `light` (chữ navy trên dải giấy mờ) và `dark` (chữ trắng trên
+dải tối). **Bộ template Light phải dùng `style: "light"`** — đặt nhầm `dark` sẽ
+thành hai vệt đen chắn ngang khung.
+
+Sửa overlay: sửa `overlays/overlay-frame-light.html` rồi render lại bằng Chrome
+headless (xem `generate-overlay-png.sh` để lấy tham số).
+
+---
+
+## Vài slot hay dùng
+
+```jsonc
 {
-    "version": "1.0",
-    "renderer": "hyperframes",
-    "aspect": "9:16",
-    "metadata": {
-        "title": "Apple ra mắt iPhone 17 camera 200MP",
-        "source": {
-            "url": "https://...",
-            "domain": "evose.ai",
-            "image": null
-        },
-        "channel": "Evose"
+  "brand": { "overlay": true, "style": "light" },
+  "scenes": [
+    {
+      "id": "s1", "type": "hook",
+      "voiceText": "[curious] Câu dẫn mở đầu.",
+      "padSec": 2.0,                    // giữ cảnh lâu hơn lời đọc
+      "templateId": "evose-logo-card",
+      "inputs": { "headline": "Tựa bài", "subheadline": "Một câu tóm tắt." }
     },
-    "voice": { "provider": "omnivoice", "speed": 1.0 },
-    "scenes": [
-        {
-            "id": "hook",
-            "type": "hook",
-            "voiceText": "Apple vừa ra mắt iPhone mười bảy với camera hai trăm megapixel.",
-            "templateId": "frame-liquid-bg-hero",
-            "inputs": {
-                "kicker": "🔥 Tin nóng",
-                "headline": "iPhone 17",
-                "subheadline": "Camera 200MP",
-                "cta": "Theo dõi ngay",
-                "brand": "Evose"
-            }
-        },
-        {
-            "id": "body-1",
-            "type": "body",
-            "voiceText": "Cảm biến mới thu nhiều ánh sáng hơn, ảnh đêm sắc nét hơn rõ rệt.",
-            "templateId": "frame-pentagram-stat",
-            "inputs": {
-                "label": "Camera",
-                "headline": "200MP",
-                "subtitle": "Cảm biến lớn nhất từ trước tới nay",
-                "anchor": "200"
-            }
-        },
-        {
-            "id": "outro",
-            "type": "outro",
-            "voiceText": "Theo dõi Evose để xem bản tin công nghệ mới mỗi ngày.",
-            "templateId": "frame-logo-outro",
-            "inputs": {
-                "brand_name": "Evose",
-                "tagline": "Tin công nghệ mỗi ngày",
-                "primary_url": "https://evose.ai/"
-            }
-        }
-    ]
+    {
+      "id": "sN", "type": "outro",
+      "voiceText": "[warm] Truy cập evose.ai để tạo ra trợ lý AI của riêng bạn.",
+      "templateId": "evose-logo-card",
+      "inputs": { "tagline": "Begin a new era", "url": "https://evose.ai/", "follow": true }
+    }
+  ]
 }
 ```
 
-Schema rules: **3–12 scenes** · `scenes[0].type === "hook"` · last scene `type === "outro"` ·
-every `templateId` must exist under `templates/`.
-
-</details>
-
-<details>
-<summary><b>📁 Output structure</b></summary>
-
-<br/>
-
-```
-output/<slug>-<timestamp>/
-├── script.json          # input (skill-generated or hand-written)
-├── script.txt           # all voiceText joined — CapCut auto-caption
-├── voice/
-│   ├── scene-hook.mp3    # TTS per scene (idempotent)
-│   └── scene-*.mp3
-├── voice-raw.mp3        # concatenated voices, no SFX (intermediate)
-├── voice.mp3           # final audio with SFX mixed in
-├── clips/
-│   ├── scene-hook.mp4     # rendered template clip (idempotent)
-│   └── scene-hook-fit.mp4 # fitted to the scene's narration length
-├── video-silent.mp4    # concatenated clips, no audio (intermediate)
-└── video.mp4          # 🎉 final — 1080×1920 + voice + SFX
-```
-
-> **Idempotent.** Delete `voice/scene-<id>.mp3` to force re-TTS, or `clips/scene-<id>.mp4` to
-> re-render just that scene, then re-run the pipeline.
-
-</details>
+- **`voiceText` viết số ra chữ** — máy đọc "8.4" thành "tám rưỡi". Viết
+  "tám phẩy bốn phần trăm". Chữ hiển thị trong `inputs` thì giữ "8,4%".
+- **Thẻ cảm xúc** `[curious]` `[excited]` `[thoughtful]` `[serious]` `[warm]`
+  `[sighs]` — model `eleven_v3` đọc như chỉ dẫn diễn xuất, không phát âm chúng.
+  Tối đa 1 thẻ mỗi cảnh, khoảng một nửa số cảnh nên để trống. Pipeline tự bỏ thẻ
+  khi ghi `script.txt` và khi dùng TTS khác.
+- **`voiceText: ""` + `silentSec`** cho cảnh câm chỉ có nhạc.
 
 ---
 
-## 🎨 Templates
+## Chạy lại nhanh
 
-Every visual is a self-contained **HyperFrames** project under `templates/` — `index.html` (16:9)
-and `compositions/portrait.html` (9:16). You fill the text `inputs`; the template owns the design.
-Full slot reference: [`templates/CATALOG.md`](templates/CATALOG.md).
-
-| Template                    | Role  | Best for                                                  |
-| --------------------------- | :---: | --------------------------------------------------------- |
-| `frame-liquid-bg-hero`      | hook  | Opening hook — aurora hero with headline + CTA pill       |
-| `frame-vignelli`            | body  | A single striking stat — dark charcoal + red accent       |
-| `frame-pentagram-stat`      | body  | A hero number / benchmark — dark neon + bar chart         |
-| `frame-bold-poster`         | body  | A punchy multi-line statement + giant figure              |
-| `frame-build-minimal`       | body  | One bold word revealed letter-by-letter — dark/amber      |
-| `frame-creative-voltage`    | body  | A creative slogan — electric-blue split + handwriting     |
-| `frame-glitch-title`        | body  | Breaking / tech news — cyberpunk RGB-split glitch         |
-| `frame-aicoding-list`       | body  | A **list** of 2–5 items (icon + level tag)                |
-| `frame-aicoding-comparison` | body  | A **head-to-head** comparison of two things               |
-| `frame-logo-outro`          | outro | Default brand end-card — logo glow + name + tagline + URL |
-| `frame-statement-outro`     | outro | Alternative outro — red statement card on paper           |
-
-> **Add your own:** drop `templates/<id>/` with `index.html`, `compositions/portrait.html`,
-> `hyperframes.json`, `meta.json` (+ `NOTICE.md` if vendored), then add a row to `CATALOG.md`.
-> Use a Vietnamese-capable font stack.
-
----
-
-## 🔊 Sound Effects
-
-SFX live in `assets/sfx/<category>/<name>.mp3`. Per scene, the picker
-([`src/assets/sfx-selector.ts`](src/assets/sfx-selector.ts)) resolves in three tiers:
-
-```
-1. scene.sfx override   → exact file, or { "name": "none" } to mute
-2. semantic match        → voiceText keywords (cảnh báo→alert, kỷ lục→success, ra mắt→reveal …)
-3. scene-type default    → hook→hook · body→callout · outro→outro
-```
-
-Within a category the file is chosen **deterministically** by hashing the scene id — same script
-gives the same SFX, different scenes get different files. The library is large and **not
-committed**:
+Cả file giọng lẫn clip đều **idempotent** — có sẵn thì dùng lại. Sửa một cảnh thì
+chỉ cần xoá đúng cảnh đó:
 
 ```bash
-npm run sfx:download   # fetch the SFX library
-npm run sfx:filter     # prune / filter it
+rm output/<slug>/clips/scene-s7*.mp4     # dựng lại riêng cảnh 7
+rm output/<slug>/voice/scene-s7.mp3      # đọc lại lời cảnh 7
+npm run pipeline -- output/<slug>/script.json
 ```
 
-No `assets/sfx/`? The pipeline just renders without SFX.
+---
+
+## Kiểm tra
+
+```bash
+npm test          # 49 test
+npm run typecheck
+```
 
 ---
 
-## 🛠️ Built With
+## Ghi chú
 
-| Layer             | Technology                                                                                |
-| ----------------- | ----------------------------------------------------------------------------------------- |
-| **Runtime**       | Node ≥22 · TypeScript 6 · ESM · [tsx](https://github.com/privatenumber/tsx)               |
-| **Render**        | [HyperFrames](https://www.npmjs.com/package/hyperframes) `0.6.94` (HTML→MP4 via Chromium) |
-| **TTS**           | OmniVoice (local)                                                                         |
-| **Schema**        | [Zod](https://zod.dev) ^4                                                                 |
-| **HTTP**          | axios + [nock](https://github.com/nock/nock)                                              |
-| **Concurrency**   | [p-limit](https://github.com/sindresorhus/p-limit)                                        |
-| **A/V**           | FFmpeg + ffprobe                                                                          |
-| **Tests**         | [Vitest](https://vitest.dev) ^4                                                           |
-| **Orchestration** | [Claude Code](https://docs.claude.com/en/docs/claude-code/overview) skill                 |
+- Render mỗi cảnh mất 15–20 giây (Chromium). Video 10–12 cảnh khoảng 4–6 phút.
+- Bộ template `frame-*` cũ (nền tối, gradient) **đã gỡ bỏ**. Cần xem lại thì lấy
+  ở lịch sử git, các commit trước `458f13f`.
+- [`HANDOFF.md`](HANDOFF.md) ghi bối cảnh dự án và những việc còn dang dở.
 
----
-
-## 🙏 Acknowledgements
-
-- [HyperFrames](https://www.npmjs.com/package/hyperframes) — the HTML-to-video engine behind the templates
-- [OmniVoice](https://github.com/k2-fsa/OmniVoice) — local Vietnamese text-to-speech
-- [html-video](https://github.com/nexu-io/html-video) — HTML-to-video approach this project builds on
-- [Auto-Create-Video](https://github.com/hoquanghai/Auto-Create-Video) — the original project this is based on
-
----
-
-## 💖 Support this project
-
-If this project saved you time, please consider:
-
-- ⭐ **Star this repo** — it really helps with discoverability
-- 🤖 **[Tạo AI Agent miễn phí tại Evose](https://evose.ai/)** — hướng dẫn build agent như repo này
-- 💬 Tell a friend who creates content
-- 🐛 Report bugs or request features
-
----
-
-<div align="center">
-
-<br/>
-
-**[⬆ Back to top](#top)**
-
-<sub>Made with ❤️ by <b>Evose</b> · <a href="https://evose.ai/">evose.ai</a></sub>
-
-</div>
+<div align="center"><sub>MIT · <a href="https://evose.ai/">evose.ai</a></sub></div>

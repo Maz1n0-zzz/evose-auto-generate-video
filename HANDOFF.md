@@ -1,7 +1,7 @@
 # HANDOFF — Bộ template Evose Light
 
-> File bàn giao để tiếp tục ở phiên Claude Code mới. Cập nhật 2026-08-19.
-> Nhánh: `feat/evose-light-templates` (chưa merge, chưa push).
+> File bàn giao để tiếp tục ở phiên Claude Code mới. Cập nhật 2026-08-20.
+> Nhánh: `main`, đã merge và push lên remote `evose`.
 
 ## Bối cảnh
 
@@ -56,14 +56,19 @@ nét nối chấm, một màu nhấn duy nhất, mascot robot 3D, **không** gra
 
 ## Cấu hình đang dùng
 
-- TTS: **ElevenLabs**, model `eleven_v3`, giọng "Nhật Phong - Narrative &
-  Compelling" (nam, giọng Bắc). Key nằm trong `.env.local`.
+- TTS: **ElevenLabs**, giọng "Nhật Phong - Narrative & Compelling" (nam, giọng
+  Bắc). Key nằm trong `.env.local`.
+- Model: **đã chốt `eleven_flash_v2_5`** để nối được ngữ điệu giữa các cảnh —
+  xem mục "Giọng đọc" bên dưới. ⚠️ `.env.local` vẫn ghi `eleven_v3`, **Mazino
+  phải tự sửa** thì mới thành mặc định.
 - **Claude KHÔNG đọc/ghi được `.env*`** — bị chặn bởi quy tắc quyền. Muốn
-  đổi thì Mazino tự sửa file.
+  đổi thì Mazino tự sửa file. Chạy thử thì đè bằng biến môi trường ngoài dòng
+  lệnh: `ELEVENLABS_MODEL_ID=... npm run pipeline -- ...` (dotenv không ghi đè
+  biến đã có sẵn nên cách này thắng).
 - OmniVoice không còn trên máy (không tìm thấy dấu vết). Đừng đề xuất lại.
 - Thẻ cảm xúc `[excited]`, `[sighs]`… viết thẳng vào `voiceText`;
-  `src/utils/audio-tags.ts` tự bỏ thẻ khi ghi `script.txt` và khi provider
-  không phải ElevenLabs.
+  `src/utils/audio-tags.ts` tự bỏ thẻ khi ghi `script.txt` và khi model không
+  hiểu thẻ. **Với `flash_v2_5` thì thẻ luôn bị bỏ** — chỉ `eleven_v3` hiểu.
 
 ## Thương hiệu
 
@@ -119,17 +124,28 @@ Khi đó chuỗi bị xoá, cảnh sau không nối vào id của một cảnh x
 render lại **riêng một cảnh** thì cảnh đó không nối được với hàng xóm; muốn
 liền mạch phải xoá cả thư mục `voice/` và sinh lại từ đầu.
 
-### Còn hai đường, Mazino chọn
+### ✅ ĐÃ CHỌN: `eleven_flash_v2_5` (Mazino chốt 2026-08-20)
 
-1. **Đổi sang `eleven_flash_v2_5`** — nối có hiệu lực NGAY, không phải sửa
-   dòng code nào (chỉ đổi `ELEVENLABS_MODEL_ID` trong `.env.local`). Đổi lại:
-   mất biểu cảm của v3, và **thẻ cảm xúc `[excited]` trở thành vô nghĩa** —
-   `audio-tags.ts` vẫn gửi thẻ đi vì provider là ElevenLabs, nhưng v2 không
-   hiểu. Cần kiểm xem v2 có đọc to thẻ ra không; nếu có thì phải bỏ thẻ theo
-   model chứ không theo provider. Rẻ hơn v3 một nửa.
-2. **Đọc một lần rồi cắt** — gọi 1 lần cho toàn bộ lời, dùng endpoint có
-   timestamp để cắt theo cảnh. Đồng nhất tuyệt đối và GIỮ được v3, nhưng phải
-   viết lại bước 3 của pipeline và mất tính idempotent theo từng cảnh.
+⚠️ **`.env.local` VẪN ĐANG LÀ `eleven_v3` — Mazino phải tự sửa.** Claude bị
+chặn ghi `.env*`. Video mẫu dựng lại bằng cách đè biến môi trường ngoài dòng
+lệnh (dotenv không ghi đè biến đã có sẵn nên cách này thắng):
+
+```bash
+ELEVENLABS_MODEL_ID=eleven_flash_v2_5 npm run pipeline -- output/<thư-mục>/script.json
+```
+
+Muốn thành mặc định thì đổi dòng `ELEVENLABS_MODEL_ID` trong `.env.local`.
+
+**Cái giá đã trả:** thẻ cảm xúc `[excited]` không dùng được nữa. Chỉ `eleven_v3`
+hiểu thẻ; dòng v2 sẽ ĐỌC TO chữ trong ngoặc. Code đang gác theo *provider* nên
+đổi model là thẻ lọt thẳng vào lời đọc — **đã sửa thành gác theo model**
+(`supportsAudioTags()`). Không model nào vừa nối được ngữ điệu vừa hiểu thẻ; có
+test khoá tính chất đó lại. Vẫn cứ viết thẻ vào `voiceText` được, pipeline tự bỏ.
+
+**Đường còn lại nếu sau này muốn quay về v3:** đọc một lần rồi cắt — gọi 1 lần
+cho toàn bộ lời, dùng endpoint có timestamp để cắt theo cảnh. Đồng nhất tuyệt
+đối và giữ được biểu cảm v3, nhưng phải viết lại bước 3 của pipeline và mất
+tính idempotent theo từng cảnh.
 
 ## 🔊 Chênh lệch âm lượng — ĐO RỒI, HOÁ RA KHÔNG PHẢI VẤN ĐỀ
 
@@ -146,14 +162,60 @@ ra, và mức nó trả về (~-16.5 LUFS) trùng luôn với mức đích thư�
 tiếng nói trên mạng xã hội. Nói cách khác: **cái Mazino nghe thấy ở chỗ chuyển
 cảnh là lệch NGỮ ĐIỆU, không phải lệch âm lượng.**
 
-Vẫn đã thêm bước chuẩn hoá vào `concatWithSilence` — nhưng hiểu đúng nó là
-**lưới an toàn** cho cảnh cá biệt bị lệch, không phải bản vá cho thứ đang hỏng.
-Cách làm: đo trước rồi áp **gain tĩnh** đưa mỗi cảnh về `TARGET_LUFS` (-16),
-CỐ Ý không chạy `loudnorm` ghi đè vì nó nén dải động và làm giọng nghe bẹt.
-Hai lớp chặn: trần +12 dB (đoạn gần im lặng không bị thổi tiếng ồn lên) và hạ
-gain khi đỉnh sắp vượt -1 dBTP.
+Vẫn đã thêm bước chuẩn hoá vào `concatWithSilence`. Cách làm: đo trước rồi áp
+**gain tĩnh** đưa mỗi cảnh về `TARGET_LUFS` (-16) rồi **hãm đỉnh** bằng
+`alimiter`. CỐ Ý không chạy `loudnorm` ghi đè vì nó nén dải động và làm giọng
+nghe bẹt. Trần kéo +12 dB để đoạn gần im lặng không bị thổi tiếng ồn nền lên.
+
+### Hoá ra lại rất cần — sau khi đổi sang flash
+
+Với v3 thì bước này gần như không làm gì. Nhưng **`eleven_flash_v2_5` trả về
+nhỏ hơn v3 tới 5.7 dB** (~-22.2 LUFS so với -16.5) và **kém đều hơn** (chênh
+2.83 dB so với 1.43 dB). Không có bước chuẩn hoá thì đổi model là video tụt
+tiếng thấy rõ.
+
+**Bẫy đã dính:** ban đầu chặn cứng cho đỉnh nằm dưới -1 dBTP. Giọng đọc có đỉnh
+nhọn hơn mức trung bình 18–20 dB, nên cách đó chặn gain còn 2–3 dB và bản ghép
+chỉ tới -20 LUFS — vẫn thua bản v3 cũ 3.2 dB. Phải kéo đủ tay rồi hãm riêng
+phần đỉnh (`alimiter`), đúng cách các bộ chuẩn hoá phát thanh vẫn làm.
+
+## 🔉 Lỗi có sẵn đã sửa luôn: video giao đi mất 6 dB
+
+Phát hiện lúc đo bản dựng lại. `amix` trong `brand-finalize.ts` thiếu
+`normalize=0`, mà mặc định amix **chia biên độ cho số input** → khâu ghép nhạc
+nền hạ CẢ giọng LẪN nhạc đi 6.02 dB.
+
+Nghĩa là `video-evose.mp4` — file `SKILL.md` đánh dấu "DÙNG FILE NÀY" — xưa nay
+vẫn nhỏ tiếng hơn hẳn `voice.mp3`, không có gì báo. `mixSfxOntoVoice` trong
+`audio-tools.ts` vốn đã có cờ này; chỗ kia bị sót.
+
+Tỉ lệ giọng/nhạc **không đổi** vì cả hai cùng bị hạ và nay cùng được trả lại —
+mức nhạc `0.30` Mazino chốt vẫn giữ nguyên. Thêm `alimiter` sau khi trộn để
+đỉnh cộng dồn không vượt trần.
+
+## 📊 Số đo của lần đổi model (video mẫu, 12 cảnh)
+
+| | v3 (cũ) | flash_v2_5 (mới) |
+|---|---|---|
+| Từng cảnh, trước chuẩn hoá | -16.5 LUFS, chênh 1.43 dB | **-22.2 LUFS, chênh 2.83 dB** |
+| `voice.mp3` sau chuẩn hoá | -17.07 | **-16.93** |
+| `video-evose.mp4` (file giao) | *(đo trước khi sửa amix: -23.08)* | **-17.06**, đỉnh -0.93 dBTP |
+| Tổng thời lượng | 96.78s | **99.58s** (đọc chậm hơn ~3%) |
+
+Bản v3 để đối chiếu đã sao lưu ngoài repo, KHÔNG nằm trong git — mất là mất.
+Muốn dựng lại thì xoá `voice/` rồi chạy pipeline không đè biến môi trường.
+
+⚠️ Con số **"87 giây"** ở các bản handoff cũ là SAI/lỗi thời — video mẫu bản v3
+thật ra dài 96.78s.
 
 ## ⚠️ VIỆC CÒN DANG DỞ
+
+0. **Sửa `ELEVENLABS_MODEL_ID` trong `.env.local` thành `eleven_flash_v2_5`.**
+   Việc duy nhất Claude không làm hộ được. Chưa sửa thì mọi lần chạy vẫn ra
+   `eleven_v3` — tức không nối được ngữ điệu, đúng thứ vừa bỏ công giải.
+   Sau khi sửa, nên **nghe lại một video** xem việc mất biểu cảm của v3 có
+   chấp nhận được không; không chấp nhận thì quay về v3 và làm đường "đọc một
+   lần rồi cắt".
 
 1. **Kho logo + font brand** — Mazino có nhắc muốn làm nhưng CHƯA mô tả rõ là
    gì (một trang tra cứu bộ nhận diện? một thư mục asset chuẩn hoá?). Hỏi lại
@@ -235,5 +297,13 @@ npm run pipeline -- output/<thư-mục>/script.json   # chạy lại từ script
 Clip và file giọng **idempotent** — xoá `clips/scene-sN*.mp4` để render lại
 riêng một cảnh, giữ nguyên phần còn lại (nhanh hơn nhiều).
 
+⚠️ Nhưng render lại RIÊNG một cảnh thì **chuỗi nối ngữ điệu đứt** ở đó (xem mục
+"Giọng đọc"). Sửa lời một cảnh → nên xoá cả `voice/` và sinh lại từ đầu; sửa
+hình thì xoá clip là đủ.
+
+Muốn dựng lại chỉ phần tiếng mà không tốn lần gọi API nào: giữ `voice/`, xoá
+`voice.mp3 voice-raw.mp3 video*.mp4` rồi chạy pipeline. Các cảnh sẽ báo
+`REUSE mp3` và chỉ khâu ghép chạy lại.
+
 Video mẫu đã dựng: `output/ai-my-canh-tranh-gia-trung-quoc-20260819-2240/`
-(87 giây, 11 cảnh) — dùng để đối chiếu.
+(99.58 giây, 12 cảnh, đã dựng lại bằng `flash_v2_5`) — dùng để đối chiếu.

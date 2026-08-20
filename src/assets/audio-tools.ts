@@ -4,17 +4,100 @@ import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
 
 function run(cmd: string, args: string[]): Promise<string> {
+  return runBoth(cmd, args).then((r) => r.stdout);
+}
+
+function runBoth(cmd: string, args: string[]): Promise<{ stdout: string; stderr: string }> {
   return new Promise((resolve, reject) => {
     const proc = spawn(cmd, args);
     let out = "", err = "";
     proc.stdout.on("data", (d) => (out += d.toString()));
     proc.stderr.on("data", (d) => (err += d.toString()));
     proc.on("close", (code) => {
-      if (code === 0) resolve(out);
+      if (code === 0) resolve({ stdout: out, stderr: err });
       else reject(new Error(`${cmd} failed (exit ${code}): ${err}`));
     });
     proc.on("error", reject);
   });
+}
+
+/**
+ * Mức to đích cho file giọng, tính bằng LUFS.
+ *
+ * -16 LUFS là mức quen dùng cho tiếng nói trên mạng xã hội: đủ to để nghe rõ
+ * trên loa điện thoại mà vẫn còn chỗ trống phía trên cho nhạc nền và SFX chồng
+ * lên mà không vỡ tiếng.
+ */
+export const TARGET_LUFS = -16;
+
+/** Đỉnh thật không được vượt mức này (dBTP) — chừa chỗ cho khâu nén mp3. */
+const PEAK_CEILING_DB = -1;
+
+/** Kéo tối đa bấy nhiêu dB. Chặn để đoạn gần như im lặng — cảnh thu hụt, cảnh
+ *  chỉ còn tiếng thở — không bị thổi tiếng ồn nền lên thành tiếng rõ. */
+const MAX_GAIN_DB = 12;
+
+export interface LoudnessInfo {
+  /** Độ to trung bình cả file (LUFS). `-Infinity` nếu file câm. */
+  integratedLufs: number;
+  /** Đỉnh thật (dBTP). `-Infinity` nếu file câm. */
+  truePeakDb: number;
+}
+
+/** ffmpeg in "-inf" cho file câm; parseFloat sẽ ra NaN nếu không xử riêng. */
+function parseLevel(raw: string | undefined): number {
+  if (raw === undefined) return NaN;
+  const t = raw.trim();
+  if (t === "-inf") return -Infinity;
+  if (t === "inf") return Infinity;
+  return parseFloat(t);
+}
+
+/**
+ * Đo độ to của một file bằng bộ lọc `loudnorm` của ffmpeg (lượt đo, không ghi
+ * ra file). Đây là lượt 1 của cách chuẩn hoá hai lượt.
+ */
+export async function measureLoudness(path: string): Promise<LoudnessInfo> {
+  const { stderr } = await runBoth("ffmpeg", [
+    "-hide_banner", "-nostats",
+    "-i", path,
+    "-af", "loudnorm=print_format=json",
+    "-f", "null", "-",
+  ]);
+  // JSON nằm ở cuối stderr, sau các dòng log — lấy khối ngoặc nhọn cuối cùng.
+  const start = stderr.lastIndexOf("{");
+  const end = stderr.lastIndexOf("}");
+  if (start === -1 || end <= start) {
+    throw new Error(`measureLoudness: không đọc được kết quả loudnorm cho ${path}`);
+  }
+  const parsed = JSON.parse(stderr.slice(start, end + 1)) as Record<string, string>;
+  const integratedLufs = parseLevel(parsed.input_i);
+  const truePeakDb = parseLevel(parsed.input_tp);
+  if (Number.isNaN(integratedLufs)) {
+    throw new Error(`measureLoudness: loudnorm trả input_i không hợp lệ cho ${path}`);
+  }
+  return { integratedLufs, truePeakDb };
+}
+
+/**
+ * Tính mức chỉnh (dB) để đưa một đoạn về `targetLufs`.
+ *
+ * Cố ý dùng gain TĨNH chứ không chạy `loudnorm` để ghi đè: việc cần làm là kéo
+ * các cảnh về ngang nhau, không phải nén dải động bên trong từng cảnh. Gain
+ * tĩnh giữ nguyên nhịp lên xuống của giọng đọc; `loudnorm` sẽ san phẳng nó và
+ * làm giọng nghe bẹt.
+ */
+export function gainForTarget(info: LoudnessInfo, targetLufs = TARGET_LUFS): number {
+  // Câm hoặc gần câm thì không có gì để kéo.
+  if (!Number.isFinite(info.integratedLufs)) return 0;
+
+  const wanted = targetLufs - info.integratedLufs;
+  const capped = Math.min(wanted, MAX_GAIN_DB);
+  // Không để đỉnh vượt trần — kéo quá thì mp3 cắt ngọn, nghe rè.
+  const peakRoom = Number.isFinite(info.truePeakDb)
+    ? PEAK_CEILING_DB - info.truePeakDb
+    : capped;
+  return Math.min(capped, peakRoom);
 }
 
 export async function getDurationSec(path: string): Promise<number> {
@@ -66,6 +149,10 @@ export async function getDurationSec(path: string): Promise<number> {
  * channel normalization to avoid clicks/pops at boundaries. Each input is also
  * given a tiny 8 ms fade-in/fade-out which inaudibly smooths any DC offset
  * discontinuity at the boundary — this eliminates the "pét" clicking sound.
+ *
+ * Mỗi cảnh còn được kéo về cùng một mức to (`TARGET_LUFS`) trước khi nối. Mỗi
+ * cảnh là một lần gọi TTS riêng nên độ to giữa các cảnh vênh nhau, nghe rõ ở
+ * chỗ chuyển cảnh — chuyện này KHÁC với chuyện lệch ngữ điệu và phải xử riêng.
  */
 export async function concatWithSilence(
   inputPaths: string[],
@@ -73,10 +160,19 @@ export async function concatWithSilence(
   outPath: string,
 ): Promise<void> {
   if (inputPaths.length === 0) throw new Error("concatWithSilence: empty inputPaths");
+
+  // Đo trước toàn bộ, rồi mới ghép — lượt 1 của cách chuẩn hoá hai lượt.
+  const gains = await Promise.all(
+    inputPaths.map(async (p) => gainForTarget(await measureLoudness(p))),
+  );
+  /** Dưới 0.1 dB thì tai không nghe ra, bỏ hẳn bộ lọc cho gọn chuỗi. */
+  const volumeStep = (db: number) => (Math.abs(db) < 0.1 ? "" : `volume=${db.toFixed(2)}dB,`);
+
   if (inputPaths.length === 1) {
     // No concat needed — just normalize the single file
     await run("ffmpeg", [
       "-y", "-i", inputPaths[0],
+      "-af", `${volumeStep(gains[0])}aresample=44100`,
       "-ar", "44100", "-ac", "1",
       "-c:a", "libmp3lame", "-b:a", "192k",
       outPath,
@@ -108,7 +204,7 @@ export async function concatWithSilence(
     let idx = 0;
     const FADE_SEC = 0.008; // 8ms — inaudible
 
-    const addInput = (path: string) => {
+    const addInput = (path: string, gainDb = 0) => {
       ffArgs.push("-i", path);
       const inLabel = `[${idx}:a]`;
       const outLabel = `a${idx}`;
@@ -121,7 +217,8 @@ export async function concatWithSilence(
       // `aresample` then rely on concat filter doing sample-accurate join.
       // The micro-fade is applied via `areverse,afade,areverse` trick to fade out:
       filterParts.push(
-        `${inLabel}aresample=44100,aformat=sample_fmts=fltp:channel_layouts=mono,` +
+        `${inLabel}${volumeStep(gainDb)}` +
+        `aresample=44100,aformat=sample_fmts=fltp:channel_layouts=mono,` +
         `afade=t=in:st=0:d=${FADE_SEC},` +
         // Trim fade-out: reverse → fade-in → reverse (this fades the END)
         `areverse,afade=t=in:st=0:d=${FADE_SEC},areverse[${outLabel}]`
@@ -131,7 +228,7 @@ export async function concatWithSilence(
     };
 
     inputPaths.forEach((p, i) => {
-      addInput(p);
+      addInput(p, gains[i]);
       if (i < inputPaths.length - 1) addInput(silencePath);
     });
 

@@ -88,11 +88,17 @@ describe("gainForTarget", () => {
     expect(gainForTarget({ integratedLufs: -60, truePeakDb: -55 }, -16)).toBe(12);
   });
 
-  it("giảm bớt gain để đỉnh không vượt ngưỡng, tránh vỡ tiếng", () => {
-    // Cần +10 dB để đạt mức đích, nhưng đỉnh đang ở -2 dBTP → +10 sẽ cắt ngọn.
-    const g = gainForTarget({ integratedLufs: -26, truePeakDb: -2 }, -16);
-    expect(g).toBeLessThan(10);
-    expect(-2 + g).toBeLessThanOrEqual(-1);
+  it("chặn gain để bộ hãm đỉnh không phải làm quá nặng tay", () => {
+    // Cần +10 dB để đạt mức đích. Đỉnh đang ở -2 dBTP nên chỉ còn 1 dB trống;
+    // cho phép vượt trần thêm 6 dB nữa rồi hãm → dừng ở +7.
+    expect(gainForTarget({ integratedLufs: -26, truePeakDb: -2 }, -16)).toBe(7);
+  });
+
+  it("giọng nhiều đỉnh nhọn vẫn được kéo gần tới mức đích", () => {
+    // Đúng dáng của eleven_flash_v2_5: trung bình thấp mà đỉnh đã cao.
+    // Nếu bắt riêng đỉnh nằm dưới trần thì gain chỉ còn 3.33 dB — không đủ.
+    const g = gainForTarget({ integratedLufs: -23.79, truePeakDb: -4.33 }, -16);
+    expect(g).toBeCloseTo(7.79, 2);
   });
 });
 
@@ -114,6 +120,8 @@ describe("concatWithSilence — chuẩn hoá âm lượng", () => {
     const after = await measureLoudness(out);
     expect(after.integratedLufs).toBeGreaterThan(TARGET_LUFS - 2);
     expect(after.integratedLufs).toBeLessThan(TARGET_LUFS + 2);
+    // Bộ hãm phải giữ đỉnh dưới trần, nếu không mp3 cắt ngọn và nghe rè.
+    expect(after.truePeakDb).toBeLessThanOrEqual(-0.5);
   });
 
   it("hai cảnh chênh lệch to nhỏ được kéo về cùng mức", async () => {

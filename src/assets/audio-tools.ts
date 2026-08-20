@@ -37,6 +37,20 @@ const PEAK_CEILING_DB = -1;
  *  chỉ còn tiếng thở — không bị thổi tiếng ồn nền lên thành tiếng rõ. */
 const MAX_GAIN_DB = 12;
 
+/**
+ * Cho phép đỉnh vượt trần bấy nhiêu dB trước khi bộ hãm kéo lại.
+ *
+ * Giọng đọc có đỉnh nhọn hơn hẳn mức trung bình — chênh lệch 18–20 dB là
+ * thường. Nếu bắt riêng đỉnh phải nằm dưới trần thì gain bị chặn còn 2–3 dB
+ * và không cảnh nào lên nổi mức đích. `eleven_flash_v2_5` dính đúng chỗ này:
+ * trả về khoảng -22 LUFS nhưng đỉnh đã ở -4 dBTP.
+ *
+ * Nên kéo đủ tay rồi hãm riêng phần đỉnh — đúng cách các bộ chuẩn hoá phát
+ * thanh vẫn làm. Giới hạn ở 6 dB để bộ hãm chỉ gọt vài đỉnh nhọn chứ không
+ * ghì cả câu, tránh giọng nghe thở dốc.
+ */
+const MAX_LIMITING_DB = 6;
+
 export interface LoudnessInfo {
   /** Độ to trung bình cả file (LUFS). `-Infinity` nếu file câm. */
   integratedLufs: number;
@@ -86,18 +100,35 @@ export async function measureLoudness(path: string): Promise<LoudnessInfo> {
  * các cảnh về ngang nhau, không phải nén dải động bên trong từng cảnh. Gain
  * tĩnh giữ nguyên nhịp lên xuống của giọng đọc; `loudnorm` sẽ san phẳng nó và
  * làm giọng nghe bẹt.
+ *
+ * Phần đỉnh vượt trần do bộ hãm (`alimiter`) lo ở khâu ghép, nên ở đây chỉ
+ * chặn cho bộ hãm khỏi phải làm quá nặng tay.
  */
 export function gainForTarget(info: LoudnessInfo, targetLufs = TARGET_LUFS): number {
   // Câm hoặc gần câm thì không có gì để kéo.
   if (!Number.isFinite(info.integratedLufs)) return 0;
 
-  const wanted = targetLufs - info.integratedLufs;
-  const capped = Math.min(wanted, MAX_GAIN_DB);
-  // Không để đỉnh vượt trần — kéo quá thì mp3 cắt ngọn, nghe rè.
-  const peakRoom = Number.isFinite(info.truePeakDb)
-    ? PEAK_CEILING_DB - info.truePeakDb
-    : capped;
-  return Math.min(capped, peakRoom);
+  const wanted = Math.min(targetLufs - info.integratedLufs, MAX_GAIN_DB);
+  if (!Number.isFinite(info.truePeakDb)) return wanted;
+  const peakRoom = PEAK_CEILING_DB - info.truePeakDb;
+  return Math.min(wanted, peakRoom + MAX_LIMITING_DB);
+}
+
+/**
+ * Chuỗi bộ lọc đưa một đoạn về mức đích: kéo gain rồi hãm đỉnh.
+ *
+ * Chỉ hãm khi có kéo LÊN — hạ xuống thì đỉnh tự thấp theo, thêm bộ hãm chỉ
+ * tốn công. Dưới 0.1 dB thì tai không nghe ra, bỏ hẳn cho gọn chuỗi.
+ * Trả về chuỗi kết thúc bằng dấu phẩy để nối tiếp vào chuỗi lọc phía sau.
+ */
+function levelSteps(gainDb: number): string {
+  if (Math.abs(gainDb) < 0.1) return "";
+  const volume = `volume=${gainDb.toFixed(2)}dB,`;
+  if (gainDb <= 0) return volume;
+  // `limit` của alimiter tính theo biên độ tuyến tính, không phải dB.
+  // `level=0` tắt phần tự động chỉnh mức của nó — ta tự quyết mức rồi.
+  const limit = Math.pow(10, PEAK_CEILING_DB / 20).toFixed(4);
+  return `${volume}alimiter=limit=${limit}:level=0,`;
 }
 
 export async function getDurationSec(path: string): Promise<number> {
@@ -165,14 +196,11 @@ export async function concatWithSilence(
   const gains = await Promise.all(
     inputPaths.map(async (p) => gainForTarget(await measureLoudness(p))),
   );
-  /** Dưới 0.1 dB thì tai không nghe ra, bỏ hẳn bộ lọc cho gọn chuỗi. */
-  const volumeStep = (db: number) => (Math.abs(db) < 0.1 ? "" : `volume=${db.toFixed(2)}dB,`);
-
   if (inputPaths.length === 1) {
     // No concat needed — just normalize the single file
     await run("ffmpeg", [
       "-y", "-i", inputPaths[0],
-      "-af", `${volumeStep(gains[0])}aresample=44100`,
+      "-af", `${levelSteps(gains[0])}aresample=44100`,
       "-ar", "44100", "-ac", "1",
       "-c:a", "libmp3lame", "-b:a", "192k",
       outPath,
@@ -217,7 +245,7 @@ export async function concatWithSilence(
       // `aresample` then rely on concat filter doing sample-accurate join.
       // The micro-fade is applied via `areverse,afade,areverse` trick to fade out:
       filterParts.push(
-        `${inLabel}${volumeStep(gainDb)}` +
+        `${inLabel}${levelSteps(gainDb)}` +
         `aresample=44100,aformat=sample_fmts=fltp:channel_layouts=mono,` +
         `afade=t=in:st=0:d=${FADE_SEC},` +
         // Trim fade-out: reverse → fade-in → reverse (this fades the END)

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { joinTake, sliceRanges, TAKE_SEPARATOR } from "./single-take.js";
+import { joinTake, sliceRanges, findSpokenTags, TAKE_SEPARATOR } from "./single-take.js";
 
 describe("joinTake", () => {
   it("nối lời bằng ký tự ngăn và ghi đúng vị trí từng cảnh", () => {
@@ -160,5 +160,78 @@ describe("joinTake + sliceRanges đi cùng nhau", () => {
     expect(r[0].endSec).toBeGreaterThan(end[spans[0].hi] - 0.001);
     expect(r[0].endSec).toBeLessThan(start[spans[1].lo]);
     expect(r[1].startSec).toBeLessThan(start[spans[1].lo] + 0.001);
+  });
+});
+
+describe("findSpokenTags", () => {
+  /** Dựng bảng mốc cho `text`, trong đó thẻ ở `tagIndex` chiếm `tagSec` giây
+   *  còn mọi ký tự khác chạy đều 0.05s. */
+  function timeline(text: string, tagLiteral: string, tagSec: number) {
+    const i = text.indexOf(tagLiteral);
+    const start: number[] = [];
+    const end: number[] = [];
+    let t = 0;
+    for (let k = 0; k < text.length; k++) {
+      const inTag = k >= i && k < i + tagLiteral.length;
+      const step = inTag ? tagSec / tagLiteral.length : 0.05;
+      start.push(t);
+      t += step;
+      end.push(t);
+    }
+    return { start, end };
+  }
+
+  it("bắt được thẻ bị đọc to", () => {
+    // Đúng ca đã gặp thật: [curious] chiếm 2.1s ở đầu video, nghe ra "CU Arius".
+    const text = "[curious] Vì sao lại thế?";
+    const { start, end } = timeline(text, "[curious]", 2.1);
+    const spoken = findSpokenTags(text, start, end);
+    expect(spoken).toHaveLength(1);
+    expect(spoken[0].literal).toBe("[curious]");
+    expect(spoken[0].durationSec).toBeCloseTo(2.1, 5);
+  });
+
+  it("KHÔNG báo nhầm thẻ được hiểu đúng", () => {
+    const text = "[curious] Vì sao lại thế?";
+    const { start, end } = timeline(text, "[curious]", 0.12);
+    expect(findSpokenTags(text, start, end)).toEqual([]);
+  });
+
+  it("KHÔNG báo nhầm thẻ tạo ra tiếng động thật", () => {
+    // [sighs] tốn 0.48s vì nó thở dài thật — tổng thời lượng cao nhưng chia
+    // cho số ký tự vẫn thấp. Đây là ca mà thước đo bằng tổng thời lượng sai.
+    const text = "[sighs] Thế là nhiều công ty rời đi.";
+    const { start, end } = timeline(text, "[sighs]", 0.48);
+    expect(findSpokenTags(text, start, end)).toEqual([]);
+  });
+
+  it("bắt được nhiều thẻ hỏng trong cùng một bản đọc", () => {
+    const text = "[curious] Một. [thoughtful] Hai.";
+    const a = timeline(text, "[curious]", 2.1);
+    // Cho luôn [thoughtful] cũng dài — dựng lại mốc thủ công cho cả hai.
+    const start: number[] = [], end: number[] = [];
+    let t = 0;
+    for (let k = 0; k < text.length; k++) {
+      const inA = k >= 0 && k < 9;
+      const inB = k >= text.indexOf("[thoughtful]") && k < text.indexOf("[thoughtful]") + 12;
+      const step = inA ? 2.1 / 9 : inB ? 2.4 / 12 : 0.05;
+      start.push(t); t += step; end.push(t);
+    }
+    expect(a.start.length).toBe(text.length);
+    expect(findSpokenTags(text, start, end).map((s) => s.literal)).toEqual([
+      "[curious]",
+      "[thoughtful]",
+    ]);
+  });
+
+  it("lời không có thẻ thì không có gì để báo", () => {
+    const text = "Không có thẻ nào ở đây.";
+    const { start, end } = timeline(text, "khong-ton-tai", 1);
+    expect(findSpokenTags(text, start, end)).toEqual([]);
+  });
+
+  it("bảng mốc ngắn hơn lời thì bỏ qua, không nổ", () => {
+    const text = "[curious] Vì sao?";
+    expect(findSpokenTags(text, [0, 1], [1, 2])).toEqual([]);
   });
 });

@@ -4,8 +4,8 @@ import { dirname, join } from "node:path";
 import pLimit from "p-limit";
 import { TemplateScriptSchema, type TemplateScript } from "./template-script-schema.js";
 import { loadConfig } from "../config.js";
-import { createTtsClient, type TtsClient } from "../tts/tts-client.js";
-import { joinTake, sliceRanges } from "../tts/single-take.js";
+import { createTtsClient, type AlignedTake, type TtsClient } from "../tts/tts-client.js";
+import { joinTake, sliceRanges, findSpokenTags } from "../tts/single-take.js";
 import {
   getDurationSec,
   concatWithSilence,
@@ -37,6 +37,15 @@ const RENDER_FPS = 30;
  * một lần gọi). Để chừa biên vì ký tự ngăn giữa các cảnh cũng tính vào.
  */
 const MAX_TAKE_CHARS = 2900;
+
+/**
+ * Đọc lại tối đa bấy nhiêu lần khi model lỡ đọc to thẻ cảm xúc.
+ *
+ * Đo thật thì bốn lần chạy mới trượt một lần, nên hai lượt là đủ để xác suất
+ * hỏng gần như bằng không. Hết lượt thì bỏ thẻ rồi đọc lại — lần đó chắc chắn
+ * sạch vì không còn thẻ nào để đọc nhầm.
+ */
+const TAKE_ATTEMPTS_WITH_TAGS = 2;
 
 /**
  * Nối thêm lặng vào cuối file giọng của một cảnh, tại chỗ.
@@ -77,25 +86,50 @@ async function renderSingleTake(
   // Một cảnh thì không có chỗ chuyển nào để lệch — gọi thường cho nhẹ.
   if (voiced.length < 2) return none;
 
-  const segments = voiced.map((s) => ({
-    id: s.id,
-    text: keepTags ? s.voiceText : stripAudioTags(s.voiceText),
-  }));
-  const { text, spans } = joinTake(segments);
-  if (text.length > MAX_TAKE_CHARS) {
+  const withTags = joinTake(
+    voiced.map((s) => ({
+      id: s.id,
+      text: keepTags ? s.voiceText : stripAudioTags(s.voiceText),
+    })),
+  );
+  if (withTags.text.length > MAX_TAKE_CHARS) {
     log.info(
-      `  lời dài ${text.length} ký tự, quá mức đọc một lần (${MAX_TAKE_CHARS}) — ` +
+      `  lời dài ${withTags.text.length} ký tự, quá mức đọc một lần (${MAX_TAKE_CHARS}) — ` +
         `quay về gọi từng cảnh, ngữ điệu sẽ lệch ở chỗ chuyển cảnh`,
     );
     return none;
   }
 
-  log.info(`  đọc MỘT LẦN cả bài: ${voiced.length} cảnh, ${text.length} ký tự`);
-  const take = await ttsClient.generateAlignedTake(text);
+  log.info(`  đọc MỘT LẦN cả bài: ${voiced.length} cảnh, ${withTags.text.length} ký tự`);
+
+  // eleven_v3 thỉnh thoảng ĐỌC TO thẻ cảm xúc thay vì hiểu là chỉ dẫn — đã gặp
+  // `[curious]` phát ra thành tiếng ngay đầu video. Bảng mốc thời gian cho biết
+  // ngay điều đó, nên kiểm rồi đọc lại chứ không giao video hỏng.
+  let joined = withTags;
+  let take: AlignedTake | undefined;
+  for (let attempt = 1; attempt <= TAKE_ATTEMPTS_WITH_TAGS; attempt++) {
+    const candidate = await ttsClient.generateAlignedTake(joined.text);
+    const spoken = findSpokenTags(joined.text, candidate.charStartSec, candidate.charEndSec);
+    if (spoken.length === 0) {
+      take = candidate;
+      break;
+    }
+    const which = spoken.map((t) => `${t.literal} ${t.durationSec.toFixed(2)}s`).join(", ");
+    log.info(`  ⚠ model ĐỌC TO thẻ cảm xúc (${which}) — đọc lại (lần ${attempt})`);
+  }
+
+  if (!take) {
+    // Đọc lại mấy lần vẫn hỏng thì bỏ hẳn thẻ. Không còn thẻ thì không còn gì
+    // để đọc nhầm — thà mất phần chỉ dẫn diễn xuất còn hơn giao video lỗi.
+    log.info("  ⚠ bỏ thẻ cảm xúc rồi đọc lại — mất biểu cảm nhưng chắc chắn sạch");
+    joined = joinTake(voiced.map((s) => ({ id: s.id, text: stripAudioTags(s.voiceText) })));
+    take = await ttsClient.generateAlignedTake(joined.text);
+  }
+
   const takePath = join(voiceDir, "_take.mp3");
   await writeFile(takePath, take.audio);
 
-  const ranges = sliceRanges(spans, take.charStartSec, take.charEndSec);
+  const ranges = sliceRanges(joined.spans, take.charStartSec, take.charEndSec);
   const byId = new Map(voiced.map((s) => [s.id, s]));
   for (const r of ranges) {
     const out = join(voiceDir, `scene-${r.id}.mp3`);

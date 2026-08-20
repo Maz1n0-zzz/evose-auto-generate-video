@@ -15,6 +15,8 @@
  * `elevenlabs-client.ts`, việc cắt file nằm ở `assets/audio-tools.ts`.
  */
 
+import { findAudioTags } from "../utils/audio-tags.js";
+
 /** Ngăn giữa hai cảnh. Ngắt dòng cho model một chỗ nghỉ tự nhiên, và ký tự
  *  ngăn nằm ngoài mọi khoảng cảnh nên không lọt vào file nào. */
 export const TAKE_SEPARATOR = "\n\n";
@@ -126,4 +128,69 @@ export function sliceRanges(
       endSec: i === n - 1 ? wantEnd : Math.min(wantEnd, divide(i + 1)),
     };
   });
+}
+
+/**
+ * Thẻ cảm xúc bị model ĐỌC TO thay vì hiểu là chỉ dẫn diễn xuất.
+ *
+ * `eleven_v3` xử lý thẻ ở mức bản alpha và thỉnh thoảng trượt: đã gặp
+ * `[curious]` phát ra thành tiếng, nghe như "CU Arius", ngay đầu video. Cùng
+ * một chuỗi đầu vào chạy bốn lần thì ba lần đúng — tức không tránh được bằng
+ * cách viết lời khác, chỉ có thể phát hiện rồi đọc lại.
+ */
+export interface SpokenTag {
+  literal: string;
+  index: number;
+  /** Thẻ chiếm bao nhiêu giây trong bản đọc. */
+  durationSec: number;
+  secPerChar: number;
+}
+
+/**
+ * Ngưỡng giây-trên-mỗi-ký-tự để kết luận một thẻ đã bị đọc to.
+ *
+ * Số đo thật trên giọng đang dùng:
+ *
+ *   hiểu đúng — `[curious]` 0.007–0.036 | `[warm]` 0.040 | `[excited]` 0.041
+ *               `[thoughtful]` 0.043 | `[sighs]` 0.069  ← cao nhất, vì thẻ này
+ *               tạo ra tiếng thở dài THẬT nên tốn thời gian chính đáng
+ *   bị đọc to — `[curious]` 0.164 và 0.23 (hai lần gặp thật)
+ *
+ * Lấy 0.12: cao gấp 1.7 lần mức "hiểu đúng" cao nhất, và thấp hơn 1.4 lần so
+ * với lần "bị đọc to" sát ngưỡng nhất. Chỉ dùng tổng thời lượng thì không phân
+ * biệt được, vì thẻ tạo tiếng động như `[sighs]`, `[laughs]` cũng tốn thời
+ * gian thật — `[sighs]` 0.48s còn dài hơn cả `[curious]` bị đọc to 1.48s chia
+ * đều ra từng ký tự.
+ *
+ * Gặp thẻ lạ mà bị báo nhầm thì đo lại bằng cách cho in ra `secPerChar`, đừng
+ * nới ngưỡng theo cảm tính — nới quá là lọt video hỏng.
+ */
+export const SPOKEN_TAG_SEC_PER_CHAR = 0.12;
+
+/** Dưới mức này thì chắc chắn không phải đọc to — chặn nhiễu ở thẻ ngắn. */
+const SPOKEN_TAG_MIN_SEC = 0.4;
+
+/**
+ * Tìm những thẻ cảm xúc mà model lỡ đọc thành tiếng.
+ *
+ * Cách nhận biết: thẻ bị đọc thì mỗi chữ cái trong thẻ tốn thời gian như chữ
+ * thường; thẻ được hiểu đúng thì cả thẻ gộp lại chỉ tốn một khoảnh khắc, dài
+ * bao nhiêu chữ cũng vậy. Chia thời lượng cho số ký tự là tách được hai nhóm.
+ */
+export function findSpokenTags(
+  text: string,
+  charStartSec: readonly number[],
+  charEndSec: readonly number[],
+): SpokenTag[] {
+  const spoken: SpokenTag[] = [];
+  for (const tag of findAudioTags(text)) {
+    const last = tag.index + tag.literal.length - 1;
+    if (tag.index >= charStartSec.length || last >= charEndSec.length) continue;
+    const durationSec = charEndSec[last] - charStartSec[tag.index];
+    const secPerChar = durationSec / tag.literal.length;
+    if (durationSec >= SPOKEN_TAG_MIN_SEC && secPerChar > SPOKEN_TAG_SEC_PER_CHAR) {
+      spoken.push({ literal: tag.literal, index: tag.index, durationSec, secPerChar });
+    }
+  }
+  return spoken;
 }

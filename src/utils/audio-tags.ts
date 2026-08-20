@@ -35,3 +35,27 @@ export function hasAudioTags(text: string): boolean {
     AUDIO_TAG.lastIndex = 0;
     return AUDIO_TAG.test(text);
 }
+
+/** Một thẻ cảm xúc và vị trí của nó trong chuỗi. */
+export interface FoundAudioTag {
+    /** Nguyên văn kể cả ngoặc vuông, vd `[excited]`. */
+    literal: string;
+    /** Chỉ số ký tự đầu tiên của thẻ. */
+    index: number;
+}
+
+/**
+ * Liệt kê mọi thẻ cảm xúc kèm vị trí.
+ *
+ * Cần vị trí để đối chiếu với bảng mốc thời gian trả về từ TTS — nhờ đó biết
+ * được model đã HIỂU thẻ là chỉ dẫn hay lỡ ĐỌC TO nó lên.
+ */
+export function findAudioTags(text: string): FoundAudioTag[] {
+    AUDIO_TAG.lastIndex = 0;
+    const found: FoundAudioTag[] = [];
+    let m: RegExpExecArray | null;
+    while ((m = AUDIO_TAG.exec(text)) !== null) {
+        found.push({ literal: m[0], index: m.index });
+    }
+    return found;
+}

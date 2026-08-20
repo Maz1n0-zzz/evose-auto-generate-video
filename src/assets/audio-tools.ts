@@ -377,6 +377,31 @@ export async function makeSilence(sec: number, outPath: string): Promise<void> {
 }
 
 /**
+ * Cắt lấy đoạn `[startSec, endSec)` của một file âm thanh.
+ *
+ * `-ss` đặt SAU `-i` để ffmpeg tua chính xác tới mẫu thay vì nhảy theo khung
+ * — cắt bản đọc chung ra từng cảnh thì sai vài chục mili giây là nghe hụt chữ.
+ */
+export async function cutAudio(
+  inPath: string,
+  startSec: number,
+  endSec: number,
+  outPath: string,
+): Promise<void> {
+  if (!(endSec > startSec)) {
+    throw new Error(`cutAudio: khoảng cắt không hợp lệ (${startSec} → ${endSec})`);
+  }
+  await run("ffmpeg", [
+    "-y", "-loglevel", "error",
+    "-i", inPath,
+    "-ss", startSec.toFixed(3),
+    "-to", endSec.toFixed(3),
+    "-c:a", "libmp3lame", "-b:a", "192k", "-ar", "44100", "-ac", "1",
+    outPath,
+  ]);
+}
+
+/**
  * Nối thêm `sec` giây lặng vào CUỐI một file giọng.
  *
  * Dùng khi một cảnh cần đứng hình lâu hơn lời đọc — ví dụ cảnh mở có tựa dài,

@@ -134,6 +134,59 @@ describe("ElevenLabsClient — thẻ cảm xúc theo model", () => {
   });
 });
 
+describe("ElevenLabsClient — đọc một lần kèm mốc thời gian", () => {
+  const TEXT = "Xin chào";
+  const alignmentFor = (t: string) => ({
+    characters: [...t],
+    character_start_times_seconds: [...t].map((_, i) => i * 0.1),
+    character_end_times_seconds: [...t].map((_, i) => i * 0.1 + 0.1),
+  });
+
+  function replyTake(body: Record<string, unknown>) {
+    nock(BASE).post(`/v1/text-to-speech/${VOICE}/with-timestamps`).reply(200, body);
+  }
+
+  it("giải mã audio và trả về bảng mốc thời gian", async () => {
+    replyTake({ audio_base64: AUDIO.toString("base64"), alignment: alignmentFor(TEXT) });
+    const take = await client("eleven_v3").generateAlignedTake(TEXT);
+    expect(take.audio).toEqual(AUDIO);
+    expect(take.charStartSec).toHaveLength(TEXT.length);
+    expect(take.charEndSec[0]).toBeCloseTo(0.1, 5);
+  });
+
+  it("ném lỗi khi bảng alignment không khớp lời gửi đi", async () => {
+    // Lệch một ký tự là cắt vào giữa từ, mà lệch âm thầm — phải chặn ngay.
+    replyTake({ audio_base64: AUDIO.toString("base64"), alignment: alignmentFor("Xin chao") });
+    await expect(client("eleven_v3").generateAlignedTake(TEXT)).rejects.toThrow(
+      /không khớp lời gửi đi/,
+    );
+  });
+
+  it("ném lỗi khi phản hồi thiếu bảng alignment", async () => {
+    replyTake({ audio_base64: AUDIO.toString("base64") });
+    await expect(client("eleven_v3").generateAlignedTake(TEXT)).rejects.toThrow(/thiếu bảng alignment/);
+  });
+
+  it("ném lỗi khi phản hồi thiếu audio", async () => {
+    replyTake({ alignment: alignmentFor(TEXT) });
+    await expect(client("eleven_v3").generateAlignedTake(TEXT)).rejects.toThrow(/thiếu audio_base64/);
+  });
+
+  it("KHÔNG gửi tham số nối — một lần đọc thì không có gì để nối", async () => {
+    const seen: { body?: Record<string, unknown> } = {};
+    nock(BASE)
+      .post(`/v1/text-to-speech/${VOICE}/with-timestamps`, (b) => {
+        seen.body = b as Record<string, unknown>;
+        return true;
+      })
+      .reply(200, { audio_base64: AUDIO.toString("base64"), alignment: alignmentFor(TEXT) });
+    await client("eleven_v3").generateAlignedTake(TEXT);
+    expect(seen.body).not.toHaveProperty("previous_text");
+    expect(seen.body).not.toHaveProperty("previous_request_ids");
+    expect(seen.body?.model_id).toBe("eleven_v3");
+  });
+});
+
 describe("ElevenLabsClient — lỗi", () => {
   it("401 báo sai API key và không thử lại", async () => {
     nock(BASE).post(`/v1/text-to-speech/${VOICE}`).reply(401, "nope");

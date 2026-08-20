@@ -4,13 +4,15 @@ import { dirname, join } from "node:path";
 import pLimit from "p-limit";
 import { TemplateScriptSchema, type TemplateScript } from "./template-script-schema.js";
 import { loadConfig } from "../config.js";
-import { createTtsClient } from "../tts/tts-client.js";
+import { createTtsClient, type TtsClient } from "../tts/tts-client.js";
+import { joinTake, sliceRanges } from "../tts/single-take.js";
 import {
   getDurationSec,
   concatWithSilence,
   mixSfxOntoVoice,
   makeSilence,
   padSilence,
+  cutAudio,
   type SfxMixSpec,
 } from "../assets/audio-tools.js";
 import { indexSfxLibrary, pickSfxForScene, defaultPlayback } from "../assets/sfx-selector.js";
@@ -27,6 +29,82 @@ const SCENE_GAP_SEC = 0.3;
 // đoạn cuối im lặng dài lê thê; 1.2 giây đủ để kết mà không hẫng.
 const OUTRO_HOLD_SEC = 1.2;
 const RENDER_FPS = 30;
+
+/**
+ * Lời dài quá bấy nhiêu ký tự thì không đọc một lần được nữa.
+ *
+ * `eleven_v3` là model chặt tay nhất trong số đang dùng (khoảng 3000 ký tự cho
+ * một lần gọi). Để chừa biên vì ký tự ngăn giữa các cảnh cũng tính vào.
+ */
+const MAX_TAKE_CHARS = 2900;
+
+/**
+ * Nối thêm lặng vào cuối file giọng của một cảnh, tại chỗ.
+ *
+ * Dùng khi cảnh cần đứng hình lâu hơn lời đọc. Kéo dài bằng chính file giọng
+ * (chứ không chỉ kéo phần hình) để hình và tiếng các cảnh sau không lệch nhau.
+ */
+async function applyPad(audioPath: string, padSec: number, sceneId: string): Promise<void> {
+  if (padSec <= 0) return;
+  const tmp = audioPath.replace(/\.mp3$/, "-pad.mp3");
+  await padSilence(audioPath, padSec, tmp);
+  const { rename } = await import("node:fs/promises");
+  await rename(tmp, audioPath);
+  log.info(`  scene ${sceneId}: nối thêm ${padSec}s lặng`);
+}
+
+/**
+ * Đọc cả bài MỘT LẦN rồi cắt ra từng cảnh.
+ *
+ * Đây là cách duy nhất giữ ngữ điệu liền mạch với `eleven_v3` — model này từ
+ * chối mọi cơ chế nối giữa các lần gọi. Cả bài là một mạch đọc, không còn chỗ
+ * nào để model chọn lại giọng.
+ *
+ * Trả về tập id các cảnh đã ghi được, hoặc tập rỗng nếu không dùng cách này
+ * (client không hỗ trợ, chỉ có một cảnh có lời, hoặc lời quá dài) — khi đó
+ * pipeline tự quay về cách gọi từng cảnh.
+ */
+async function renderSingleTake(
+  ttsClient: TtsClient,
+  scenes: readonly { id: string; voiceText: string; padSec: number }[],
+  voiceDir: string,
+  keepTags: boolean,
+): Promise<Set<string>> {
+  const none = new Set<string>();
+  if (typeof ttsClient.generateAlignedTake !== "function") return none;
+
+  const voiced = scenes.filter((s) => s.voiceText.trim());
+  // Một cảnh thì không có chỗ chuyển nào để lệch — gọi thường cho nhẹ.
+  if (voiced.length < 2) return none;
+
+  const segments = voiced.map((s) => ({
+    id: s.id,
+    text: keepTags ? s.voiceText : stripAudioTags(s.voiceText),
+  }));
+  const { text, spans } = joinTake(segments);
+  if (text.length > MAX_TAKE_CHARS) {
+    log.info(
+      `  lời dài ${text.length} ký tự, quá mức đọc một lần (${MAX_TAKE_CHARS}) — ` +
+        `quay về gọi từng cảnh, ngữ điệu sẽ lệch ở chỗ chuyển cảnh`,
+    );
+    return none;
+  }
+
+  log.info(`  đọc MỘT LẦN cả bài: ${voiced.length} cảnh, ${text.length} ký tự`);
+  const take = await ttsClient.generateAlignedTake(text);
+  const takePath = join(voiceDir, "_take.mp3");
+  await writeFile(takePath, take.audio);
+
+  const ranges = sliceRanges(spans, take.charStartSec, take.charEndSec);
+  const byId = new Map(voiced.map((s) => [s.id, s]));
+  for (const r of ranges) {
+    const out = join(voiceDir, `scene-${r.id}.mp3`);
+    await cutAudio(takePath, r.startSec, r.endSec, out);
+    log.info(`  scene ${r.id}: cắt ${r.startSec.toFixed(2)}s → ${r.endSec.toFixed(2)}s`);
+    await applyPad(out, byId.get(r.id)!.padSec, r.id);
+  }
+  return new Set(ranges.map((r) => r.id));
+}
 
 /** Maps a scene role to a key the SFX selector understands (tier-3 defaults). */
 const TYPE_TO_SFX: Record<string, string> = {
@@ -67,10 +145,25 @@ export async function runTemplatePipeline(scriptPath: string): Promise<void> {
       cfg.ttsProvider === "elevenlabs" ? `model "${cfg.elevenlabsModelId}"` : `provider "${cfg.ttsProvider}"`;
     log.info(`  ${taggedScenes} cảnh có thẻ cảm xúc — ${which} không hiểu, sẽ bỏ thẻ`);
   }
+  const voiceDir = join(outputDir, "voice");
+  await mkdir(voiceDir, { recursive: true });
+
+  // Đọc MỘT LẦN cả bài rồi cắt theo cảnh — cách duy nhất giữ ngữ điệu liền
+  // mạch với eleven_v3. Chỉ chạy khi có cảnh nào đó chưa có file giọng: đã đủ
+  // file thì dùng lại, mà thiếu dù chỉ một cảnh cũng phải đọc lại CẢ BÀI, vì
+  // đọc bù riêng một cảnh thì đúng vào chỗ ngữ điệu sẽ lệch.
+  const missingVoice = script.scenes.some(
+    (s) => s.voiceText.trim() && !existsSync(join(voiceDir, `scene-${s.id}.mp3`)),
+  );
+  const fromTake = missingVoice
+    ? await renderSingleTake(ttsClient, script.scenes, voiceDir, keepTags)
+    : new Set<string>();
+
   // Nối ngữ điệu bằng request-id: cho model nghe lại chính đoạn vừa tạo. Chỉ
   // đúng khi các cảnh gọi lần lượt, vì phải có kết quả cảnh trước mới gọi được
-  // cảnh sau — nên bật cái này thì bỏ qua TTS_CONCURRENCY.
-  const chaining = ttsClient.supportsRequestIdChaining?.() ?? false;
+  // cảnh sau — nên bật cái này thì bỏ qua TTS_CONCURRENCY. Đọc một lần được
+  // rồi thì không cần tới nữa.
+  const chaining = fromTake.size === 0 && (ttsClient.supportsRequestIdChaining?.() ?? false);
   if (chaining) {
     log.info(
       cfg.ttsConcurrency > 1
@@ -82,8 +175,6 @@ export async function runTemplatePipeline(scriptPath: string): Promise<void> {
   // Id các lần gọi đã xong trong LẦN CHẠY NÀY, cũ nhất trước. Client tự cắt cho
   // vừa giới hạn của API.
   let chainIds: readonly string[] = [];
-  const voiceDir = join(outputDir, "voice");
-  await mkdir(voiceDir, { recursive: true });
   const sceneAudio = await Promise.all(
     script.scenes.map((scene, idx) =>
       limit(async () => {
@@ -91,7 +182,11 @@ export async function runTemplatePipeline(scriptPath: string): Promise<void> {
         const srtOut = join(voiceDir, `scene-${scene.id}.srt`);
         if (existsSync(out)) {
           const dur = await getDurationSec(out);
-          log.info(`  scene ${scene.id}: REUSE mp3 (${dur.toFixed(2)}s)`);
+          // Cảnh vừa cắt ra từ bản đọc chung đã tự log rồi, đừng báo REUSE
+          // nghe như dùng lại file cũ.
+          if (!fromTake.has(scene.id)) {
+            log.info(`  scene ${scene.id}: REUSE mp3 (${dur.toFixed(2)}s)`);
+          }
           // Không sinh ra id mới, mạch đứt ở đây. Xoá chuỗi thay vì để cảnh sau
           // nối vào id của một cảnh xa hơn — nối sai còn tệ hơn không nối.
           chainIds = [];
@@ -119,15 +214,7 @@ export async function runTemplatePipeline(scriptPath: string): Promise<void> {
           previousRequestIds: chaining ? [...chainIds] : undefined,
         });
         chainIds = tts.requestId ? [...chainIds, tts.requestId] : [];
-        // Nối lặng vào chính file giọng (không chỉ kéo dài phần hình) để hình
-        // và tiếng của các cảnh sau không lệch nhau.
-        if (scene.padSec > 0) {
-          const tmp = out.replace(/\.mp3$/, "-pad.mp3");
-          await padSilence(out, scene.padSec, tmp);
-          const { rename } = await import("node:fs/promises");
-          await rename(tmp, out);
-          log.info(`  scene ${scene.id}: nối thêm ${scene.padSec}s lặng`);
-        }
+        await applyPad(out, scene.padSec, scene.id);
         const dur = await getDurationSec(out);
         log.info(`  scene ${scene.id}: ${dur.toFixed(2)}s`);
         return { id: scene.id, path: out, durationSec: dur };

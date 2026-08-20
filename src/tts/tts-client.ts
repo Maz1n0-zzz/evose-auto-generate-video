@@ -15,6 +15,15 @@ export interface TtsContext {
   previousRequestIds?: string[];
 }
 
+/** Một bản đọc liền mạch kèm mốc thời gian của từng ký tự trong lời gửi đi. */
+export interface AlignedTake {
+  audio: Buffer;
+  /** Giây bắt đầu của ký tự thứ i. Dài đúng bằng độ dài chuỗi đã gửi. */
+  charStartSec: number[];
+  /** Giây kết thúc của ký tự thứ i. */
+  charEndSec: number[];
+}
+
 export interface TtsResult {
   /** Id lần gọi này, để cảnh sau nối tiếp qua `previousRequestIds`. Provider
    *  không cấp id thì bỏ trống. */
@@ -51,6 +60,13 @@ export interface TtsClient {
    * Đây là chuyện của từng MODEL chứ không phải từng provider.
    */
   supportsAudioTags?(): boolean;
+
+  /**
+   * Đọc cả bài trong MỘT lần gọi và trả kèm mốc thời gian từng ký tự, để
+   * pipeline tự cắt ra từng cảnh. Đây là cách duy nhất giữ ngữ điệu liền mạch
+   * với những model từ chối nối giữa các lần gọi (`eleven_v3`).
+   */
+  generateAlignedTake?(text: string): Promise<AlignedTake>;
 }
 
 import type { Config } from "../config.js";

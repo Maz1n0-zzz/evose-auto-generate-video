@@ -67,7 +67,21 @@ export async function runTemplatePipeline(scriptPath: string): Promise<void> {
       `  ${taggedScenes} cảnh có thẻ cảm xúc — provider "${cfg.ttsProvider}" không hiểu, sẽ bỏ thẻ`,
     );
   }
-  const limit = pLimit(cfg.ttsConcurrency);
+  // Nối ngữ điệu bằng request-id: cho model nghe lại chính đoạn vừa tạo. Chỉ
+  // đúng khi các cảnh gọi lần lượt, vì phải có kết quả cảnh trước mới gọi được
+  // cảnh sau — nên bật cái này thì bỏ qua TTS_CONCURRENCY.
+  const chaining = ttsClient.supportsRequestIdChaining?.() ?? false;
+  if (chaining) {
+    log.info(
+      cfg.ttsConcurrency > 1
+        ? `  nối ngữ điệu bằng request-id — ép gọi tuần tự (bỏ TTS_CONCURRENCY=${cfg.ttsConcurrency})`
+        : "  nối ngữ điệu bằng request-id",
+    );
+  }
+  const limit = pLimit(chaining ? 1 : cfg.ttsConcurrency);
+  // Id các lần gọi đã xong trong LẦN CHẠY NÀY, cũ nhất trước. Client tự cắt cho
+  // vừa giới hạn của API.
+  let chainIds: readonly string[] = [];
   const voiceDir = join(outputDir, "voice");
   await mkdir(voiceDir, { recursive: true });
   const sceneAudio = await Promise.all(
@@ -78,6 +92,9 @@ export async function runTemplatePipeline(scriptPath: string): Promise<void> {
         if (existsSync(out)) {
           const dur = await getDurationSec(out);
           log.info(`  scene ${scene.id}: REUSE mp3 (${dur.toFixed(2)}s)`);
+          // Không sinh ra id mới, mạch đứt ở đây. Xoá chuỗi thay vì để cảnh sau
+          // nối vào id của một cảnh xa hơn — nối sai còn tệ hơn không nối.
+          chainIds = [];
           return { id: scene.id, path: out, durationSec: dur };
         }
         // Cảnh câm: dựng đoạn lặng thay vì gọi TTS. Vì vẫn sinh ra một file
@@ -85,6 +102,7 @@ export async function runTemplatePipeline(scriptPath: string): Promise<void> {
         if (!scene.voiceText.trim()) {
           log.info(`  scene ${scene.id}: CÂM ${scene.silentSec}s (không gọi TTS)`);
           await makeSilence(scene.silentSec, out);
+          chainIds = [];
           return { id: scene.id, path: out, durationSec: scene.silentSec };
         }
         const spoken = keepTags ? scene.voiceText : stripAudioTags(scene.voiceText);
@@ -95,10 +113,12 @@ export async function runTemplatePipeline(scriptPath: string): Promise<void> {
           if (!sc || !sc.voiceText.trim()) return undefined;
           return stripAudioTags(sc.voiceText);
         };
-        await ttsClient.generate(spoken, out, srtOut, {
+        const tts = await ttsClient.generate(spoken, out, srtOut, {
           previousText: neighbour(idx - 1),
           nextText: neighbour(idx + 1),
+          previousRequestIds: chaining ? [...chainIds] : undefined,
         });
+        chainIds = tts.requestId ? [...chainIds, tts.requestId] : [];
         // Nối lặng vào chính file giọng (không chỉ kéo dài phần hình) để hình
         // và tiếng của các cảnh sau không lệch nhau.
         if (scene.padSec > 0) {

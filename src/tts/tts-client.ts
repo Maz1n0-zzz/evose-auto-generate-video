@@ -1,6 +1,29 @@
 /**
- * Common TTS client interface. OmniVoice is the only provider; the interface
- * is kept so the pipeline orchestration stays decoupled from the implementation.
+ * Ngữ cảnh giúp giọng đọc nối liền giữa các cảnh. Provider nào không hỗ trợ thì
+ * bỏ qua, không báo lỗi.
+ */
+export interface TtsContext {
+  /** Lời cảnh liền trước — model đọc để biết mạch câu, KHÔNG phát thành tiếng. */
+  previousText?: string;
+  /** Lời cảnh liền sau, cùng mục đích. */
+  nextText?: string;
+  /**
+   * Id của những lần gọi trước, cũ nhất trước, mới nhất sau. Cho model nghe lại
+   * chính đoạn vừa tạo — liên tục hơn `previousText` nhưng buộc gọi tuần tự.
+   * Provider tự cắt cho vừa giới hạn của nó.
+   */
+  previousRequestIds?: string[];
+}
+
+export interface TtsResult {
+  /** Id lần gọi này, để cảnh sau nối tiếp qua `previousRequestIds`. Provider
+   *  không cấp id thì bỏ trống. */
+  requestId?: string;
+}
+
+/**
+ * Common TTS client interface. Giữ interface để phần điều phối pipeline không
+ * dính vào chi tiết của provider.
  */
 export interface TtsClient {
   /**
@@ -12,10 +35,15 @@ export interface TtsClient {
     text: string,
     audioOutPath: string,
     srtOutPath?: string,
-    /** Lời cảnh liền trước/sau, để giữ liên tục ngữ điệu. Provider nào không
-     *  hỗ trợ thì bỏ qua. */
-    ctx?: { previousText?: string; nextText?: string },
-  ): Promise<void>;
+    ctx?: TtsContext,
+  ): Promise<TtsResult>;
+
+  /**
+   * Provider có nối được ngữ điệu qua `previousRequestIds` với cấu hình hiện
+   * tại không. Pipeline dựa vào đây để quyết định có buộc gọi tuần tự hay
+   * không — nối kiểu này chỉ đúng khi các cảnh chạy lần lượt.
+   */
+  supportsRequestIdChaining?(): boolean;
 }
 
 import type { Config } from "../config.js";

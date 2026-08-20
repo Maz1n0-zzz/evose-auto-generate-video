@@ -1,6 +1,6 @@
 import axios, { AxiosError } from "axios";
 import { writeFile } from "node:fs/promises";
-import type { TtsClient } from "./tts-client.js";
+import type { TtsClient, TtsResult } from "./tts-client.js";
 
 export interface OmniVoiceOpts {
   endpoint: string; // e.g. "http://127.0.0.1:8123"
@@ -14,7 +14,8 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 export class OmniVoiceClient implements TtsClient {
   constructor(private cfg: OmniVoiceOpts) {}
 
-  async generate(text: string, audioOutPath: string, _srtOutPath?: string): Promise<void> {
+  // Không cấp request-id nên không nối ngữ điệu được — trả kết quả rỗng.
+  async generate(text: string, audioOutPath: string, _srtOutPath?: string): Promise<TtsResult> {
     const delays = [1000, 2000, 4000];
     let lastErr: unknown;
 
@@ -26,7 +27,7 @@ export class OmniVoiceClient implements TtsClient {
           { headers: { "Content-Type": "application/json", Accept: "audio/mpeg" }, responseType: "arraybuffer", timeout: 60000 },
         );
         await writeFile(audioOutPath, Buffer.from(resp.data));
-        return;
+        return {};
       } catch (e) {
         lastErr = e;
         const status = (e as AxiosError).response?.status;

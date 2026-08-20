@@ -51,6 +51,18 @@ describe("buildFinalizeArgs", () => {
         expect(args).toContain("/kit/bg.mp3");
     });
 
+    test("amix phải tắt normalize, nếu không video giao đi mất 6 dB", () => {
+        // Mặc định amix chia biên độ cho số input. Thiếu cờ này thì
+        // video-evose.mp4 nhỏ tiếng hơn hẳn voice.mp3 mà không ai ngờ.
+        const fc = valueAfter(buildFinalizeArgs({ ...BASE, overlayPng: null, musicMp3: "/kit/bg.mp3" }), "-filter_complex") ?? "";
+        expect(fc).toContain("normalize=0");
+    });
+
+    test("có bộ hãm đỉnh sau khi trộn để đỉnh cộng dồn không vỡ tiếng", () => {
+        const fc = valueAfter(buildFinalizeArgs({ ...BASE, overlayPng: null, musicMp3: "/kit/bg.mp3" }), "-filter_complex") ?? "";
+        expect(fc).toContain("alimiter");
+    });
+
     test("chỉ số input của nhạc dịch theo việc có overlay hay không", () => {
         const withOverlay = buildFinalizeArgs({
             ...BASE,

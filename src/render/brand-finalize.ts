@@ -61,7 +61,13 @@ export function buildFinalizeArgs(spec: FinalizeSpec): string[] {
             `[${mi}:a]volume=0.30[mus];` +
             `[0:a]asplit=2[vm][vs];` +
             `[mus][vs]sidechaincompress=threshold=0.10:ratio=4:attack=100:release=600[md];` +
-            `[vm][md]amix=inputs=2:duration=first:dropout_transition=0[ao]`,
+            // normalize=0 BẮT BUỘC: mặc định amix chia biên độ cho số input,
+            // tức hạ CẢ giọng LẪN nhạc đi 6 dB — video giao đi nhỏ tiếng hẳn so
+            // với voice.mp3 mà không ai ngờ tới. Tắt đi thì cả hai cùng giữ
+            // nguyên mức, nên tỉ lệ giọng/nhạc Mazino đã chốt không đổi.
+            // alimiter đứng sau để phần đỉnh cộng dồn không vượt trần.
+            `[vm][md]amix=inputs=2:duration=first:dropout_transition=0:normalize=0[amx];` +
+            `[amx]alimiter=limit=0.891:level=0[ao]`,
         );
         amap = "[ao]";
     }

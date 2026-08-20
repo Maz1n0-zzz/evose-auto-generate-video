@@ -71,7 +71,7 @@ export async function runTemplatePipeline(scriptPath: string): Promise<void> {
   const voiceDir = join(outputDir, "voice");
   await mkdir(voiceDir, { recursive: true });
   const sceneAudio = await Promise.all(
-    script.scenes.map((scene) =>
+    script.scenes.map((scene, idx) =>
       limit(async () => {
         const out = join(voiceDir, `scene-${scene.id}.mp3`);
         const srtOut = join(voiceDir, `scene-${scene.id}.srt`);
@@ -89,7 +89,16 @@ export async function runTemplatePipeline(scriptPath: string): Promise<void> {
         }
         const spoken = keepTags ? scene.voiceText : stripAudioTags(scene.voiceText);
         log.info(`  TTS scene ${scene.id} (${spoken.length} chars)...`);
-        await ttsClient.generate(spoken, out, srtOut);
+        // Cấp lời cảnh trước/sau để ngữ điệu nối liền giữa các cảnh.
+        const neighbour = (k: number) => {
+          const sc = script.scenes[k];
+          if (!sc || !sc.voiceText.trim()) return undefined;
+          return stripAudioTags(sc.voiceText);
+        };
+        await ttsClient.generate(spoken, out, srtOut, {
+          previousText: neighbour(idx - 1),
+          nextText: neighbour(idx + 1),
+        });
         // Nối lặng vào chính file giọng (không chỉ kéo dài phần hình) để hình
         // và tiếng của các cảnh sau không lệch nhau.
         if (scene.padSec > 0) {

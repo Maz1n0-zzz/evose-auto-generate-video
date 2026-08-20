@@ -75,6 +75,32 @@ nét nối chấm, một màu nhấn duy nhất, mascot robot 3D, **không** gra
   `overlay-frame-light.html` bằng `generate-overlay-png.sh` (Chrome headless).
 - Mascot: `evose-brand-kit/mascot/` — 14 tư thế PNG alpha, xem README ở đó.
 
+## 🎙️ Giọng đọc lệch ngữ điệu giữa các cảnh — CHƯA GIẢI XONG
+
+Mỗi cảnh là một lần gọi API riêng nên ElevenLabs không biết mạch câu, tự chọn
+ngữ điệu mở đầu mỗi lần → cao độ và nhịp lệch nhau, nghe rõ ở chỗ chuyển cảnh.
+`eleven_v3` nhạy hơn vì biểu cảm mạnh.
+
+**Đã thử cách 1 (`previous_text` / `next_text`) — KHÔNG dùng được với v3.**
+API trả **400** khi gửi hai tham số này cùng `eleven_v3`. Code vẫn giữ nhưng
+đã chặn theo model (`supportsStitching` trong `elevenlabs-client.ts`): chỉ gửi
+với dòng v2 (`multilingual_v2`, `flash_v2_5`, `turbo_v2_5`).
+
+### Ba cách còn lại, xếp theo hiệu quả
+
+1. **`previous_request_ids` / `next_request_ids`** (mảng, tối đa 3) — cho model
+   nghe lại chính đoạn vừa tạo, liên tục nhất. Phải bắt `request-id` từ header
+   phản hồi và buộc chạy tuần tự (`TTS_CONCURRENCY` đang là 1 nên đã sẵn điều
+   kiện). **Cần kiểm xem v3 có nhận không** — rất có thể cũng 400 như trên.
+2. **Đọc một lần rồi cắt** — gọi 1 lần cho toàn bộ lời, dùng endpoint có
+   timestamp để cắt theo cảnh. Đồng nhất tuyệt đối nhưng phải viết lại bước 3
+   của pipeline.
+3. **Đổi sang `eleven_flash_v2_5`** — mất biểu cảm nhưng dùng được cách 1 ngay,
+   và rẻ hơn một nửa.
+
+Chênh lệch **âm lượng** là vấn đề riêng, xử bằng `loudnorm` của ffmpeg lúc ghép
+giọng — chưa làm.
+
 ## ⚠️ VIỆC CÒN DANG DỞ
 
 1. **Kho logo + font brand** — Mazino có nhắc muốn làm nhưng CHƯA mô tả rõ là

@@ -95,11 +95,36 @@ nét nối chấm, một màu nhấn duy nhất, mascot robot 3D, **không** gra
 4. **Đã merge và push.** `main` trên remote `evose` đã có toàn bộ.
    Push bằng `git push evose main` — KHÔNG dùng `origin` (không có quyền).
 
-## Bản cập nhật lớn (2026-08-20)
+## Bản cập nhật lớn (2026-08-20) — commit `d4cf4eb`
 
-- **Đã XOÁ toàn bộ 20 template `frame-*`.** Lấy lại được ở lịch sử git nếu cần.
+Bộ `frame-*` cũ đã bị THAY THẾ HOÀN TOÀN. Đã push lên `evose/main`.
+
+- **XOÁ 20 template `frame-*` khỏi cả git LẪN đĩa.** Dùng `git rm -r` chứ không
+  phải `git rm --cached`, nên file thật trên máy cũng biến mất. Không còn
+  `templates/frame-*` nào.
 - `README.md` viết lại hoàn toàn cho bộ Light; `README.vi.md` bị xoá vì trùng.
-- `CATALOG.md` cắt bỏ phần tài liệu bộ cũ.
+- `CATALOG.md` cắt bỏ 332 dòng tài liệu bộ cũ.
+
+### ⚠️ Hệ quả phải nhớ
+
+1. **Hai thư mục `output/` cũ không render lại được nữa** —
+   `deploying-retail-ai-20260706-0001` và `takeda-insilico-drug-ai-20260706-1442`
+   có `script.json` trỏ tới `frame-*`. Chạy `npm run pipeline` trên chúng sẽ LỖI.
+   File `.mp4` đã xuất thì vẫn còn nguyên.
+
+2. **Lấy lại bộ cũ khi cần:**
+   ```bash
+   git checkout 458f13f -- templates/
+   ```
+   Phục hồi nguyên vẹn cả 20 template từ lịch sử git.
+
+3. **Người clone mới chỉ cần tạo `.env.local`** là chạy được ngay. Đã kiểm:
+   overlay bản sáng, nhạc nền, mascot, bản 16:9 của template và
+   `scripts/gen-aspect.py` đều đã nằm trong git. `.env*` bị gitignore nên
+   không bao giờ có sẵn — đó là chủ ý.
+
+4. **Máy Mazino nay mặc định dùng bộ Light.** `SKILL.md` chỉ còn liệt kê 12
+   template `evose-*`; gõ nhầm tên `frame-*` sẽ lỗi ngay vì thư mục không tồn tại.
 
 ## Đã làm xong sau đợt T1–T7
 

@@ -24,7 +24,7 @@ giấy sáng sẽ thành hai vệt đen chắn ngang trên dưới khung.
 
 | Chỗ | Cách làm |
 |---|---|
-| Cảnh mở | `evose-logo-card` + `"intro": "swirl"`, để trống `tagline`/`url` |
+| Cảnh mở | `evose-logo-card` + `"headline"` (tựa bài) + `"subheadline"` (1 câu tóm tắt). Tựa hiện cỡ lớn có dải màu brand chạy ngang. Để trống `tagline`/`url` |
 | Cảnh kết | `evose-logo-card` với `tagline: "Begin a new era"`, `url: "https://evose.ai/"` và `"follow": true` (nút FOLLOW có con trỏ bấm) |
 | Giữa video | Overlay tự lo logo + icon mạng xã hội. **Đừng điền thêm logo hay footer vào inputs** |
 | `metadata.channel` | `"EVOSE"` |
@@ -275,7 +275,8 @@ TTS không phải ElevenLabs, nên cứ viết thẳng thẻ vào `voiceText`.
 **🔴 CHECKLIST (bắt buộc kiểm trước khi ghi script.json):**
 - [ ] Mọi `templateId` đều bắt đầu bằng `evose-`? (không sót `frame-` nào)
 - [ ] Có `"brand": { "overlay": true, "style": "light" }` chưa?
-- [ ] Cảnh mở có `"intro": "swirl"`, cảnh kết có `"follow": true` chưa?
+- [ ] Cảnh mở có `"headline"` + `"subheadline"`, cảnh kết có `"follow": true` chưa?
+- [ ] Cảnh mở có `padSec` (1.5–2.5s) để người xem kịp đọc hết tựa chưa?
 - [ ] Nguồn là URL thì đã chụp màn hình và có cảnh `evose-screenshot` chưa?
 - [ ] Cảnh đầu và cảnh cuối đều là `evose-logo-card`?
 - [ ] Hai cảnh liền nhau có trùng template không?

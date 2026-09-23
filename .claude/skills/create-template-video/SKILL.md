@@ -73,19 +73,29 @@ Phát hiện input rồi lấy nội dung:
 - **File `.txt`** → `Read`; title = dòng đầu (≤80 ký tự), content = phần còn lại, ogImage = `null`, domain = `"local"`.
 - slug = ASCII không dấu (bỏ dấu tiếng Việt, đ→d), ≤40 ký tự; timestamp = `YYYYMMDD-HHmm`; `outputDir = output/<slug>-<timestamp>/`; `mkdir -p`.
 
-### Step 3b: Chụp ảnh bài báo — BẮT BUỘC khi nguồn là URL
+### Step 3b: Chụp HAI ảnh bài gốc — BẮT BUỘC khi nguồn là URL
 
 ```bash
-node scripts/capture-screenshot.js --url "<url bài>" --out <outputDir>/shot.png --mode news
+node scripts/capture-screenshot.js --url "<url bài>" --out <outputDir>/shot-news.png --mode news
+node scripts/capture-screenshot.js --url "<url bài>" --out <outputDir>/shot-scroll.png --mode full
 ```
 
-Rồi dùng ảnh đó cho **một cảnh `evose-screenshot`** trong thân bài để trích
-nguồn. Không có bước này thì video thiếu hẳn phần dẫn chứng, người xem không
-thấy bài gốc trông thế nào.
+Nguồn là GitHub thì ảnh thứ hai dùng `--mode github` thay cho `--mode full`.
 
-- Nguồn là báo → `--mode news`, đặt `hl_top`/`hl_height` soi vào tiêu đề.
-- Nguồn là GitHub hoặc trang dài → `--mode github`, đặt `pan: "-65%"` để cuộn.
-- Chụp lỗi (trang chặn bot) → bỏ cảnh screenshot, ghi rõ trong báo cáo cuối.
+Hai ảnh này cho **hai cảnh `evose-screenshot` bắt buộc**, xem Step 4:
+
+| Cảnh | Ảnh | Slot |
+|---|---|---|
+| Trích nguồn | `shot-news.png` | `hl_top`/`hl_height` soi vào tiêu đề, KHÔNG có `pan` |
+| Lướt bài gốc | `shot-scroll.png` | `pan: "-85%"`, KHÔNG có `hl_*` |
+
+`image` điền đường dẫn tính từ gốc repo, vd `output/<slug>/shot-news.png`.
+
+**Chụp lỗi thì DỪNG, không được bỏ cảnh rồi làm tiếp.** Script thoát mã 1 kèm
+lý do (không có Chrome, trang chặn bot, ảnh trắng). Báo nguyên văn lỗi cho
+user và hỏi: lưu ảnh chụp tay vào `<outputDir>/` rồi chạy tiếp, hay làm video
+không có hai cảnh này. Trước đây skill cho phép lặng lẽ bỏ cảnh, nên video ra
+thiếu ảnh bài gốc mà không ai biết lý do.
 
 ### Step 4: Chọn template
 
@@ -99,6 +109,13 @@ bằng `evose-`.** Danh sách đủ 12 cái:
 - `evose-node-diagram` — hook dạng **đối chiếu** ("cùng X, khác Y → kết quả khác"). Ưu tiên dùng.
 - `evose-title-card` — hook dạng **tuyên bố**, chữ lớn viền dày 2–4 dòng ngắn.
 
+**HAI CẢNH ẢNH BÀI GỐC — BẮT BUỘC khi nguồn là URL**
+- `evose-screenshot` trích nguồn: ảnh `shot-news.png` + khung soi tiêu đề.
+  Đặt ngay sau hook, lời đọc nói bài này từ đâu, chuyện gì đang xảy ra.
+- `evose-screenshot` lướt bài gốc: ảnh `shot-scroll.png` + `pan`. Đặt ở nửa
+  sau thân bài, lời đọc dẫn chi tiết đáng chú ý trong bài.
+- Hai cảnh này không được đứng liền nhau.
+
 **THÂN BÀI — chọn theo NỘI DUNG cảnh, không chọn cho đẹp**
 
 | Cảnh nói về | Dùng |
@@ -111,15 +128,18 @@ bằng `evose-`.** Danh sách đủ 12 cái:
 | Một con số lớn **không phải phần trăm** | `evose-stat-hero` |
 | Quy trình 3–6 bước | `evose-pipeline` |
 | Công bố một phần / một bước | `evose-chapter-card` |
-| Ảnh chụp màn hình mà người xem cần ĐỌC | `evose-screenshot` |
-| Câu chốt mạnh, kết luận | `evose-statement` |
+| Câu chốt mạnh, kết luận | `evose-title-card` |
+
+`evose-statement` **KHÔNG dùng** trong video mới. Feedback thực tế: slide này
+trông trống (nửa dưới chỉ có một badge ✅/❌) và lặp hai lần mỗi video. File
+template vẫn giữ để render lại video cũ.
 
 **KẾT**
 - `evose-logo-card` với `tagline` + `url`.
 
 **Quy tắc chọn**
-- Không lặp một template quá 2 lần trong cùng video (`evose-statement` và
-  `evose-chapter-card` được phép, vì chúng đánh dấu nhịp).
+- Không lặp một template quá 2 lần trong cùng video. `evose-screenshot` đúng
+  2 lần là bắt buộc (xem trên).
 - Hai cảnh liền nhau **không được** dùng cùng một template.
 - Cảnh có số liệu → dùng đúng loại chart hợp với dạng số, đừng ép mọi con số vào donut.
 - Bài không có số liệu thật thì **đừng bịa số** để dùng chart — chọn template chữ.
@@ -152,16 +172,16 @@ Cấu trúc bắt buộc:
 
 1. `evose-logo-card` — mở, 1 câu
 2. `evose-node-diagram` hoặc `evose-title-card` — hook
-3. `evose-statement` — nêu VẤN ĐỀ (badge ❌)
+3. `evose-screenshot` — trích nguồn, soi tiêu đề bài gốc
 4. `evose-chapter-card` — công bố phần 1
-5–9. thân bài — chọn theo bảng ở Step 4, xen kẽ chart và chữ
-10. `evose-statement` — câu chốt (badge ✅)
+5–8. thân bài — chọn theo bảng ở Step 4, xen kẽ chart và chữ
+9. `evose-screenshot` — lướt bài gốc, cuộn xuống
+10. thân bài — câu chốt (`evose-title-card` nếu hook chưa dùng nó)
 11. `evose-logo-card` — kết, có tagline + url
 
 Slot chi tiết của từng template nằm trong `templates/CATALOG.md`. Vài điểm dễ sai:
 
 - `evose-title-card.lines` — mảng 2–4 dòng, **mỗi dòng ngắn**; cỡ chữ tự co.
-- `evose-statement.hero` — **1–3 từ**, giữ trên một dòng.
 - `evose-node-diagram` — `layout: "split"` có `stem` + `verdict`; `layout: "stack"`
   dùng `badge` ❌/✅ cho hai khối đối nhau.
 - `evose-list.accent` — phải là **cụm chữ có thật trong `title`**, không phải mã màu.
@@ -263,8 +283,8 @@ TTS không phải ElevenLabs, nên cứ viết thẳng thẻ vào `voiceText`.
   "id": "s4",
   "type": "body",
   "voiceText": "[sighs] Trước đây mỗi lần cần một video, bạn phải ngồi cắt ghép cả buổi tối.",
-  "templateId": "evose-statement",
-  "inputs": { "lines": ["Cách làm cũ"], "hero": "Cả buổi tối", "badge": "no" }
+  "templateId": "evose-title-card",
+  "inputs": { "lines": ["Cách làm cũ", "Mất cả buổi tối"] }
 }
 ```
 
@@ -277,7 +297,8 @@ TTS không phải ElevenLabs, nên cứ viết thẳng thẻ vào `voiceText`.
 - [ ] Có `"brand": { "overlay": true, "style": "light" }` chưa?
 - [ ] Cảnh mở có `"headline"` + `"subheadline"`, cảnh kết có `"follow": true` chưa?
 - [ ] Cảnh mở có `padSec` (1.5–2.5s) để người xem kịp đọc hết tựa chưa?
-- [ ] Nguồn là URL thì đã chụp màn hình và có cảnh `evose-screenshot` chưa?
+- [ ] Nguồn là URL thì đã chụp ĐỦ HAI ảnh và có ĐỦ HAI cảnh `evose-screenshot` chưa (một cảnh soi tiêu đề, một cảnh `pan`)?
+- [ ] Không còn cảnh `evose-statement` nào?
 - [ ] Cảnh đầu và cảnh cuối đều là `evose-logo-card`?
 - [ ] Hai cảnh liền nhau có trùng template không?
 - [ ] Có template nào lặp quá 2 lần không?

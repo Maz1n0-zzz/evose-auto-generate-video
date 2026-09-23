@@ -110,6 +110,10 @@ lại và neo lên đỉnh.
 ---
 
 ## evose-statement
+> ⛔ **Không dùng cho video mới** (quyết định 2026-09-23). Thiếu mascot thì nửa
+> dưới khung chỉ còn một badge lẻ loi, và skill cũ bắt dùng nó hai lần mỗi
+> video. Giữ file để render lại video cũ. Câu chốt dùng `evose-title-card`.
+
 **Vai trò:** câu chốt — cảnh to tiếng nhất của video.
 
 | slot | kiểu | ghi chú |
@@ -218,6 +222,16 @@ Khác slot `media` của các template kia — ở đó ảnh chỉ là phông v
 
 Đặt `hl_*` phải ngắm theo ảnh cụ thể — chụp xong nên render thử một cảnh để soi
 lại toạ độ. Dùng `pan` và `hl_*` cùng lúc cũng được.
+
+**Nguồn là URL thì video có đúng HAI cảnh này**, mỗi cảnh một ảnh riêng:
+
+| Cảnh | Lệnh chụp | Slot |
+|---|---|---|
+| Trích nguồn | `capture-screenshot.js --mode news` (một màn điện thoại) | `hl_*` soi tiêu đề |
+| Lướt bài gốc | `capture-screenshot.js --mode full` (cao 2400px; GitHub dùng `--mode github`) | `pan: "-85%"` |
+
+Ảnh `--mode news` chỉ cao bằng khung máy nên đặt `pan` cũng không cuộn được bao
+nhiêu. Cảnh cuộn bắt buộc phải dùng ảnh `--mode full`.
 
 ---
 

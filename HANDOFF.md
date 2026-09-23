@@ -373,9 +373,10 @@ thật ra dài 96.78s.
 ## ⚠️ VIỆC CÒN DANG DỞ
 
 - **Cho nhạc bắt đầu từ giữa bài?** Đoạn đầu file nhạc nhỏ. Xem mục 🎵. Chưa quyết.
-- **`CLAUDE.md` của dự án vẫn ghi TTS là OmniVoice** và còn nhắc template `frame-*`.
-  `SKILL.md` đã dọn xong. Lưu ý: schema vẫn chỉ nhận `voice.provider = "omnivoice"`
-  dù trường này không được dùng (giọng thật lấy từ `TTS_PROVIDER` trong `.env.local`).
+- **Schema còn sót tên OmniVoice.** `CLAUDE.md` và `SKILL.md` đã dọn xong. Riêng
+  `template-script-schema.ts` vẫn chỉ nhận `voice.provider = "omnivoice"`, và
+  `config.ts` mặc định `TTS_PROVIDER` là `omnivoice` dù máy không còn OmniVoice.
+  Trường này không được dùng nên chưa gây lỗi. Sửa code thì cần Mazino duyệt.
 - **Lỗi chụp ảnh trên máy đồng nghiệp.** Chưa có dòng lỗi thật.
 
 0. **Không phải đổi model nữa.** `.env.local` đang là `eleven_v3` — ĐÚNG rồi,

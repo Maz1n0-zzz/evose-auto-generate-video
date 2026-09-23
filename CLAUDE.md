@@ -16,7 +16,7 @@ Pipeline tự động sinh video dọc 9:16 (1080×1920) cho Evose. Hai layer đ
 ## 🎨 Evose brand (bắt buộc)
 
 ```
-Background : #ffffff
+Background : #f2f2f0 (giấy sáng) + lưới chấm #d6d6d1
 Ink (text)  : #0a0a0a
 Accent/scene: 1 màu duy nhất mỗi scene (mặc định #2563eb)
 Font labels : Hanken Grotesk
@@ -38,8 +38,8 @@ Font numbers: JetBrains Mono
 
 ### Khi KHÔNG dùng Remotion chart
 
-- Scene chỉ có text/quote → dùng HyperFrames template (`frame-build-minimal`, `frame-bold-poster`, ...)
-- Chart muốn nhúng vào pipeline HyperFrames → dùng `frame-chart-bars` / `frame-chart-donut` / `frame-chart-line` trong templates/
+- Scene chỉ có text/quote → dùng HyperFrames template bộ Light (`evose-title-card`, `evose-chapter-card`, ...)
+- Chart muốn nhúng vào pipeline HyperFrames → dùng `evose-chart-bars` / `evose-chart-donut` / `evose-chart-line` trong templates/
 - Diagram kiến trúc/luồng → dùng drawio-skill
 
 ### Props bắt buộc
@@ -85,10 +85,17 @@ color?: string
 
 Entry: `npm run pipeline -- <outputDir>/script.json`
 
-- Templates: `templates/` — animated HTML/CSS/JS, Chromium render
+- Templates: `templates/evose-*` (bộ Light, 12 cái) — animated HTML/CSS/JS, Chromium render.
+  Bộ `frame-*` cũ đã xoá, lấy lại bằng `git checkout 458f13f -- templates/`
 - Catalog: `templates/CATALOG.md` (đọc trước khi pick template)
-- TTS: OmniVoice (local, không cần API key)
-- Output: `output/<slug>/video.mp4`
+- Quy trình tạo video: `.claude/skills/create-template-video/SKILL.md`
+- TTS: ElevenLabs `eleven_v3`, cấu hình trong `.env.local` (`TTS_PROVIDER`,
+  `ELEVENLABS_API_KEY`, `ELEVENLABS_VOICE_ID`, `ELEVENLABS_MODEL_ID`).
+  Claude không đọc/ghi được `.env*`. Trường `voice.provider` trong `script.json`
+  không được dùng
+- Output: `output/<slug>/video-evose.mp4` là file giao (có overlay + nhạc nền).
+  Kèm `voice.mp3` và `script.txt` cho CapCut
+- Trạng thái mới nhất, quyết định đã chốt, việc còn dở: `HANDOFF.md`
 
 ## ✏️ Static diagrams (drawio-skill)
 

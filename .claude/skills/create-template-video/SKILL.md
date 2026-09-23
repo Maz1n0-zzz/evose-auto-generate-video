@@ -154,14 +154,21 @@ Cấu trúc bắt buộc:
     "renderer": "hyperframes",
     "aspect": "9:16",
     "brand": { "overlay": true, "style": "light" },
-    "metadata"    "voice": { "provider": "omnivoice", "speed": 1.0 },
+    "metadata": {
+        "title": "<tiêu đề bài>",
+        "source": { "url": "<url bài>", "domain": "<domain>", "image": null },
+        "channel": "EVOSE"
+    },
+    "voice": { "speed": 1.0 },
     "scenes": [
         /* 8–12 scene: 1 hook + 6–10 body + 1 outro */
     ]
 }
 ```
 
-- `provider`: luôn là `omnivoice` (TTS local duy nhất; không cần `voiceId`/API key).
+- Giọng đọc do `.env.local` quyết định (`TTS_PROVIDER=elevenlabs`, model
+  `eleven_v3`), **không** do `script.json`. Đừng thêm `provider` vào `voice`:
+  schema chỉ nhận giá trị cũ `"omnivoice"` và trường này không được dùng.
 - Mỗi scene: `{ id, type, voiceText, templateId, inputs }`. `inputs` khớp slot trong CATALOG.
 - scenes[0].type = `hook`; scene cuối .type = `outro` (templateId = `evose-logo-card`).
 - Cảnh MỞ bằng logo: đặt nó là scenes[0] (type `hook`) với 1 câu dẫn ngắn, rồi
@@ -213,7 +220,7 @@ Người xem là **công chúng phổ thông trên MXH (TikTok/Reels)**, KHÔNG 
 
 ### ⚠️ Quy tắc TTS tiếng Việt (BẮT BUỘC cho `voiceText`)
 
-`voiceText` được OmniVoice (TTS tiếng Việt) đọc to. **Số và ký
+`voiceText` được ElevenLabs (`eleven_v3`) đọc to. **Số và ký
 hiệu bị đọc theo nghĩa đen** — vd "5.5" có thể thành "năm rưỡi" (sai cho số phiên
 bản). Vì vậy **luôn viết số ra chữ tiếng Việt trong `voiceText`**. Còn `inputs`
 (chữ hiển thị trên màn hình) thì GIỮ định dạng số đẹp ("5.5" / "82.7%").

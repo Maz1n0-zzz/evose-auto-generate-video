@@ -51,6 +51,15 @@ describe("buildFinalizeArgs", () => {
         expect(args).toContain("/kit/bg.mp3");
     });
 
+    test("nhạc dùng mức Mazino chốt ngày 2026-09-23 (bản E)", () => {
+        // Bản cũ 0.30 + ratio 4: lúc giọng nghỉ nhạc chỉ -32.7 dB, thấp hơn
+        // giọng 16 dB, nghe như không có nhạc. Bản E nền to, dìm sâu, nhả nhanh
+        // để nhạc kịp lên trong quãng nghỉ dưới 1 giây giữa các câu.
+        const fc = valueAfter(buildFinalizeArgs({ ...BASE, overlayPng: null, musicMp3: "/kit/bg.mp3" }), "-filter_complex") ?? "";
+        expect(fc).toContain("[1:a]volume=0.80[mus]");
+        expect(fc).toContain("sidechaincompress=threshold=0.03:ratio=12:attack=20:release=250");
+    });
+
     test("amix phải tắt normalize, nếu không video giao đi mất 6 dB", () => {
         // Mặc định amix chia biên độ cho số input. Thiếu cờ này thì
         // video-evose.mp4 nhỏ tiếng hơn hẳn voice.mp3 mà không ai ngờ.

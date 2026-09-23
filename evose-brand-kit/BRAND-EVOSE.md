@@ -98,9 +98,10 @@ YouTube Audio Library track (Q9=A): https://www.youtube.com/watch?v=4hVVsVjgTkU
 ```
 
 ### Volume + Ducking
-- Volume cơ bản: **28%** (so với voice)
-- **Audio ducking** (Q11=YES): nhạc duck xuống khi voice nói, lên lại khi voice nghỉ
-- Tham số FFmpeg: `sidechaincompress=threshold=0.04:ratio=10:attack=80:release=400`
+- Volume cơ bản: **80%**, chốt 2026-09-23 (bản E)
+- **Audio ducking**: nhạc hạ ~9 dB khi voice nói, lên lại sau 250ms khi voice nghỉ
+- Tham số FFmpeg: `sidechaincompress=threshold=0.03:ratio=12:attack=20:release=250`
+- Nguồn sự thật: `src/render/brand-finalize.ts`
 
 ### Đổi track khác
 ```bash

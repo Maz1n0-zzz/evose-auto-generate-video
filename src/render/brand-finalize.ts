@@ -55,12 +55,15 @@ export function buildFinalizeArgs(spec: FinalizeSpec): string[] {
         // nâng lại ở khoảng lặng — nếu chỉ hạ volume cố định thì lúc im lặng
         // nhạc sẽ nhỏ một cách vô lý.
         filters.push(
-            // 0.30 = mức nhạc nền Mazino chốt. ratio hạ từ 10 xuống 4 và
-            // threshold nâng từ 0.04 lên 0.10: mức cũ dìm nhạc gần như tắt hẳn
-            // mỗi khi có giọng, mà video nói gần liên tục nên nghe như MẤT nhạc.
-            `[${mi}:a]volume=0.30[mus];` +
+            // Mức Mazino chốt 2026-09-23 sau khi nghe so (bản E). Bản trước
+            // (0.30, ratio 4, release 600ms) để nhạc lúc giọng nghỉ chỉ -32.7 dB,
+            // thấp hơn giọng 16 dB, mà dưới giọng cũng chỉ hạ ~5 dB → nhỏ đều
+            // suốt bài, nghe như không có nhạc. Nay nền to (0.80), dìm sâu khi có
+            // giọng (~9 dB), nhả nhanh 250ms để nhạc kịp lên trong quãng nghỉ
+            // dưới 1 giây giữa các câu.
+            `[${mi}:a]volume=0.80[mus];` +
             `[0:a]asplit=2[vm][vs];` +
-            `[mus][vs]sidechaincompress=threshold=0.10:ratio=4:attack=100:release=600[md];` +
+            `[mus][vs]sidechaincompress=threshold=0.03:ratio=12:attack=20:release=250[md];` +
             // normalize=0 BẮT BUỘC: mặc định amix chia biên độ cho số input,
             // tức hạ CẢ giọng LẪN nhạc đi 6 dB — video giao đi nhỏ tiếng hẳn so
             // với voice.mp3 mà không ai ngờ tới. Tắt đi thì cả hai cùng giữ

@@ -32,7 +32,7 @@ https://www.youtube.com/watch?v=4hVVsVjgTkU
 - ✗ Tránh: bản nhạc thương mại không license rõ ràng
 
 ## Volume
-Trong `evose-finalize.sh`, nhạc được mix với:
-- Volume cơ bản: **28%** (so với voice)
-- **Audio ducking**: tự động giảm xuống khi voice đang nói, lên lại khi voice nghỉ
-- Threshold: 0.04, Ratio: 10:1, Attack: 80ms, Release: 400ms
+Trong `src/render/brand-finalize.ts`, nhạc được mix với:
+- Volume cơ bản: **80%**, chốt 2026-09-23 (bản E)
+- **Audio ducking**: nhạc hạ ~9 dB khi voice nói, lên lại sau 250ms khi voice nghỉ
+- Tham số FFmpeg: `sidechaincompress=threshold=0.03:ratio=12:attack=20:release=250`

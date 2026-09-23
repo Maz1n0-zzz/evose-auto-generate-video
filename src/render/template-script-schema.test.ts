@@ -62,3 +62,16 @@ describe("ràng buộc scenes", () => {
         expect(() => TemplateScriptSchema.parse(bad)).toThrow();
     });
 });
+
+describe("voice.provider", () => {
+    // Trường này không quyết định giọng đọc (TTS_PROVIDER trong .env.local mới
+    // quyết định), nhưng script ghi "elevenlabs" cho khớp thực tế thì không được lỗi.
+    test("nhận elevenlabs", () => {
+        const r = TemplateScriptSchema.safeParse(makeScript({ voice: { provider: "elevenlabs", speed: 1 } }));
+        expect(r.success).toBe(true);
+    });
+
+    test("script cũ ghi omnivoice vẫn render lại được", () => {
+        expect(TemplateScriptSchema.safeParse(makeScript()).success).toBe(true);
+    });
+});

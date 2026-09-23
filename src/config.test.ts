@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { loadConfig } from "./config.js";
 
-const ENV_KEYS = ["TTS_PROVIDER", "OMNIVOICE_ENDPOINT", "TTS_CONCURRENCY"];
+const ENV_KEYS = ["TTS_PROVIDER", "OMNIVOICE_ENDPOINT", "TTS_CONCURRENCY", "ELEVENLABS_API_KEY", "ELEVENLABS_VOICE_ID"];
 
 describe("loadConfig", () => {
   let saved: Record<string, string | undefined>;
@@ -18,21 +18,30 @@ describe("loadConfig", () => {
     });
   });
 
-  it("defaults to omnivoice with sensible defaults", () => {
+  it("mặc định dùng ElevenLabs, thiếu key thì báo rõ tên biến", () => {
+    // OmniVoice không còn trên máy nào. Mặc định về nó thì máy thiếu
+    // TTS_PROVIDER sẽ đi gọi một server không tồn tại.
+    expect(() => loadConfig()).toThrow(/ELEVENLABS_API_KEY/);
+  });
+
+  it("mặc định dùng ElevenLabs khi đủ key", () => {
+    process.env.ELEVENLABS_API_KEY = "k";
+    process.env.ELEVENLABS_VOICE_ID = "v";
     const cfg = loadConfig();
-    expect(cfg.ttsProvider).toBe("omnivoice");
-    expect(cfg.omnivoiceEndpoint).toBe("http://127.0.0.1:8123");
+    expect(cfg.ttsProvider).toBe("elevenlabs");
     expect(cfg.ttsConcurrency).toBe(1);
   });
 
-  it("respects OMNIVOICE_ENDPOINT override", () => {
+  it("vẫn chọn được omnivoice khi đặt rõ", () => {
+    process.env.TTS_PROVIDER = "omnivoice";
     process.env.OMNIVOICE_ENDPOINT = "http://localhost:9000";
     const cfg = loadConfig();
+    expect(cfg.ttsProvider).toBe("omnivoice");
     expect(cfg.omnivoiceEndpoint).toBe("http://localhost:9000");
   });
 
-  it("rejects any provider other than omnivoice", () => {
-    process.env.TTS_PROVIDER = "elevenlabs";
+  it("từ chối provider lạ", () => {
+    process.env.TTS_PROVIDER = "azure";
     expect(() => loadConfig()).toThrow(/TTS_PROVIDER/);
   });
 });

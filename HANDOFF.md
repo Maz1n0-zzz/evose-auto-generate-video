@@ -49,6 +49,15 @@ Xin dòng lỗi đó để khoanh tiếp.
 Video mẫu dựng lại theo cấu trúc mới, Mazino đã duyệt:
 `output/ai-my-canh-tranh-gia-trung-quoc-20260923-0924/` (102.74 giây, 11 cảnh).
 
+### 🧹 Dọn tên OmniVoice (2026-09-23)
+
+- `CLAUDE.md`, `SKILL.md`: bỏ mọi chỗ ghi TTS là OmniVoice và template `frame-*`.
+- `config.ts`: thiếu `TTS_PROVIDER` thì mặc định **ElevenLabs** (trước là omnivoice,
+  tức đi gọi một server không còn tồn tại). Thiếu key thì báo rõ tên biến.
+- Schema `voice.provider` nhận `omnivoice` hoặc `elevenlabs`. Trường này không
+  quyết định giọng đọc. Script cũ ghi `omnivoice` vẫn render lại được.
+- Code OmniVoice vẫn giữ, chọn được bằng `TTS_PROVIDER=omnivoice`.
+
 ### 🎵 Nhạc nền nghe như không có — ĐÃ SỬA (commit `89d1ff1`)
 
 Mazino hỏi sao video không có nhạc. Đã đo: **nhạc CÓ trộn vào, nhưng quá nhỏ.**
@@ -373,10 +382,6 @@ thật ra dài 96.78s.
 ## ⚠️ VIỆC CÒN DANG DỞ
 
 - **Cho nhạc bắt đầu từ giữa bài?** Đoạn đầu file nhạc nhỏ. Xem mục 🎵. Chưa quyết.
-- **Schema còn sót tên OmniVoice.** `CLAUDE.md` và `SKILL.md` đã dọn xong. Riêng
-  `template-script-schema.ts` vẫn chỉ nhận `voice.provider = "omnivoice"`, và
-  `config.ts` mặc định `TTS_PROVIDER` là `omnivoice` dù máy không còn OmniVoice.
-  Trường này không được dùng nên chưa gây lỗi. Sửa code thì cần Mazino duyệt.
 - **Lỗi chụp ảnh trên máy đồng nghiệp.** Chưa có dòng lỗi thật.
 
 0. **Không phải đổi model nữa.** `.env.local` đang là `eleven_v3` — ĐÚNG rồi,

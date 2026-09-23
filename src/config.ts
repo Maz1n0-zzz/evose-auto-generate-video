@@ -26,7 +26,10 @@ function intDefault(name: string, def: number): number {
 }
 
 export function loadConfig(): Config {
-    const provider = (process.env.TTS_PROVIDER ?? "omnivoice") as TtsProvider;
+    // Mặc định ElevenLabs: OmniVoice không còn trên máy nào, mặc định về nó thì
+    // máy thiếu TTS_PROVIDER sẽ gọi một server không tồn tại. Vẫn chọn được
+    // omnivoice nếu đặt rõ TTS_PROVIDER=omnivoice.
+    const provider = (process.env.TTS_PROVIDER ?? "elevenlabs") as TtsProvider;
     if (provider !== "omnivoice" && provider !== "elevenlabs") {
         throw new Error(
             `TTS_PROVIDER must be "omnivoice" or "elevenlabs", got "${provider}"`,

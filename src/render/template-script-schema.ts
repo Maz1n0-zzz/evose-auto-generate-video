@@ -46,7 +46,8 @@ export const TemplateScriptSchema = z.object({
     channel: z.string().min(1),
   }),
   voice: z.object({
-    provider: z.literal("omnivoice").default("omnivoice"),
+    /** Không quyết định giọng đọc — TTS_PROVIDER trong .env.local mới quyết định. */
+    provider: z.enum(["omnivoice", "elevenlabs"]).default("elevenlabs"),
     speed: z.number().min(0.5).max(2.0),
   }),
   /** Output aspect for every scene (templates render a matching composition). */

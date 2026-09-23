@@ -167,8 +167,7 @@ Cấu trúc bắt buộc:
 ```
 
 - Giọng đọc do `.env.local` quyết định (`TTS_PROVIDER=elevenlabs`, model
-  `eleven_v3`), **không** do `script.json`. Đừng thêm `provider` vào `voice`:
-  schema chỉ nhận giá trị cũ `"omnivoice"` và trường này không được dùng.
+  `eleven_v3`), **không** do `script.json`. Không cần ghi `provider` vào `voice`.
 - Mỗi scene: `{ id, type, voiceText, templateId, inputs }`. `inputs` khớp slot trong CATALOG.
 - scenes[0].type = `hook`; scene cuối .type = `outro` (templateId = `evose-logo-card`).
 - Cảnh MỞ bằng logo: đặt nó là scenes[0] (type `hook`) với 1 câu dẫn ngắn, rồi

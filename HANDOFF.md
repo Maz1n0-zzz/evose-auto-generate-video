@@ -1,7 +1,70 @@
 # HANDOFF — Bộ template Evose Light
 
-> File bàn giao để tiếp tục ở phiên Claude Code mới. Cập nhật 2026-08-20.
+> File bàn giao để tiếp tục ở phiên Claude Code mới. Cập nhật 2026-09-23.
 > Nhánh: `main`, đã merge và push lên remote `evose`.
+
+## 🆕 2026-09-23: bỏ slide statement, bắt buộc hai cảnh ảnh bài gốc
+
+Feedback của đồng nghiệp (chạy trên macOS) có hai ý:
+
+1. Slide `evose-statement` trông trống và lặp hai lần mỗi video.
+2. Có bảo chụp ảnh bài báo nhưng ảnh không vào video. Bộ `frame-*` cũ thì có.
+
+**Nguyên nhân slide statement:** `SKILL.md` ghi sẵn cảnh 3 và cảnh 10 là
+statement, lại còn miễn cho nó khỏi giới hạn lặp. Template được thiết kế để
+mascot lấp nửa dưới. Mascot là tuỳ chọn, thiếu nó thì nửa dưới chỉ còn một
+badge ✅/❌.
+
+**Nguyên nhân mất ảnh:** bộ cũ có hai template ảnh, `frame-screenshot-news`
+(soi tiêu đề) và `frame-screenshot-scroll` (cuộn). Bộ Light gộp làm một và skill
+chỉ đòi một cảnh, chụp `--mode news` nên ảnh chỉ cao một màn, không cuộn được.
+Chụp lỗi thì skill cho bỏ cảnh im lặng.
+
+**Vì sao máy đồng nghiệp chụp lỗi: CHƯA RÕ.** Từ bản này, lỗi sẽ in nguyên văn.
+Xin dòng lỗi đó để khoanh tiếp.
+
+### Đã sửa
+
+| Commit | Việc |
+|---|---|
+| `6e9e713` | `capture-screenshot.js`: thêm `--mode full`, dò Chrome rộng hơn, lỗi thì thoát mã 1 |
+| `006ec77` | `SKILL.md` + `CATALOG.md`: bỏ statement khỏi cấu trúc mẫu, bắt buộc hai cảnh ảnh |
+
+- **Cấu trúc mẫu mới:** cảnh 3 là `evose-screenshot` soi tiêu đề (`shot-news.png`).
+  Cảnh 9 là `evose-screenshot` cuộn (`shot-scroll.png`, `pan: "-85%"`). Câu chốt
+  dùng `evose-title-card`.
+- **`--mode full`:** cắt từ tiêu đề xuống tối đa 2400px CSS (`FULL_MAX_H`).
+  Không lấy cả trang vì trang báo dài hàng chục nghìn px, dồn vào 8 giây thì
+  cuộn nhanh tới mức không đọc được.
+- **Popup "Đăng nhập bằng Google" của VnExpress** đè giữa ảnh chụp cả trang.
+  Nay script xoá Google One Tap và ẩn mọi phần tử `fixed`/`sticky` ở mode news/full.
+- **Chụp lỗi thì dừng.** Không có trình duyệt, mode lạ, ảnh dưới 8 KB đều thoát
+  mã 1. Skill bắt dừng và hỏi user, không được bỏ cảnh rồi làm tiếp.
+- **Chọn trình duyệt:** Chrome, Chromium, Brave, Edge ở `/Applications` và
+  `~/Applications`. Đặt `CHROME_PATH` để chỉ định tay.
+- `evose-statement` **vẫn giữ file** để render lại video cũ. Không dùng cho video mới.
+- Phần tính thuần tách ra `scripts/capture-helpers.js`, test ở
+  `src/utils/capture-helpers.test.ts` (12 test).
+
+Video mẫu dựng lại theo cấu trúc mới, Mazino đã duyệt:
+`output/ai-my-canh-tranh-gia-trung-quoc-20260923-0924/` (102.74 giây, 11 cảnh).
+
+### 🎵 Nhạc nền nghe như không có (chưa sửa)
+
+Mazino hỏi sao video không có nhạc. Đã đo: **nhạc CÓ trộn vào, nhưng quá nhỏ.**
+
+| Chỗ đo (giây 3.8 đến 5.3, giọng im lặng) | Mức trung bình |
+|---|---|
+| `voice.mp3` | -91 dB (im lặng) |
+| `video-evose.mp4` | -34.4 dB (chỉ còn nhạc) |
+| File nhạc gốc cùng đoạn | -21.7 dB |
+| Giọng đọc cả bài | khoảng -17 dB |
+
+Tức lúc im lặng, nhạc đã nằm dưới giọng khoảng 17 dB. Lúc có giọng thì
+`sidechaincompress` còn dìm thêm, loa điện thoại gần như không nghe ra. Cấu hình
+(`volume=0.30`, `ratio 4`, `threshold 0.10` trong `brand-finalize.ts`) y hệt bản
+20/08, không phải lỗi mới. Muốn nghe rõ nhạc thì phải nâng `volume` hoặc nới
+ducking. Đây là quyết định về tai nghe, phải để Mazino nghe so rồi chốt.
 
 ## Bối cảnh
 
@@ -287,6 +350,11 @@ thật ra dài 96.78s.
 
 ## ⚠️ VIỆC CÒN DANG DỞ
 
+- **Nhạc nền quá nhỏ.** Xem mục 🎵 ở đầu file. Chờ Mazino chốt mức mới.
+- **`SKILL.md` còn dòng cũ ghi TTS là OmniVoice** (Step 5 và mục quy tắc TTS),
+  và dòng `"metadata"    "voice"` trong mẫu JSON bị vỡ cú pháp. Chưa dọn.
+- **Lỗi chụp ảnh trên máy đồng nghiệp.** Chưa có dòng lỗi thật.
+
 0. **Không phải đổi model nữa.** `.env.local` đang là `eleven_v3` — ĐÚNG rồi,
    cứ để nguyên. Mọi thứ chạy trên v3.
 
@@ -378,5 +446,8 @@ Muốn dựng lại chỉ phần tiếng mà không tốn lần gọi API nào: 
 `voice.mp3 voice-raw.mp3 video*.mp4` rồi chạy pipeline. Các cảnh sẽ báo
 `REUSE mp3` và chỉ khâu ghép chạy lại.
 
-Video mẫu đã dựng: `output/ai-my-canh-tranh-gia-trung-quoc-20260819-2240/`
-(103.68 giây, 12 cảnh, dựng bằng `eleven_v3` đọc một lần) — dùng để đối chiếu.
+Video mẫu theo cấu trúc mới (hai cảnh ảnh, không statement):
+`output/ai-my-canh-tranh-gia-trung-quoc-20260923-0924/` (102.74 giây, 11 cảnh).
+
+Bản cũ còn statement để đối chiếu: `output/ai-my-canh-tranh-gia-trung-quoc-20260819-2240/`
+(103.68 giây, 12 cảnh, dựng bằng `eleven_v3` đọc một lần).

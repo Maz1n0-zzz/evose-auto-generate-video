@@ -49,7 +49,7 @@ Xin dòng lỗi đó để khoanh tiếp.
 Video mẫu dựng lại theo cấu trúc mới, Mazino đã duyệt:
 `output/ai-my-canh-tranh-gia-trung-quoc-20260923-0924/` (102.74 giây, 11 cảnh).
 
-### 🎵 Nhạc nền nghe như không có (chưa sửa)
+### 🎵 Nhạc nền nghe như không có — ĐÃ SỬA (commit `89d1ff1`)
 
 Mazino hỏi sao video không có nhạc. Đã đo: **nhạc CÓ trộn vào, nhưng quá nhỏ.**
 
@@ -63,8 +63,30 @@ Mazino hỏi sao video không có nhạc. Đã đo: **nhạc CÓ trộn vào, nh
 Tức lúc im lặng, nhạc đã nằm dưới giọng khoảng 17 dB. Lúc có giọng thì
 `sidechaincompress` còn dìm thêm, loa điện thoại gần như không nghe ra. Cấu hình
 (`volume=0.30`, `ratio 4`, `threshold 0.10` trong `brand-finalize.ts`) y hệt bản
-20/08, không phải lỗi mới. Muốn nghe rõ nhạc thì phải nâng `volume` hoặc nới
-ducking. Đây là quyết định về tai nghe, phải để Mazino nghe so rồi chốt.
+20/08, không phải lỗi mới.
+
+**Ducking vẫn chạy suốt, chưa từng bị tắt.** Nhạc có hạ khi có giọng và lên lại
+khi giọng nghỉ. Nhưng "lên" chỉ là về mức nền 0.30, mà mức nền đó đã gần như
+không nghe thấy. Dưới giọng cũng chỉ hạ khoảng 5 dB, nên nhạc nhỏ đều suốt bài.
+
+**Mazino nghe so rồi chốt bản E:**
+
+| Bản | volume | threshold | ratio | attack | release | Nhạc lúc nghỉ | Nhạc lúc nói |
+|---|---|---|---|---|---|---|---|
+| A (cũ) | 0.30 | 0.10 | 4 | 100ms | 600ms | -32.7 dB | -32.1 dB |
+| **E (đang dùng)** | **0.80** | **0.03** | **12** | **20ms** | **250ms** | **-24.2 dB** | **-27.9 dB** |
+
+Đo riêng tiếng nhạc, lúc nghỉ ở giây 4 đến 6, lúc nói ở giây 20 đến 30.
+Release 250ms để nhạc kịp lên trong quãng nghỉ dưới 1 giây giữa các câu.
+
+Video mẫu sau khi sửa: nhạc lúc nghỉ -26.3 dB, cả bài -16.1 LUFS, đỉnh -1.0 dBFS.
+Có test khoá bộ thông số trong `brand-finalize.test.ts`.
+
+⚠️ **Đoạn đầu file nhạc nhỏ hơn đoạn giữa khoảng 5 dB**, và quãng nghỉ dài nhất
+của video (sau cảnh mở) rơi đúng vào đó. Mazino chưa quyết có cho nhạc bắt đầu
+từ giữa bài không. Chưa làm.
+
+Bốn bản nghe so A, B, C, D cùng bản E nằm ở `output/_music-compare/` (ngoài git).
 
 ## Bối cảnh
 
@@ -330,7 +352,7 @@ vẫn nhỏ tiếng hơn hẳn `voice.mp3`, không có gì báo. `mixSfxOntoVoic
 `audio-tools.ts` vốn đã có cờ này; chỗ kia bị sót.
 
 Tỉ lệ giọng/nhạc **không đổi** vì cả hai cùng bị hạ và nay cùng được trả lại —
-mức nhạc `0.30` Mazino chốt vẫn giữ nguyên. Thêm `alimiter` sau khi trộn để
+mức nhạc `0.30` hồi đó giữ nguyên (nay đã đổi sang bản E, xem mục 🎵). Thêm `alimiter` sau khi trộn để
 đỉnh cộng dồn không vượt trần.
 
 ## 📊 Số đo của lần đổi model (video mẫu, 12 cảnh)
@@ -350,7 +372,7 @@ thật ra dài 96.78s.
 
 ## ⚠️ VIỆC CÒN DANG DỞ
 
-- **Nhạc nền quá nhỏ.** Xem mục 🎵 ở đầu file. Chờ Mazino chốt mức mới.
+- **Cho nhạc bắt đầu từ giữa bài?** Đoạn đầu file nhạc nhỏ. Xem mục 🎵. Chưa quyết.
 - **`SKILL.md` còn dòng cũ ghi TTS là OmniVoice** (Step 5 và mục quy tắc TTS),
   và dòng `"metadata"    "voice"` trong mẫu JSON bị vỡ cú pháp. Chưa dọn.
 - **Lỗi chụp ảnh trên máy đồng nghiệp.** Chưa có dòng lỗi thật.
@@ -422,7 +444,7 @@ Bộ `frame-*` cũ đã bị THAY THẾ HOÀN TOÀN. Đã push lên `evose/main`
 - Cảnh CÂM: `voiceText: ""` + `silentSec` (hiện không dùng nhưng còn trong code).
 - `padSec`: nối lặng vào file giọng của một cảnh để nó đứng lâu hơn.
 - `OUTRO_HOLD_SEC` 3 → 1.2 giây.
-- Nhạc nền: bản mới, `volume 0.30`, ducking `ratio 4 / threshold 0.10`.
+- Nhạc nền: bản mới. Mức nhạc nay là bản E (`volume 0.80`, `ratio 12`), xem mục 🎵.
 - `CATALOG.md` và `SKILL.md` đã sửa đúng theo `overlay: true, style: "light"`,
   và thêm Step 3b BẮT BUỘC chụp ảnh bài báo khi nguồn là URL.
 - Hiệu ứng xoáy logo (`intro: "swirl"`) — có trong code nhưng KHÔNG dùng ở

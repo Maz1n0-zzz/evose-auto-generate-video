@@ -2,19 +2,25 @@
 /**
  * capture-screenshot.js — Evose brand kit v5.2 (smart-crop for news mode)
  *
- * Chụp 1 URL (bài báo / GitHub repo) thành PNG để nhúng vào
- * frame-screenshot-news / frame-screenshot-scroll.
+ * Chụp 1 URL (bài báo / GitHub repo) thành PNG để nhúng vào evose-screenshot.
  *
  * DÙNG:
- *   node scripts/capture-screenshot.js --url "https://..." --out ./assets/shot.png [--mode auto|news|github] [--width 480]
+ *   node scripts/capture-screenshot.js --url "https://..." --out ./assets/shot.png [--mode auto|news|full|github] [--width 480]
  *
  * MODE:
- *   news   → smart-crop: ẩn nav/banner/ads → tìm article → clip 9:19.5 (phone ratio)
- *   github → fullPage (dài) để cuộn → dùng cho frame-screenshot-scroll
+ *   news   → smart-crop: ẩn nav/banner/ads → tìm article → clip 9:19.5 (một màn điện thoại).
+ *            Dùng cho cảnh trích nguồn có khung soi tiêu đề.
+ *   full   → như news nhưng cao tới FULL_MAX_H để cảnh cuộn xuống như đang lướt web.
+ *   github → fullPage nguyên trang, không ẩn gì.
  *   auto   → github.com → github; còn lại → news
+ *
+ * Trình duyệt: tự dò Chrome/Chromium/Brave/Edge. Đặt CHROME_PATH để chỉ định.
+ * Lỗi bất kỳ → thoát mã 1 kèm lý do. KHÔNG có chuyện chụp hỏng mà vẫn báo ok.
  */
 import path from 'path';
 import fs from 'fs';
+import os from 'os';
+import { computeClip, findChromePath, resolveMode, phoneHeight, FULL_MAX_H } from './capture-helpers.js';
 
 function arg(name, def){ const i=process.argv.indexOf('--'+name); return i>-1?process.argv[i+1]:def; }
 
@@ -24,7 +30,8 @@ function arg(name, def){ const i=process.argv.indexOf('--'+name); return i>-1?pr
   let   mode  = arg('mode', 'auto');
   const width = parseInt(arg('width', '480'), 10);
   if(!url){ console.error('Thiếu --url'); process.exit(1); }
-  if(mode==='auto') mode = /github\.com/i.test(url) ? 'github' : 'news';
+  try { mode = resolveMode(mode, url); }
+  catch(e){ console.error(e.message); process.exit(1); }
 
   let puppeteer;
   try { puppeteer = (await import('puppeteer')).default; }
@@ -32,16 +39,19 @@ function arg(name, def){ const i=process.argv.indexOf('--'+name); return i>-1?pr
     console.error('Không tìm thấy puppeteer. Cài: npm i puppeteer'); process.exit(1);
   }}
 
-  const CHROME_PATHS = [
-    '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-    '/usr/bin/google-chrome-stable','/usr/bin/google-chrome',
-    '/usr/bin/chromium-browser','/usr/bin/chromium',
-  ];
-  const executablePath = CHROME_PATHS.find(p => fs.existsSync(p));
+  const executablePath = findChromePath({ env: process.env, home: os.homedir(), exists: fs.existsSync });
   const launchOpts = { headless:'new', args:['--no-sandbox','--disable-setuid-sandbox','--hide-scrollbars'] };
   if (executablePath) launchOpts.executablePath = executablePath;
 
-  const browser = await puppeteer.launch(launchOpts);
+  let browser;
+  try { browser = await puppeteer.launch(launchOpts); }
+  catch(e){
+    console.error('Không mở được trình duyệt:', e.message);
+    console.error(executablePath
+      ? `Đã thử: ${executablePath}`
+      : 'Không tìm thấy Chrome/Chromium/Brave/Edge. Cài Chrome, hoặc đặt CHROME_PATH=<đường dẫn>.');
+    process.exit(1);
+  }
   try {
     const page = await browser.newPage();
     await page.setViewport({ width, height: 900, deviceScaleFactor: 2, isMobile: true });
@@ -60,7 +70,9 @@ function arg(name, def){ const i=process.argv.indexOf('--'+name); return i>-1?pr
 
     // ẩn cookie/consent (tất cả mode)
     await page.evaluate(() => {
-      ['#onetrust-banner-sdk','.cookie','.consent','[id*="cookie"]','[class*="consent"]','[class*="cookie"]']
+      ['#onetrust-banner-sdk','.cookie','.consent','[id*="cookie"]','[class*="consent"]','[class*="cookie"]',
+       // popup "Đăng nhập bằng Google" (Google One Tap) — VnExpress có
+       '#credential_picker_container','#credential_picker_iframe','iframe[src*="accounts.google.com/gsi"]']
         .forEach(s => { document.querySelectorAll(s).forEach(e => e.remove()); });
     });
     await new Promise(r => setTimeout(r, 1000)); // chờ render ổn định
@@ -69,9 +81,8 @@ function arg(name, def){ const i=process.argv.indexOf('--'+name); return i>-1?pr
     if (mode === 'github') {
       opts.fullPage = true;
     } else {
-      // news mode: smart-crop → focus vào vùng article (tiêu đề + hero + nội dung)
-      const ASPECT = 19.5 / 9;
-      const targetH = Math.round(width * ASPECT); // ~1040px cho width=480
+      // news / full: smart-crop → focus vào vùng article (tiêu đề + hero + nội dung)
+      const targetH = mode === 'full' ? FULL_MAX_H : phoneHeight(width);
 
       // 1. Ẩn phần tử gây nhiễu: nav, header, banner, ads, subscribe
       await page.evaluate(() => {
@@ -84,6 +95,12 @@ function arg(name, def){ const i=process.argv.indexOf('--'+name); return i>-1?pr
         ].forEach(s => {
           try { document.querySelectorAll(s).forEach(el => el.style.setProperty('display','none','important')); }
           catch(e) {}
+        });
+        // Lớp nổi position:fixed (popup, thanh dính) nằm đè lên giữa ảnh khi
+        // chụp vượt khỏi màn hình, nên ẩn hết.
+        document.querySelectorAll('body *').forEach(el => {
+          const pos = getComputedStyle(el).position;
+          if (pos === 'fixed' || pos === 'sticky') el.style.setProperty('display','none','important');
         });
       });
 
@@ -140,38 +157,27 @@ function arg(name, def){ const i=process.argv.indexOf('--'+name); return i>-1?pr
         'main',
         '.content',
       ];
-      let clip = null;
+      let articleBox = null;
       for (const sel of ARTICLE_SELS) {
         const el = await page.$(sel);
-        if (el) {
-          const box = await el.boundingBox();
-          if (box && box.height > 200 && box.width > 100) {
-            // Ưu tiên dùng y của h1 nếu tìm thấy và hợp lý
-            const startY = (titleY !== null && titleY < box.y) ? titleY : Math.max(0, Math.round(box.y));
-            const endY = Math.round(box.y + box.height);
-            const h = Math.min(targetH, endY - startY);
-            clip = { x: 0, y: startY, width, height: h > 0 ? h : targetH };
-            console.error(`[smart-crop] "${sel}" contentY=${Math.round(box.y)} → clipFrom=${startY} clipH=${clip.height}`);
-            break;
-          }
+        const box = el && await el.boundingBox();
+        if (box && box.height > 200 && box.width > 100) {
+          articleBox = box;
+          console.error(`[smart-crop] "${sel}" contentY=${Math.round(box.y)}`);
+          break;
         }
       }
-      if (!clip) {
-        const fallbackY = titleY !== null ? titleY : 120;
-        console.error(`[smart-crop] fallback y=${fallbackY}`);
-        clip = { x: 0, y: fallbackY, width, height: targetH };
-      }
-      opts.clip = clip;
+      if (!articleBox) console.error('[smart-crop] không thấy khối bài, cắt theo tiêu đề');
+      opts.clip = computeClip({ titleY, box: articleBox, width, maxH: targetH });
+      console.error(`[smart-crop] clipFrom=${opts.clip.y} clipH=${opts.clip.height}`);
     }
     await page.screenshot(opts);
 
-    // cảnh báo nếu ảnh gần toàn trắng (best-effort, không chặn)
-    let warn = '';
-    try {
-      const buf = fs.readFileSync(out);
-      if (buf.length < 8000) warn = 'CẢNH BÁO: ảnh rất nhỏ, có thể chụp fail (trang trắng).';
-    } catch(e){}
-    console.log(JSON.stringify({ ok:true, url, out: path.resolve(out), mode, warn }));
+    // Ảnh PNG thật của một trang báo nặng hàng trăm KB. Dưới 8 KB gần như
+    // chắc chắn là trang trắng hoặc trang chặn bot → coi là lỗi, không cho qua.
+    const size = fs.statSync(out).size;
+    if (size < 8000) throw new Error(`ảnh chỉ ${size} byte, nhiều khả năng là trang trắng hoặc trang chặn bot`);
+    console.log(JSON.stringify({ ok:true, url, out: path.resolve(out), mode, bytes: size }));
   } catch(e){
     console.error('Lỗi chụp:', e.message);
     console.error('Gợi ý: kiểm tra URL, cài Chrome (npm i puppeteer), hoặc trang chặn bot → lưu ảnh thủ công.');

@@ -1,0 +1,172 @@
+<template>
+<div id="root" data-composition-id="03-nguon-lindy" data-width="1080" data-height="1920" data-duration="8.835">
+  <style>
+    @font-face { font-family: "Hanken Grotesk"; src: url("assets/fonts/HankenGrotesk-VF.ttf") format("truetype"); font-weight: 100 900; }
+    @font-face { font-family: "JetBrains Mono"; src: url("assets/fonts/JetBrainsMono-Regular.ttf") format("truetype"); font-weight: 100 599; }
+    @font-face { font-family: "JetBrains Mono"; src: url("assets/fonts/JetBrainsMono-Bold.ttf") format("truetype"); font-weight: 600 900; }
+    
+    
+    #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; font-family: "Hanken Grotesk", sans-serif; color: #0a0a0a; }
+    .h03-bg { position: absolute; inset: -60px; background-color: #f2f2f0;
+      background-image: radial-gradient(circle, #d6d6d1 1.35px, transparent 1.35px); background-size: 26px 26px; }
+    .h03-push { position: absolute; inset: 0; transform-origin: 540px 905px; }
+
+    /* Scene 1-2: trang báo nghiêng */
+    .h03-group { position: absolute; inset: 0; transform-origin: 540px 830px; }
+    .h03-kicker { position: absolute; left: 60px; top: 296px; display: flex; align-items: center; gap: 16px;
+      font-size: 26px; font-weight: 700; letter-spacing: .16em; color: #2563eb; line-height: 1.2; }
+    .h03-kicker i { display: block; width: 56px; height: 3px; background: #2563eb; }
+    .h03-card { position: absolute; left: 50px; top: 352px; width: 980px; height: 880px; overflow: hidden;
+      background: #fff; border: 3px solid #0a0a0a; transform-style: preserve-3d;
+      transform: perspective(2200px) rotateY(-6deg) rotateX(3deg);
+      box-shadow: 34px 30px 70px rgba(10,10,10,.20); }
+    .h03-zoom { position: absolute; left: 0; top: 0; width: 760px; height: 1647px; transform: scale(1.2895); transform-origin: 0 0; }
+    .h03-page { position: absolute; left: 0; top: 0; width: 760px; height: 1647px; }
+    .h03-page img { position: absolute; left: 0; top: 0; width: 760px; height: 1647px; display: block; }
+    .h03-mark { position: absolute; background: rgba(37,99,235,.24); transform-origin: left center; }
+    .h03-chip { position: absolute; padding: 18px 34px; background: #f2f2f0; border: 4px solid #0a0a0a;
+      box-shadow: 10px 10px 0 #0a0a0a; font-size: 60px; font-weight: 800; line-height: 1.12; white-space: nowrap; }
+    .h03-chip b { font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 30px; color: #2563eb; margin-right: 18px; vertical-align: middle; letter-spacing: .06em; }
+    .h03-wire { position: absolute; left: 48px; bottom: 100%; width: 4px; height: 60px; background: #0a0a0a; transform-origin: bottom center; }
+    .h03-wire::before { content: ""; position: absolute; left: -7px; top: -8px; width: 17px; height: 17px; border-radius: 50%; background: #2563eb; }
+    #h03-chip-ft { left: 60px; top: 1262px; }
+    #h03-chip-cnbc { left: 600px; top: 1396px; }
+    #h03-wire-cnbc { height: 190px; }
+
+    /* Scene 3-4: thế giới ba thẻ, camera bắt đầu phóng to vào thẻ 1 */
+    .h03-world { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; transform-origin: 0 0; }
+    .h03-slot { position: absolute; top: 680px; width: 280px; height: 460px; }
+    .h03-slot-1 { left: 80px; }
+    .h03-slot-2 { left: 400px; }
+    .h03-slot-3 { left: 720px; }
+    .h03-fill { position: absolute; inset: 0; background: #f2f2f0; border: 4px solid #0a0a0a; }
+    .h03-tag { position: absolute; left: 20px; top: 18px; font-family: "JetBrains Mono", monospace; font-size: 20px; letter-spacing: .06em; color: #2563eb; }
+    .h03-dash { position: absolute; inset: 0; width: 280px; height: 460px; overflow: visible; }
+    .h03-dash rect { fill: #f2f2f0; stroke: #0a0a0a; stroke-width: 4; stroke-dasharray: 18 12; }
+    .h03-q { position: absolute; left: 0; right: 0; top: 150px; text-align: center; font-size: 150px; font-weight: 800; line-height: 1.12; color: #2563eb; }
+    .h03-lindy { position: absolute; left: 0; right: 0; top: 160px; text-align: center; font-size: 84px; font-weight: 800;
+      line-height: 1.12; letter-spacing: -0.02em; perspective: 600px; white-space: nowrap; }
+    .h03-ch { position: relative; display: inline-block; transform-origin: bottom center; transform-style: preserve-3d; }
+    .h03-ch .h03-hold { visibility: hidden; }
+    .h03-ch .h03-gl { position: absolute; left: 50%; top: 0; transform: translateX(-50%); }
+    .h03-meta { position: absolute; left: 0; right: 0; top: 268px; text-align: center; font-family: "JetBrains Mono", monospace;
+      font-size: 16px; line-height: 1.3; letter-spacing: .04em; color: #2563eb; white-space: nowrap; }
+  </style>
+
+  <div class="h03-bg clip" data-start="0" data-duration="8.835" data-track-index="0"></div>
+
+  <div class="h03-push">
+    <div class="h03-group" id="h03-group">
+      <div class="h03-kicker" id="h03-kicker"><i></i>NGUỒN · VNEXPRESS</div>
+      <div class="h03-card"><div class="h03-zoom">
+        <div class="h03-page" id="h03-page">
+          <img src="assets/shot-news.png" alt="" />
+          <div class="h03-mark" id="h03-mk-title" style="left:26px; top:20px; width:710px; height:112px;"></div>
+          <div class="h03-mark" id="h03-mk-ft" style="left:28px; top:832px; width:206px; height:46px;"></div>
+          <div class="h03-mark" id="h03-mk-cnbc" style="left:28px; top:1392px; width:88px; height:46px;"></div>
+          <div class="h03-mark" id="h03-mk-lindy" style="left:572px; top:1136px; width:66px; height:46px;"></div>
+        </div>
+      </div></div>
+      <div class="h03-chip" id="h03-chip-ft"><span class="h03-wire" id="h03-wire-ft"></span><b>01</b>Financial Times</div>
+      <div class="h03-chip" id="h03-chip-cnbc"><span class="h03-wire" id="h03-wire-cnbc"></span><b>02</b>CNBC</div>
+    </div>
+
+    <div class="h03-world" id="h03-world">
+      <div class="h03-slot h03-slot-1">
+        <div class="h03-fill" id="h03-fill-1"><span class="h03-tag">01</span></div>
+        <div class="h03-lindy" id="h03-lindy" data-target="Lindy"></div>
+        <div class="h03-meta" id="h03-meta">San Francisco · tháng 6</div>
+      </div>
+      <div class="h03-slot h03-slot-2" id="h03-slot-2">
+        <svg class="h03-dash" viewBox="0 0 280 460"><rect id="h03-dash-2" x="2" y="2" width="276" height="456" /></svg>
+        <span class="h03-tag">02</span><div class="h03-q">?</div>
+      </div>
+      <div class="h03-slot h03-slot-3" id="h03-slot-3">
+        <svg class="h03-dash" viewBox="0 0 280 460"><rect id="h03-dash-3" x="2" y="2" width="276" height="456" /></svg>
+        <span class="h03-tag">03</span><div class="h03-q">?</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script>
+    (function () {
+      var D = 8.435;
+      var ease = "power3.out";
+      var tl = gsap.timeline({ paused: true });
+
+      // Nền và camera đẩy chậm chạy suốt khung
+      tl.fromTo(".h03-bg", { x: 0, y: 0 }, { x: -26, y: -26, duration: D, ease: "none" }, 0);
+      tl.fromTo(".h03-push", { scale: 1 }, { scale: 1.035, duration: D, ease: "power1.inOut" }, 0);
+
+      // Scene 1 (0-2.3): trang báo vào, dải xanh quét tiêu đề, bắt đầu cuộn
+      tl.fromTo("#h03-group", { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.6, ease: ease }, 0);
+      tl.fromTo("#h03-kicker", { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.5, ease: ease }, 0.2);
+      tl.fromTo("#h03-mk-title", { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: "power2.inOut" }, 0.55);
+      tl.fromTo("#h03-page", { y: 0 }, { y: -330, duration: 1.2, ease: ease }, 1.5);
+
+      // Scene 2 (2.3-4.8): chip nguồn đè mép card, có dây nối
+      tl.fromTo("#h03-mk-ft", { scaleX: 0 }, { scaleX: 1, duration: 0.4, ease: ease }, 2.5);
+      tl.fromTo("#h03-chip-ft", { opacity: 0, scale: 0.6, y: 30 }, { opacity: 1, scale: 1, y: 0, duration: 0.45, ease: ease }, 2.6);
+      tl.fromTo("#h03-wire-ft", { scaleY: 0 }, { scaleY: 1, duration: 0.4, ease: ease }, 2.8);
+      tl.to("#h03-page", { y: -820, duration: 0.8, ease: ease }, 3.1);
+      tl.fromTo("#h03-mk-cnbc", { scaleX: 0 }, { scaleX: 1, duration: 0.4, ease: ease }, 3.9);
+      tl.fromTo("#h03-chip-cnbc", { opacity: 0, scale: 0.6, y: 30 }, { opacity: 1, scale: 1, y: 0, duration: 0.45, ease: ease }, 4.0);
+      tl.fromTo("#h03-wire-cnbc", { scaleY: 0 }, { scaleY: 1, duration: 0.4, ease: ease }, 4.2);
+
+      // Scene 3 (4.8-6.7): tô tên Lindy trong bài, rồi card lùi ra sau và mờ nét
+      tl.fromTo("#h03-mk-lindy", { scaleX: 0 }, { scaleX: 1, duration: 0.35, ease: ease }, 4.75);
+      tl.fromTo("#h03-group", { scale: 1, filter: "blur(0px)" },
+        { scale: 0.88, opacity: 0.28, filter: "blur(9px)", duration: 0.9, ease: ease, immediateRender: false }, 5.0);
+
+      // Thế giới ba thẻ: mở ở S0 zoom vào thẻ 1, chỉ zoom ra một lần ở 6.7
+      var S0 = 3.8;
+      tl.fromTo("#h03-world", { x: 540 - S0 * 220, y: 800 - S0 * 890, scale: S0 },
+        { x: 0, y: 0, scale: 1, duration: 0.95, ease: "expo.out" }, 6.7);
+      tl.fromTo("#h03-fill-1", { opacity: 0 }, { opacity: 1, duration: 0.45, ease: ease }, 6.8);
+      tl.to("#h03-group", { opacity: 0.12, duration: 0.6, ease: ease }, 6.7);
+
+      // hacker-flip-3d cho chữ Lindy (6.0)
+      var wrap = document.getElementById("h03-lindy");
+      var word = wrap.getAttribute("data-target");
+      var GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#$%&*";
+      function pseudoGlyph(seed) {
+        var h = ((seed * 9301 + 49297) % 233280) / 233280;
+        return GLYPHS[Math.floor(h * GLYPHS.length)];
+      }
+      var FLIP = 0.6, STAGGER = 0.05, AT = 5.95, THRESH = 0.6;
+      word.split("").forEach(function (ch, i) {
+        var box = document.createElement("span");
+        box.className = "h03-ch";
+        var hold = document.createElement("span");
+        hold.className = "h03-hold";
+        hold.textContent = ch;
+        var gl = document.createElement("span");
+        gl.className = "h03-gl";
+        gl.textContent = ch;
+        box.appendChild(hold);
+        box.appendChild(gl);
+        wrap.appendChild(box);
+        var st = { p: 0 };
+        function draw() {
+          gl.textContent = st.p < THRESH ? pseudoGlyph(i * 1000 + Math.floor(st.p * 20)) : ch;
+          box.style.transform = "rotateX(" + (90 - st.p * 90) + "deg)";
+          box.style.opacity = Math.min(1, st.p * 2);
+        }
+        draw();
+        tl.fromTo(st, { p: 0 }, { p: 1, duration: FLIP, ease: ease, onUpdate: draw }, AT + i * STAGGER);
+      });
+      tl.fromTo("#h03-meta", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.5, ease: ease }, 6.25);
+
+      // Scene 4 (6.7-8.43): hai thẻ trống nét đứt có dấu hỏi
+      tl.fromTo("#h03-slot-2", { opacity: 0, scale: 0.85, y: 30 }, { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: ease }, 7.4);
+      tl.fromTo("#h03-slot-3", { opacity: 0, scale: 0.85, y: 30 }, { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: ease }, 7.52);
+      tl.fromTo(["#h03-dash-2", "#h03-dash-3"], { attr: { "stroke-dashoffset": 0 } },
+        { attr: { "stroke-dashoffset": -60 }, duration: D - 7.4, ease: "none" }, 7.4);
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines["03-nguon-lindy"] = tl;
+    })();
+  </script>
+</div>
+</template>

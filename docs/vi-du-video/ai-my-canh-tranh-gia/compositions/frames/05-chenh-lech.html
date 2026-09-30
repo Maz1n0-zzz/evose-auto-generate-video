@@ -1,0 +1,345 @@
+<template id="05-chenh-lech-template">
+  <style>
+    @font-face { font-family: "Hanken Grotesk"; src: url("assets/fonts/HankenGrotesk-VF.ttf") format("truetype"); font-weight: 100 900; }
+    @font-face { font-family: "JetBrains Mono"; src: url("assets/fonts/JetBrainsMono-Regular.ttf") format("truetype"); font-weight: 100 599; }
+    @font-face { font-family: "JetBrains Mono"; src: url("assets/fonts/JetBrainsMono-Bold.ttf") format("truetype"); font-weight: 600 900; }
+
+    #root {
+      position: relative;
+      width: 1080px;
+      height: 1920px;
+      overflow: hidden;
+      font-family: "Hanken Grotesk", sans-serif;
+      color: #0a0a0a;
+    }
+    #\30 5-chenh-lech-bg {
+      position: absolute;
+      inset: 0;
+      background: #f2f2f0;
+      overflow: hidden;
+    }
+    #\30 5-chenh-lech-dots {
+      position: absolute;
+      inset: -120px;
+      background-image: radial-gradient(circle, #d6d6d1 2.4px, transparent 2.8px);
+      background-size: 44px 44px;
+    }
+    #\30 5-chenh-lech-stage {
+      position: absolute;
+      inset: 0;
+    }
+    #\30 5-chenh-lech-cam {
+      position: absolute;
+      inset: 0;
+      transform-origin: 50% 50%;
+    }
+
+    /* Scene 1-2: cau hoi */
+    #\30 5-chenh-lech-q {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 620px;
+      text-align: center;
+      font-weight: 800;
+      font-size: 150px;
+      line-height: 1.12;
+      letter-spacing: -0.02em;
+      transform-origin: 50% 50%;
+    }
+    .\30 5-chenh-lech-w {
+      display: inline-block;
+      margin: 0 0.1em;
+    }
+    #\30 5-chenh-lech-qm {
+      display: inline-block;
+      color: #2563eb;
+      transform-origin: 50% 80%;
+      margin-left: 0.02em;
+    }
+
+    /* Scene 2-3: hai cot */
+    #\30 5-chenh-lech-chart {
+      position: absolute;
+      inset: 0;
+      transform-origin: 50% 60%;
+    }
+    #\30 5-chenh-lech-base {
+      position: absolute;
+      left: 120px;
+      top: 1240px;
+      width: 840px;
+      height: 4px;
+      background: #0a0a0a;
+      transform-origin: 0% 50%;
+    }
+    .\30 5-chenh-lech-col {
+      position: absolute;
+      width: 220px;
+      bottom: 680px; /* 1920 - 1240 */
+      transform-origin: 50% 100%;
+    }
+    #\30 5-chenh-lech-col-dong {
+      left: 230px;
+      height: 680px;
+      background: #0a0a0a;
+    }
+    #\30 5-chenh-lech-col-mo {
+      left: 630px;
+      height: 80px;
+      background: #2563eb;
+    }
+    .\30 5-chenh-lech-stub {
+      position: absolute;
+      width: 220px;
+      height: 10px;
+      top: 1230px;
+      transform-origin: 50% 100%;
+    }
+    #\30 5-chenh-lech-stub-dong { left: 230px; background: #0a0a0a; }
+    #\30 5-chenh-lech-stub-mo { left: 630px; background: #2563eb; }
+    .\30 5-chenh-lech-lab {
+      position: absolute;
+      top: 1266px;
+      width: 400px;
+      text-align: center;
+      font-weight: 800;
+      font-size: 38px;
+      line-height: 1.2;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    #\30 5-chenh-lech-lab-dong { left: 140px; color: #0a0a0a; }
+    #\30 5-chenh-lech-lab-mo { left: 540px; color: #2563eb; }
+
+    #\30 5-chenh-lech-chip {
+      position: absolute;
+      left: 700px;
+      top: 1076px;
+      width: 80px;
+      height: 64px;
+      background: #2563eb;
+      color: #f2f2f0;
+      font-family: "JetBrains Mono", monospace;
+      font-weight: 800;
+      font-size: 42px;
+      line-height: 64px;
+      text-align: center;
+      transform-origin: 50% 100%;
+    }
+    #\30 5-chenh-lech-tag {
+      position: absolute;
+      left: 240px;
+      top: 474px;
+      width: 200px;
+      height: 72px;
+      background: #0a0a0a;
+      color: #f2f2f0;
+      clip-path: polygon(14% 0, 100% 0, 100% 100%, 14% 100%, 0 50%);
+      font-family: "JetBrains Mono", monospace;
+      font-weight: 800;
+      font-size: 40px;
+      line-height: 72px;
+      text-align: center;
+      padding-left: 24px;
+      transform-origin: 50% 100%;
+    }
+    #\30 5-chenh-lech-tag-hole {
+      position: absolute;
+      left: 18px;
+      top: 30px;
+      width: 12px;
+      height: 12px;
+      background: #f2f2f0;
+    }
+    #\30 5-chenh-lech-gapline {
+      position: absolute;
+      left: 130px;
+      top: 1158px;
+      width: 820px;
+      height: 0;
+      border-top: 4px dashed #2563eb;
+      transform-origin: 0% 50%;
+    }
+    #\30 5-chenh-lech-bracket {
+      position: absolute;
+      left: 486px;
+      top: 560px;
+      width: 28px;
+      height: 600px;
+      border-top: 4px solid #2563eb;
+      border-bottom: 4px solid #2563eb;
+      transform-origin: 50% 100%;
+    }
+    #\30 5-chenh-lech-bracket::after {
+      content: "";
+      position: absolute;
+      left: 12px;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: #2563eb;
+    }
+
+    /* Scene 4: so dem */
+    #\30 5-chenh-lech-pre {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 610px;
+      text-align: center;
+      font-weight: 800;
+      font-size: 56px;
+      line-height: 1.2;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #0a0a0a;
+    }
+    #\30 5-chenh-lech-pre b {
+      font-family: "JetBrains Mono", monospace;
+      font-weight: 800;
+      color: #2563eb;
+      letter-spacing: 0;
+    }
+    #\30 5-chenh-lech-numwrap {
+      position: absolute;
+      left: 90px;
+      top: 700px;
+      width: 900px;
+      height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform-origin: 50% 50%;
+      font-family: "JetBrains Mono", monospace;
+      font-weight: 800;
+      font-size: 380px;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      font-variant-numeric: tabular-nums;
+      color: #2563eb;
+    }
+    #\30 5-chenh-lech-num {
+      display: inline-block;
+    }
+    #\30 5-chenh-lech-x {
+      display: inline-block;
+      color: #0a0a0a;
+      transform-origin: 20% 80%;
+    }
+    #\30 5-chenh-lech-under {
+      position: absolute;
+      left: 240px;
+      top: 1112px;
+      width: 600px;
+      height: 14px;
+      background: #0a0a0a;
+      transform-origin: 50% 50%;
+    }
+    #\30 5-chenh-lech-re {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 1150px;
+      text-align: center;
+      font-weight: 800;
+      font-size: 96px;
+      line-height: 1.12;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #0a0a0a;
+    }
+  </style>
+
+  <div id="root" data-composition-id="05-chenh-lech" data-start="0" data-duration="7.939" data-width="1080" data-height="1920">
+    <div id="05-chenh-lech-bg" class="clip" data-start="0" data-duration="7.939" data-track-index="0">
+      <div id="05-chenh-lech-dots"></div>
+    </div>
+
+    <div id="05-chenh-lech-stage" class="clip" data-start="0" data-duration="7.939" data-track-index="1">
+      <div id="05-chenh-lech-cam">
+        <div id="05-chenh-lech-chart">
+          <div id="05-chenh-lech-col-dong" class="05-chenh-lech-col"></div>
+          <div id="05-chenh-lech-col-mo" class="05-chenh-lech-col"></div>
+          <div id="05-chenh-lech-stub-dong" class="05-chenh-lech-stub"></div>
+          <div id="05-chenh-lech-stub-mo" class="05-chenh-lech-stub"></div>
+          <div id="05-chenh-lech-base"></div>
+          <div id="05-chenh-lech-gapline"></div>
+          <div id="05-chenh-lech-bracket"></div>
+          <div id="05-chenh-lech-chip">$</div>
+          <div id="05-chenh-lech-tag"><span id="05-chenh-lech-tag-hole"></span>$$$</div>
+          <div id="05-chenh-lech-lab-dong" class="05-chenh-lech-lab">Mô hình đóng</div>
+          <div id="05-chenh-lech-lab-mo" class="05-chenh-lech-lab">Mô hình mở</div>
+        </div>
+
+        <div id="05-chenh-lech-q">
+          <div><span class="05-chenh-lech-w">Vì</span><span class="05-chenh-lech-w">sao</span><span class="05-chenh-lech-w">họ</span></div>
+          <div><span class="05-chenh-lech-w">dám</span><span class="05-chenh-lech-w">đổi<span id="05-chenh-lech-qm">?</span></span></div>
+        </div>
+
+        <div id="05-chenh-lech-pre">Từ <b>10×</b> đến</div>
+        <div id="05-chenh-lech-numwrap"><span id="05-chenh-lech-num">10</span><span id="05-chenh-lech-x">×</span></div>
+        <div id="05-chenh-lech-under"></div>
+        <div id="05-chenh-lech-re">Rẻ hơn</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script>
+    (function () {
+      const $ = (id) => document.getElementById("05-chenh-lech-" + id);
+      const root = document.querySelector('[data-composition-id="05-chenh-lech"]');
+      const words = Array.from(root.querySelectorAll(".\\30 5-chenh-lech-w"));
+      const D = 7.339;
+      const tl = gsap.timeline({ paused: true });
+
+      // Nen + camera: chuyen dong lien tuc suot khung
+      tl.fromTo($("dots"), { x: 0, y: 0 }, { x: -22, y: -44, duration: D, ease: "none" }, 0);
+      tl.fromTo($("cam"), { scale: 1 }, { scale: 1.012, duration: 5.9, ease: "none" }, 0);
+      tl.to($("cam"), { scale: 1.04, duration: D - 5.9, ease: "power2.out" }, 5.9);
+
+      // Scene 1 (0-1.6): cau hoi per-word
+      const wordAt = [0.05, 0.22, 0.39, 0.56, 0.73];
+      words.forEach((w, i) => {
+        tl.fromTo(w, { y: 70, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, ease: "power3.out" }, wordAt[i]);
+      });
+      tl.fromTo($("qm"), { scale: 0, opacity: 0 }, { scale: 1.7, opacity: 1, duration: 0.28, ease: "power3.out" }, 0.92);
+      tl.to($("qm"), { scale: 1, duration: 0.42, ease: "bounce.out" }, 1.2);
+
+      // Scene 2 (1.6-2.9): cau hoi co len dinh, hai cot chua co chieu cao
+      tl.to($("q"), { y: -398, scale: 0.42, duration: 0.6, ease: "power3.out" }, 1.6);
+      tl.fromTo($("base"), { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: "power3.out" }, 1.75);
+      tl.fromTo($("stub-dong"), { scaleX: 0 }, { scaleX: 1, duration: 0.4, ease: "power3.out" }, 1.95);
+      tl.fromTo($("stub-mo"), { scaleX: 0 }, { scaleX: 1, duration: 0.4, ease: "power3.out" }, 2.1);
+      tl.fromTo($("lab-dong"), { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, ease: "power3.out" }, 2.0);
+      tl.fromTo($("lab-mo"), { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, ease: "power3.out" }, 2.15);
+
+      // Scene 3 (2.9-5.9): cot mo moc ngan, cot dong vut len + the gia
+      tl.fromTo($("col-mo"), { scaleY: 0 }, { scaleY: 1, duration: 0.7, ease: "power3.out" }, 2.98);
+      tl.fromTo($("chip"), { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.4, ease: "back.out(1.6)" }, 3.55);
+      tl.fromTo($("gapline"), { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: "power3.out" }, 3.95);
+      tl.fromTo($("col-dong"), { scaleY: 0 }, { scaleY: 1, duration: 0.9, ease: "power3.out" }, 4.75);
+      tl.fromTo($("tag"), { scale: 0, rotation: -14, opacity: 0 }, { scale: 1, rotation: -4, opacity: 1, duration: 0.4, ease: "back.out(1.6)" }, 5.4);
+      tl.fromTo($("bracket"), { scaleY: 0 }, { scaleY: 1, duration: 0.4, ease: "power3.out" }, 5.45);
+
+      // Scene 4 (5.9-7.339): bieu do lui ve nen, so dem 10x -> 60x phinh to
+      tl.to($("chart"), { opacity: 0, scale: 0.94, duration: 0.5, ease: "power3.out" }, 5.9);
+      const START_SCALE = 0.45;
+      tl.fromTo($("numwrap"), { opacity: 0, scale: 0.25 }, { opacity: 1, scale: START_SCALE, duration: 0.13, ease: "power3.out" }, 6.02);
+      // Hai nhát cắt cứng khớp lời đọc: "mười" (6.10s) rồi "sáu mươi" (6.66s).
+      const numEl = $("num");
+      tl.set(numEl, { textContent: "10" }, 0);
+      tl.set(numEl, { textContent: "60" }, 6.66);
+      tl.fromTo($("numwrap"), { scale: START_SCALE }, { scale: 0.6, duration: 0.5, ease: "power3.out", immediateRender: false }, 6.15);
+      tl.fromTo($("numwrap"), { scale: 1.12 }, { scale: 1, duration: 0.45, ease: "back.out(1.6)", immediateRender: false }, 6.66);
+      tl.fromTo($("re"), { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, ease: "power3.out" }, 6.3);
+      tl.fromTo($("pre"), { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: "power3.out" }, 6.72);
+      tl.fromTo($("x"), { scale: 1.4 }, { scale: 1, duration: 0.4, ease: "back.out(1.6)" }, 6.8);
+      tl.fromTo($("under"), { scaleX: 0 }, { scaleX: 1, duration: 0.45, ease: "power3.out" }, 6.82);
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines["05-chenh-lech"] = tl;
+    })();
+  </script>
+</template>

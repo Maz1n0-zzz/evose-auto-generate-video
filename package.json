@@ -8,11 +8,15 @@
     "test": "vitest run --passWithNoTests",
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
-    "pipeline": "tsx src/cli.ts",
     "typecheck": "tsc --noEmit",
     "build": "tsc",
-    "sfx:download": "tsx scripts/download-sfx.ts",
-    "sfx:filter": "tsx scripts/filter-sfx.ts"
+    "video:new": "tsx src/video/new.ts",
+    "video:voice": "tsx src/video/voice.ts",
+    "video:music": "tsx src/video/music.ts",
+    "video:sfx": "tsx src/video/sfx.ts",
+    "video:packets": "tsx src/video/packets.ts",
+    "video:build": "tsx src/video/build.ts",
+    "capture": "node scripts/capture-screenshot.js"
   },
   "keywords": [
     "video",
@@ -28,6 +32,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@vntk/dictionary": "^1.0.0",
     "axios": "^1.15.2",
     "dotenv": "^17.4.2",
     "p-limit": "^7.3.0",

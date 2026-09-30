@@ -38,8 +38,7 @@ Font numbers: JetBrains Mono
 
 ### Khi KHÔNG dùng Remotion chart
 
-- Scene chỉ có text/quote → dùng HyperFrames template bộ Light (`evose-title-card`, `evose-chapter-card`, ...)
-- Chart muốn nhúng vào pipeline HyperFrames → dùng `evose-chart-bars` / `evose-chart-donut` / `evose-chart-line` trong templates/
+- Chart trong video tin tức → worker dựng thẳng trong khung HyperFrames (xem skill `create-video`)
 - Diagram kiến trúc/luồng → dùng drawio-skill
 
 ### Props bắt buộc
@@ -81,21 +80,28 @@ color?: string
 
 ---
 
-## 🎬 HyperFrames pipeline (production)
+## 🎬 Làm video (quy trình duy nhất, từ 30/09/2026)
 
-Entry: `npm run pipeline -- <outputDir>/script.json`
+Skill: `.claude/skills/create-video/SKILL.md` — gõ `/create-video <url hoặc file .txt>`.
+Mẫu đã duyệt: `docs/vi-du-video/ai-my-canh-tranh-gia/`.
 
-- Templates: `templates/evose-*` (bộ Light, 12 cái) — animated HTML/CSS/JS, Chromium render.
-  Bộ `frame-*` cũ đã xoá, lấy lại bằng `git checkout 458f13f -- templates/`
-- Catalog: `templates/CATALOG.md` (đọc trước khi pick template)
-- Quy trình tạo video: `.claude/skills/create-template-video/SKILL.md`
-- TTS: ElevenLabs `eleven_v3`, cấu hình trong `.env.local` (`TTS_PROVIDER`,
-  `ELEVENLABS_API_KEY`, `ELEVENLABS_VOICE_ID`, `ELEVENLABS_MODEL_ID`).
-  Claude không đọc/ghi được `.env*`. Trường `voice.provider` trong `script.json`
-  không được dùng
-- Output: `output/<slug>/video-evose.mp4` là file giao (có overlay + nhạc nền).
-  Kèm `voice.mp3` và `script.txt` cho CapCut
-- Trạng thái mới nhất, quyết định đã chốt, việc còn dở: `HANDOFF.md`
+Một video = một composition HyperFrames (workflow faceless-explainer), khung dựng
+bằng worker song song, hình bám từng chữ lời đọc. Các lệnh máy:
+
+| Lệnh | Việc |
+|---|---|
+| `npm run video:new -- <tựa>` | Tạo `output/<slug>-<ngày>/` từ `template/` |
+| `npm run video:voice -- <dir>` | ElevenLabs đọc SCRIPT.md một lần, mốc từng chữ → `.hyperframes/words.txt` |
+| `npm run video:music -- <dir>` | Nhạc nền ElevenLabs Music theo `music:` của storyboard |
+| `npm run video:sfx -- <dir>` | SFX `tên@giây` từ storyboard, thư viện `assets/sfx/` |
+| `npm run video:packets -- <dir>` | Gói việc cho worker dựng khung |
+| `npm run video:build -- <dir>` | Phụ đề, ghép, chuyển cảnh, lint, render, phủ logo Evose, đo hình đứng yên |
+
+- Cần: Node ≥ 20, ffmpeg, skill HyperFrames (`npx hyperframes skills update faceless-explainer`).
+- TTS: ElevenLabs `eleven_v3`, cấu hình trong `.env.local`. Claude không đọc/ghi được `.env*`.
+- Output: `output/<slug>-<ngày>/renders/final.mp4` là file giao, đã có logo, phụ đề, nhạc.
+- Pipeline template cũ (`npm run pipeline`, `templates/evose-*`, foley) đã xoá.
+  Lấy lại từ git history nếu cần (commit trước `v3/quy-trinh-moi`).
 
 ## ✏️ Static diagrams (drawio-skill)
 
@@ -125,7 +131,6 @@ Luôn push: `git push evose main`
 
 ## ⚠️ Không làm
 
-- Không nhét UI component của Remotion vào HyperFrames pipeline
+- Không nhét UI component của Remotion vào composition HyperFrames
 - Không commit secrets/API key
 - Không dùng `git push origin` (không có quyền)
-- Không dùng template HyperFrames cho Remotion compositions

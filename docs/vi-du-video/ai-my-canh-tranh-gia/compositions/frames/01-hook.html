@@ -1,0 +1,61 @@
+<template>
+<div id="root" data-composition-id="01-hook" data-width="1080" data-height="1920" data-duration="7.663">
+  <style>
+    @font-face { font-family: "Hanken Grotesk"; src: url("assets/fonts/HankenGrotesk-VF.ttf") format("truetype"); font-weight: 100 900; }
+    @font-face { font-family: "JetBrains Mono"; src: url("assets/fonts/JetBrainsMono-Regular.ttf") format("truetype"); font-weight: 100 599; }
+    @font-face { font-family: "JetBrains Mono"; src: url("assets/fonts/JetBrainsMono-Bold.ttf") format("truetype"); font-weight: 600 900; }
+    #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; font-family: "Hanken Grotesk", sans-serif; color: #0a0a0a; }
+    .h01-bg { position: absolute; inset: -60px; background-color: #f2f2f0;
+      background-image: radial-gradient(circle, #d6d6d1 1.35px, transparent 1.35px); background-size: 26px 26px; }
+    .h01-stage { position: absolute; left: 0; top: 290px; width: 1080px; height: 1230px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 70px; }
+    .h01-title { font-weight: 900; font-size: 118px; line-height: 1.12; letter-spacing: -2px; text-align: center; max-width: 920px;
+      background: linear-gradient(100deg, #0A1532 0%, #0A1532 28%, #2563eb 46%, #60a5fa 55%, #2563eb 64%, #0A1532 82%, #0A1532 100%);
+      background-size: 250% 100%; background-position: 100% 0;
+      -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .h01-sub { margin-top: 46px; font-size: 38px; font-weight: 600; color: #6b7280; line-height: 1.35; text-align: center; max-width: 920px; }
+    .h01-row { margin-top: 64px; display: flex; align-items: center; gap: 22px; height: 84px; }
+    .h01-where { margin-top: 56px; font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 34px; letter-spacing: .06em;
+      color: #0a0a0a; border-bottom: 4px solid #2563eb; padding-bottom: 6px; }
+    .h01-chip { position: relative; font-weight: 800; font-size: 44px; padding: 14px 28px; border-radius: 6px; white-space: nowrap; }
+    .h01-us { background: #0a0a0a; color: #f2f2f0; }
+    .h01-cn { background: #2563eb; color: #fff; }
+    .h01-strike { position: absolute; left: -8px; right: -8px; top: 50%; height: 7px; margin-top: -3px; background: #d64545; transform-origin: 0 50%; }
+    .h01-arrow { font-weight: 800; font-size: 54px; color: #0a0a0a; }
+  </style>
+  <div class="h01-bg clip" data-start="0" data-duration="7.663" data-track-index="0"></div>
+  <div class="h01-stage">
+    <div class="h01-title">AI Mỹ xoay xở cạnh tranh giá với Trung Quốc</div>
+    <div class="h01-sub">Doanh nghiệp bỏ mô hình đắt tiền, các hãng Mỹ buộc phải hạ giá.</div>
+    <div class="h01-where">SAN FRANCISCO · THÁNG 6</div>
+    <div class="h01-row">
+      <div class="h01-chip h01-us">AI Mỹ<div class="h01-strike"></div></div>
+      <div class="h01-arrow">→</div>
+      <div class="h01-chip h01-cn">AI Trung Quốc</div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script>
+    (function () {
+      var tl = gsap.timeline({ paused: true });
+      var ease = "expo.out";
+      tl.fromTo(".h01-title", { opacity: 0.9, y: 10, scale: 0.985 }, { opacity: 1, y: 0, scale: 1, duration: 0.6, ease: ease }, 0);
+      tl.fromTo(".h01-sub", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: ease }, 0.55);
+      // Hàng chip bám lời đọc: San Francisco (1.74s), "AI của Mỹ" (3.70s), "tắt/chuyển" gạch (4.2s), "Trung Quốc" (5.53s).
+      tl.fromTo(".h01-where", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.45, ease: ease }, 1.7);
+      tl.fromTo(".h01-us", { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, duration: 0.45, ease: "back.out(1.6)" }, 3.65);
+      tl.fromTo(".h01-strike", { scaleX: 0 }, { scaleX: 1, duration: 0.3, ease: "power3.out" }, 4.25);
+      tl.to(".h01-us", { opacity: 0.45, duration: 0.3, ease: "power1.out" }, 4.45);
+      tl.fromTo(".h01-arrow", { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.35, ease: ease }, 4.8);
+      tl.fromTo(".h01-cn", { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.6)" }, 5.5);
+      // Dải màu chạy ngang chữ như bản đã duyệt, nhưng hữu hạn để tua được.
+      tl.fromTo(".h01-title", { backgroundPosition: "100% 0" }, { backgroundPosition: "-150% 0", duration: 3.2, ease: "none" }, 1.0);
+      tl.fromTo(".h01-title", { backgroundPosition: "100% 0" }, { backgroundPosition: "-150% 0", duration: 3.2, ease: "none", immediateRender: false }, 4.2);
+      tl.fromTo(".h01-bg", { x: 0, y: 0 }, { x: -26, y: -26, duration: 7.263, ease: "none" }, 0);
+      tl.fromTo(".h01-stage", { scale: 1 }, { scale: 1.035, duration: 6.4, ease: "power1.inOut" }, 0.85);
+      window.__timelines = window.__timelines || {};
+      window.__timelines["01-hook"] = tl;
+    })();
+  </script>
+</div>
+</template>

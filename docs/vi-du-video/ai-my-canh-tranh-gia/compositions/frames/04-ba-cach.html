@@ -1,0 +1,468 @@
+<template>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <style>
+    @font-face { font-family: "Hanken Grotesk"; src: url("assets/fonts/HankenGrotesk-VF.ttf") format("truetype"); font-weight: 100 900; }
+    @font-face { font-family: "JetBrains Mono"; src: url("assets/fonts/JetBrainsMono-Regular.ttf") format("truetype"); font-weight: 100 599; }
+    @font-face { font-family: "JetBrains Mono"; src: url("assets/fonts/JetBrainsMono-Bold.ttf") format("truetype"); font-weight: 600 900; }
+    
+    
+    
+
+    #root {
+      position: absolute;
+      inset: 0;
+      width: 1080px;
+      height: 1920px;
+      overflow: hidden;
+      font-family: "Hanken Grotesk", sans-serif;
+      color: #0a0a0a;
+    }
+    [data-composition-id="04-ba-cach"] .bc-bg {
+      position: absolute;
+      inset: 0;
+      background: #f2f2f0;
+      overflow: hidden;
+    }
+    [data-composition-id="04-ba-cach"] .bc-dots {
+      position: absolute;
+      left: -72px;
+      top: -72px;
+      width: 1224px;
+      height: 2064px;
+      background-image: radial-gradient(circle, #d6d6d1 2.4px, transparent 2.8px);
+      background-size: 36px 36px;
+    }
+    [data-composition-id="04-ba-cach"] .bc-stage {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+    [data-composition-id="04-ba-cach"] .bc-cam {
+      position: absolute;
+      inset: 0;
+      transform-origin: 540px 1272px;
+    }
+    /* card wrap: slot positions (content zone y 290–1520) */
+    [data-composition-id="04-ba-cach"] .bc-wrap {
+      position: absolute;
+      left: 100px;
+      width: 880px;
+      height: 340px;
+      transform-origin: 50% 50%;
+    }
+    [data-composition-id="04-ba-cach"] .bc-lit {
+      position: absolute;
+      inset: 0;
+      background: #2563eb;
+    }
+    [data-composition-id="04-ba-cach"] .bc-card {
+      position: absolute;
+      inset: 0;
+      background: #fbfbf9;
+      border: 4px solid #0a0a0a;
+      overflow: hidden;
+    }
+    [data-composition-id="04-ba-cach"] .bc-dash {
+      position: absolute;
+      inset: 0;
+      border: 4px dashed rgba(10, 10, 10, 0.45);
+      background: #f2f2f0;
+    }
+    [data-composition-id="04-ba-cach"] .bc-q {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 96px;
+      text-align: center;
+      font-size: 140px;
+      font-weight: 800;
+      line-height: 1.12;
+      color: rgba(10, 10, 10, 0.35);
+    }
+    [data-composition-id="04-ba-cach"] .bc-strip {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 14px;
+      background: #2563eb;
+      transform-origin: 50% 0%;
+    }
+    [data-composition-id="04-ba-cach"] .bc-head {
+      position: absolute;
+      left: 44px;
+      top: 30px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    [data-composition-id="04-ba-cach"] .bc-idx {
+      font-family: "JetBrains Mono", monospace;
+      font-weight: 500;
+      font-size: 28px;
+      letter-spacing: 0.06em;
+      color: rgba(10, 10, 10, 0.55);
+      font-variant-numeric: tabular-nums;
+    }
+    [data-composition-id="04-ba-cach"] .bc-name {
+      font-size: 84px;
+      font-weight: 800;
+      line-height: 1.12;
+      letter-spacing: -0.02em;
+    }
+    [data-composition-id="04-ba-cach"] .bc-tag {
+      position: absolute;
+      top: 26px;
+      right: 28px;
+      height: 54px;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      font-size: 24px;
+      font-weight: 800;
+      line-height: 1.12;
+      letter-spacing: 0.12em;
+      color: #f2f2f0;
+      transform-origin: 100% 50%;
+    }
+    [data-composition-id="04-ba-cach"] .bc-body {
+      position: absolute;
+      left: 44px;
+      right: 44px;
+      top: 150px;
+      height: 160px;
+    }
+    [data-composition-id="04-ba-cach"] .bc-chip {
+      position: absolute;
+      height: 72px;
+      padding: 0 26px;
+      display: flex;
+      align-items: center;
+      font-size: 36px;
+      font-weight: 800;
+      line-height: 1.12;
+      white-space: nowrap;
+    }
+    [data-composition-id="04-ba-cach"] .bc-ink-line {
+      border: 4px solid #0a0a0a;
+      color: #0a0a0a;
+      background: #fbfbf9;
+    }
+    [data-composition-id="04-ba-cach"] .bc-blue {
+      background: #2563eb;
+      color: #f2f2f0;
+    }
+    [data-composition-id="04-ba-cach"] .bc-ink {
+      background: #0a0a0a;
+      color: #f2f2f0;
+    }
+    /* Lindy: door + label slot */
+    [data-composition-id="04-ba-cach"] .bc-door {
+      position: absolute;
+      left: 0;
+      top: 4px;
+      width: 108px;
+      height: 152px;
+      border: 5px solid #0a0a0a;
+      background: #dbe5fc;
+    }
+    [data-composition-id="04-ba-cach"] .bc-door-panel {
+      position: absolute;
+      inset: 0;
+      background: #0a0a0a;
+      transform-origin: 0% 50%;
+    }
+    [data-composition-id="04-ba-cach"] .bc-knob {
+      position: absolute;
+      right: 12px;
+      top: 66px;
+      width: 12px;
+      height: 12px;
+      background: #f2f2f0;
+    }
+    [data-composition-id="04-ba-cach"] .bc-slot {
+      position: absolute;
+      left: 150px;
+      right: 0;
+      top: 22px;
+      height: 116px;
+      border: 3px dashed rgba(10, 10, 10, 0.25);
+      overflow: hidden;
+    }
+    /* DoorDash: split halves */
+    [data-composition-id="04-ba-cach"] .bc-half {
+      position: absolute;
+      top: 4px;
+      width: 396px;
+      height: 152px;
+      border: 3px dashed rgba(10, 10, 10, 0.25);
+    }
+    [data-composition-id="04-ba-cach"] .bc-half .bc-chip {
+      height: 64px;
+      top: 41px;
+      padding: 0 16px;
+      font-size: 30px;
+    }
+    [data-composition-id="04-ba-cach"] .bc-arrow {
+      position: absolute;
+      top: 71px;
+      height: 5px;
+      width: 52px;
+      background: #0a0a0a;
+      transform-origin: 0% 50%;
+    }
+    [data-composition-id="04-ba-cach"] .bc-head-tri {
+      position: absolute;
+      top: 63px;
+      width: 0;
+      height: 0;
+      border-top: 10px solid transparent;
+      border-bottom: 10px solid transparent;
+      border-left: 16px solid #0a0a0a;
+    }
+    [data-composition-id="04-ba-cach"] .bc-cut {
+      position: absolute;
+      left: 394px;
+      top: -14px;
+      width: 4px;
+      height: 188px;
+      background: #0a0a0a;
+      transform-origin: 50% 0%;
+    }
+    /* Siemens: flag + parallel bars */
+    [data-composition-id="04-ba-cach"] .bc-flag {
+      position: relative;
+      height: 50px;
+      padding: 0 26px 0 12px;
+      display: flex;
+      align-items: center;
+      background: #0a0a0a;
+      color: #f2f2f0;
+      font-size: 22px;
+      font-weight: 800;
+      line-height: 1.12;
+      letter-spacing: 0.14em;
+      clip-path: polygon(0 0, 100% 0, 86% 50%, 100% 100%, 0 100%);
+      transform-origin: 0% 50%;
+    }
+    [data-composition-id="04-ba-cach"] .bc-row {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 62px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    [data-composition-id="04-ba-cach"] .bc-row .bc-chip {
+      position: relative;
+      width: 100px;
+      height: 58px;
+      padding: 0;
+      justify-content: center;
+      font-size: 30px;
+    }
+    [data-composition-id="04-ba-cach"] .bc-track {
+      position: relative;
+      flex: 1;
+      height: 30px;
+      overflow: hidden;
+    }
+    [data-composition-id="04-ba-cach"] .bc-fill {
+      position: absolute;
+      inset: 0;
+      transform-origin: 0% 50%;
+    }
+    [data-composition-id="04-ba-cach"] .bc-glint {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      width: 110px;
+      background: rgba(255, 255, 255, 0.7);
+    }
+  </style>
+
+  <div id="root" data-composition-id="04-ba-cach" data-start="0" data-duration="8.969" data-width="1080" data-height="1920">
+    <!-- background: paper + drifting dot grid -->
+    <div id="04-ba-cach-bg" class="clip bc-bg" data-start="0" data-duration="8.969" data-track-index="0">
+      <div id="04-ba-cach-dots" class="bc-dots"></div>
+    </div>
+
+    <!-- stage: three company cards -->
+    <div id="04-ba-cach-stage" class="clip bc-stage" data-start="0" data-duration="8.969" data-track-index="1">
+      <div id="04-ba-cach-cam" class="bc-cam">
+
+        <!-- 01 Lindy -->
+        <div id="04-ba-cach-w1" class="bc-wrap" style="top: 330px">
+          <div id="04-ba-cach-lit1" class="bc-lit"></div>
+          <div class="bc-card">
+            <div id="04-ba-cach-strip1" class="bc-strip"></div>
+            <div class="bc-head">
+              <span class="bc-idx">01</span>
+              <span class="bc-name">Lindy</span>
+            </div>
+            <div id="04-ba-cach-tag1" class="bc-tag" style="background: #d64545">ĐI HẲN</div>
+            <div class="bc-body">
+              <div class="bc-door">
+                <div id="04-ba-cach-door" class="bc-door-panel"><div class="bc-knob"></div></div>
+              </div>
+              <div class="bc-slot">
+                <div id="04-ba-cach-us" class="bc-chip bc-ink-line" style="left: 20px; top: 19px">AI Mỹ</div>
+                <div id="04-ba-cach-cn" class="bc-chip bc-blue" style="left: 20px; top: 19px">AI Trung Quốc</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 02 DoorDash -->
+        <div id="04-ba-cach-w2" class="bc-wrap" style="top: 716px">
+          <div id="04-ba-cach-lit2" class="bc-lit"></div>
+          <div class="bc-card">
+            <div id="04-ba-cach-strip2" class="bc-strip"></div>
+            <div id="04-ba-cach-head2" class="bc-head">
+              <span class="bc-idx">02</span>
+              <span class="bc-name">DoorDash</span>
+            </div>
+            <div id="04-ba-cach-tag2" class="bc-tag" style="background: linear-gradient(90deg, #2563eb 0 50%, #0a0a0a 50% 100%)">CHIA ĐÔI</div>
+            <div class="bc-body">
+              <div id="04-ba-cach-hl" class="bc-half" style="left: 0">
+                <div id="04-ba-cach-easy" class="bc-chip bc-ink-line" style="left: 22px">việc dễ</div>
+                <div id="04-ba-cach-a1" class="bc-arrow" style="left: 200px"></div>
+                <div id="04-ba-cach-a1h" class="bc-head-tri" style="left: 248px"></div>
+                <div id="04-ba-cach-tq" class="bc-chip bc-blue" style="left: 274px">TQ</div>
+              </div>
+              <div id="04-ba-cach-hr" class="bc-half" style="left: 396px">
+                <div id="04-ba-cach-hard" class="bc-chip bc-ink-line" style="left: 18px">việc khó</div>
+                <div id="04-ba-cach-a2" class="bc-arrow" style="left: 214px"></div>
+                <div id="04-ba-cach-a2h" class="bc-head-tri" style="left: 262px"></div>
+                <div id="04-ba-cach-my" class="bc-chip bc-ink" style="left: 288px">Mỹ</div>
+              </div>
+              <div id="04-ba-cach-cut" class="bc-cut"></div>
+            </div>
+          </div>
+          <div id="04-ba-cach-dash2" class="bc-dash"><div id="04-ba-cach-q2" class="bc-q">?</div></div>
+        </div>
+
+        <!-- 03 Siemens -->
+        <div id="04-ba-cach-w3" class="bc-wrap" style="top: 1102px">
+          <div id="04-ba-cach-lit3" class="bc-lit"></div>
+          <div class="bc-card">
+            <div id="04-ba-cach-strip3" class="bc-strip"></div>
+            <div id="04-ba-cach-head3" class="bc-head">
+              <span class="bc-idx">03</span>
+              <span class="bc-name">Siemens</span>
+              <span id="04-ba-cach-flag" class="bc-flag">ĐỨC</span>
+            </div>
+            <div id="04-ba-cach-tag3" class="bc-tag" style="background: #2563eb">SONG SONG</div>
+            <div class="bc-body">
+              <div class="bc-row" style="top: 8px">
+                <div id="04-ba-cach-lb1" class="bc-chip bc-ink">Mỹ</div>
+                <div class="bc-track" style="background: rgba(10, 10, 10, 0.08)">
+                  <div id="04-ba-cach-f1" class="bc-fill" style="background: #0a0a0a"></div>
+                  <div id="04-ba-cach-g1" class="bc-glint"></div>
+                </div>
+              </div>
+              <div class="bc-row" style="top: 88px">
+                <div id="04-ba-cach-lb2" class="bc-chip bc-blue">TQ</div>
+                <div class="bc-track" style="background: rgba(37, 99, 235, 0.12)">
+                  <div id="04-ba-cach-f2" class="bc-fill" style="background: #2563eb"></div>
+                  <div id="04-ba-cach-g2" class="bc-glint"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="04-ba-cach-dash3" class="bc-dash"><div id="04-ba-cach-q3" class="bc-q">?</div></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var D = 8.469;
+      var $ = function (k) { return document.getElementById("04-ba-cach-" + k); };
+      var tl = gsap.timeline({ paused: true });
+      var OUT = "power3.out";
+      var FOCUS = 1.08;
+
+      // --- ambient: grid drift + slow camera push toward Siemens (≤4%) ---
+      tl.fromTo($("dots"), { x: 0, y: 0 }, { x: -36, y: -72, duration: D, ease: "none" }, 0);
+      tl.fromTo($("cam"), { scale: 1 }, { scale: 1.015, duration: 5.6, ease: "sine.inOut" }, 0);
+      tl.to($("cam"), { scale: 1.04, duration: D - 5.6, ease: "power1.inOut" }, 5.6);
+
+      // --- initial states (seek-safe) ---
+      tl.set([$("lit1"), $("lit2"), $("lit3")], { x: 0, y: 0 }, 0);
+      tl.set([$("strip1"), $("strip2"), $("strip3")], { scaleY: 0 }, 0);
+      tl.set([$("tag1"), $("tag2"), $("tag3"), $("flag")], { opacity: 0, scale: 0.7 }, 0);
+      tl.set($("cn"), { opacity: 0, x: -300 }, 0);
+      tl.set([$("easy"), $("tq"), $("hard"), $("my")], { opacity: 0, y: 18 }, 0);
+      tl.set([$("a1"), $("a2")], { scaleX: 0 }, 0);
+      tl.set($("cut"), { scaleY: 0 }, 0);
+      tl.set([$("a1h"), $("a2h")], { opacity: 0, x: -10 }, 0);
+      tl.set([$("f1"), $("f2")], { scaleX: 0 }, 0);
+      tl.set([$("g1"), $("g2")], { x: -130 }, 0);
+      tl.set([$("lb1"), $("lb2")], { opacity: 0.4 }, 0);
+
+      // --- Scene 1 (0.0–1.0): stack settles, placeholders become DoorDash / Siemens; Lindy leaves ---
+      tl.fromTo($("w2"), { y: 22 }, { y: 0, duration: 0.42, ease: OUT }, 0.04);
+      tl.fromTo($("w3"), { y: 30 }, { y: 0, duration: 0.42, ease: OUT }, 0.1);
+      tl.fromTo($("q2"), { opacity: 1, scale: 1 }, { opacity: 0, scale: 0.6, duration: 0.22, ease: "power2.in" }, 0.04);
+      tl.fromTo($("q3"), { opacity: 1, scale: 1 }, { opacity: 0, scale: 0.6, duration: 0.22, ease: "power2.in" }, 0.1);
+      tl.fromTo($("dash2"), { opacity: 1 }, { opacity: 0, duration: 0.3, ease: "power2.out" }, 0.18);
+      tl.fromTo($("dash3"), { opacity: 1 }, { opacity: 0, duration: 0.3, ease: "power2.out" }, 0.24);
+      tl.fromTo($("head2"), { y: 26 }, { y: 0, duration: 0.4, ease: OUT }, 0.18);
+      tl.fromTo($("head3"), { y: 26 }, { y: 0, duration: 0.4, ease: OUT }, 0.24);
+
+      // Lindy lights up
+      tl.fromTo($("w1"), { scale: 1, opacity: 1 }, { scale: FOCUS, duration: 0.45, ease: OUT }, 0.1);
+      tl.to($("lit1"), { x: 14, y: 14, duration: 0.4, ease: OUT }, 0.12);
+      tl.to($("strip1"), { scaleY: 1, duration: 0.4, ease: OUT }, 0.14);
+      tl.fromTo([$("w2"), $("w3")], { opacity: 1, scale: 1 }, { opacity: 0.5, scale: 0.97, duration: 0.4, ease: OUT }, 0.42);
+      // door opens ("đi"), US label slides out, CN label slides in
+      tl.fromTo($("door"), { rotationY: 0, transformPerspective: 420 }, { rotationY: -74, transformPerspective: 420, duration: 0.42, ease: OUT }, 0.54);
+      tl.fromTo($("us"), { x: 0, opacity: 1 }, { x: 640, opacity: 0, duration: 0.46, ease: "power2.in" }, 0.6);
+      tl.to($("cn"), { x: 0, opacity: 1, duration: 0.45, ease: OUT }, 0.8);
+      tl.to($("tag1"), { opacity: 1, scale: 1, duration: 0.32, ease: OUT }, 0.74);
+
+      // --- Scene 2 (1.0–2.8): Lindy greys back, DoorDash zooms, card is cut in two ---
+      tl.to($("w1"), { scale: 0.96, opacity: 0.42, duration: 0.45, ease: OUT }, 1.0);
+      tl.to($("lit1"), { x: 0, y: 0, duration: 0.35, ease: OUT }, 1.0);
+      tl.to($("w2"), { scale: FOCUS, opacity: 1, duration: 0.45, ease: OUT }, 1.06);
+      tl.to($("lit2"), { x: 14, y: 14, duration: 0.4, ease: OUT }, 1.08);
+      tl.to($("strip2"), { scaleY: 1, duration: 0.4, ease: OUT }, 1.1);
+      tl.to($("cut"), { scaleY: 1, duration: 0.3, ease: OUT }, 2.02);
+      tl.to($("hl"), { x: -14, duration: 0.4, ease: OUT }, 2.27);
+      tl.to($("hr"), { x: 14, duration: 0.4, ease: OUT }, 2.27);
+      tl.to($("tag2"), { opacity: 1, scale: 1, duration: 0.32, ease: OUT }, 2.3);
+
+      // --- Scene 3 (2.8–5.6): easy work -> TQ, hard work -> Mỹ ---
+      tl.to($("easy"), { opacity: 1, y: 0, duration: 0.35, ease: OUT }, 2.85);
+      tl.to($("a1"), { scaleX: 1, duration: 0.3, ease: OUT }, 3.2);
+      tl.to($("a1h"), { opacity: 1, x: 0, duration: 0.2, ease: OUT }, 3.4);
+      tl.to($("tq"), { opacity: 1, y: 0, duration: 0.35, ease: OUT }, 3.58);
+      tl.to($("hard"), { opacity: 1, y: 0, duration: 0.35, ease: OUT }, 4.33);
+      tl.to($("a2"), { scaleX: 1, duration: 0.3, ease: OUT }, 4.74);
+      tl.to($("a2h"), { opacity: 1, x: 0, duration: 0.2, ease: OUT }, 4.94);
+      tl.to($("my"), { opacity: 1, y: 0, duration: 0.35, ease: OUT }, 5.3);
+
+      // --- Scene 4 (5.6–8.47): DoorDash steps back, Siemens runs both in parallel ---
+      tl.to($("w2"), { scale: 0.96, opacity: 0.42, duration: 0.45, ease: OUT }, 5.76);
+      tl.to($("lit2"), { x: 0, y: 0, duration: 0.35, ease: OUT }, 5.76);
+      tl.to($("w3"), { scale: FOCUS, opacity: 1, duration: 0.45, ease: OUT }, 6.1);
+      tl.to($("lit3"), { x: 14, y: 14, duration: 0.4, ease: OUT }, 6.12);
+      tl.to($("strip3"), { scaleY: 1, duration: 0.4, ease: OUT }, 6.14);
+      tl.to($("flag"), { opacity: 1, scale: 1, duration: 0.35, ease: OUT }, 6.81);
+      tl.to([$("lb1"), $("lb2")], { opacity: 1, duration: 0.25, ease: OUT }, 7.26);
+      tl.to([$("f1"), $("f2")], { scaleX: 1, duration: 0.6, ease: "power2.inOut" }, 7.28);
+      tl.to($("tag3"), { opacity: 1, scale: 1, duration: 0.32, ease: OUT }, 7.66);
+      // both bars light up on the same beat, twice
+      tl.fromTo([$("g1"), $("g2")], { x: -130 }, { x: 700, duration: 0.3, ease: "power1.inOut" }, 7.9);
+      tl.fromTo([$("g1"), $("g2")], { x: -130 }, { x: 700, duration: 0.3, ease: "power1.inOut", immediateRender: false }, 8.14);
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines["04-ba-cach"] = tl;
+    })();
+  </script>
+</template>

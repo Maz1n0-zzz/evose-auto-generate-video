@@ -1,0 +1,187 @@
+<template>
+<div id="root" data-composition-id="02-cung-mot-viec" data-width="1080" data-height="1920" data-duration="7.554">
+  <style>
+    @font-face { font-family: "Hanken Grotesk"; src: url("assets/fonts/HankenGrotesk-VF.ttf") format("truetype"); font-weight: 100 900; }
+    @font-face { font-family: "JetBrains Mono"; src: url("assets/fonts/JetBrainsMono-Regular.ttf") format("truetype"); font-weight: 100 599; }
+    @font-face { font-family: "JetBrains Mono"; src: url("assets/fonts/JetBrainsMono-Bold.ttf") format("truetype"); font-weight: 600 900; }
+    
+    #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; font-family: "Hanken Grotesk", sans-serif; color: #0a0a0a; }
+    .f02-bg { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; overflow: hidden; background-color: #f2f2f0; }
+    .f02-grid { position: absolute; inset: -80px; background-image: radial-gradient(circle, #d6d6d1 1.4px, transparent 1.4px); background-size: 26px 26px; }
+    .f02-glow-top { position: absolute; left: 90px; top: 380px; width: 900px; height: 460px; border-radius: 50%;
+      background: radial-gradient(closest-side, rgba(10,10,10,0.05), rgba(10,10,10,0)); }
+    .f02-glow-bot { position: absolute; left: 90px; top: 1000px; width: 900px; height: 460px; border-radius: 50%;
+      background: radial-gradient(closest-side, rgba(37,99,235,0.10), rgba(37,99,235,0)); }
+    .f02-stage { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; }
+    .f02-cam { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; transform-origin: 540px 905px; }
+    .f02-shake { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; }
+
+    .f02-q { position: absolute; left: 0; top: 440px; width: 1080px; text-align: center; font-weight: 800; font-size: 150px;
+      line-height: 1.12; letter-spacing: -3px; }
+    .f02-w { display: inline-block; margin: 0 18px; }
+
+    .f02-divider { position: absolute; left: 60px; top: 903px; width: 960px; height: 4px; background: #0a0a0a; transform-origin: 50% 50%; }
+
+    .f02-band { position: absolute; left: 0; width: 1080px; height: 600px; }
+    #f02-top { top: 290px; transform-origin: 540px 600px; }
+    #f02-bot { top: 920px; transform-origin: 540px 0px; }
+
+    .f02-chip { position: absolute; left: 90px; height: 64px; padding: 0 26px; border-radius: 12px; font-weight: 800; font-size: 40px;
+      letter-spacing: 0.08em; line-height: 64px; white-space: nowrap; }
+    #f02-chip-us { top: 30px; background: #0a0a0a; color: #f2f2f0; }
+    #f02-chip-cn { top: 506px; background: #2563eb; color: #ffffff; }
+
+    .f02-card { position: absolute; width: 400px; height: 210px; margin-left: -200px; margin-top: -105px; background: #ffffff;
+      border: 3px solid #0a0a0a; border-radius: 24px; box-shadow: 0 14px 30px rgba(10,10,10,0.10);
+      display: flex; align-items: center; justify-content: center; gap: 26px; }
+    #f02-card-a { left: 296px; top: 240px; }
+    #f02-card-b { left: 296px; top: 360px; }
+    .f02-card svg { width: 96px; height: 116px; }
+    .f02-card-t { font-weight: 800; font-size: 70px; line-height: 1.12; letter-spacing: -1px; }
+
+    .f02-tag { position: absolute; display: flex; align-items: center; justify-content: center;
+      clip-path: polygon(64px 0, 100% 0, 100% 100%, 64px 100%, 0 50%); }
+    .f02-tag::before { content: ""; position: absolute; left: 40px; top: 50%; width: 24px; height: 24px; margin-top: -12px; border-radius: 50%; background: #f2f2f0; }
+    #f02-tag-us { left: 540px; top: 115px; width: 450px; height: 250px; background: #0a0a0a; color: #f2f2f0; transform-origin: 50% 0%; }
+    #f02-tag-cn { left: 675px; top: 308px; width: 180px; height: 104px; background: #2563eb; color: #ffffff; transform-origin: 50% 0%;
+      clip-path: polygon(30px 0, 100% 0, 100% 100%, 30px 100%, 0 50%); }
+    #f02-tag-cn::before { left: 18px; width: 14px; height: 14px; margin-top: -7px; }
+    .f02-price { font-family: "JetBrains Mono", monospace; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; }
+    #f02-tag-us .f02-price { font-size: 116px; margin-left: 50px; letter-spacing: -2px; }
+    #f02-tag-cn .f02-price { font-size: 62px; margin-left: 22px; }
+
+    .f02-res { position: absolute; width: 400px; height: 130px; margin-left: -200px; margin-top: -65px; background: #ffffff;
+      border: 3px solid #0a0a0a; border-radius: 22px; display: flex; align-items: center; justify-content: center; gap: 24px; }
+    #f02-res-a { left: 540px; top: 448px; }
+    #f02-res-b { left: 540px; top: 170px; }
+    .f02-res svg { width: 72px; height: 72px; }
+    .f02-res path { fill: none; stroke: #0a0a0a; stroke-linecap: round; stroke-linejoin: round; }
+    .f02-res .f02-box { stroke-width: 5; }
+    .f02-res .f02-tick { stroke: #2563eb; stroke-width: 9; }
+    .f02-res-t { font-weight: 800; font-size: 54px; line-height: 1.12; letter-spacing: -0.5px; }
+
+    .f02-approx { position: absolute; left: 540px; top: 905px; width: 200px; height: 170px; margin-left: -100px; margin-top: -85px;
+      background: #f2f2f0; display: flex; align-items: center; justify-content: center; }
+    .f02-approx span { font-weight: 800; font-size: 260px; line-height: 1; color: #0a0a0a; margin-top: -40px; }
+  </style>
+
+  <div class="f02-bg clip" data-start="0" data-duration="7.554" data-track-index="0">
+    <div class="f02-grid"></div>
+    <div class="f02-glow-top"></div>
+    <div class="f02-glow-bot"></div>
+  </div>
+
+  <div class="f02-stage clip" data-start="0" data-duration="7.554" data-track-index="1">
+    <div class="f02-cam" id="f02-cam">
+      <div class="f02-shake" id="f02-shake">
+        <div class="f02-q"><span class="f02-w" id="f02-w1">Lý</span><span class="f02-w" id="f02-w2">do?</span></div>
+
+        <div class="f02-divider" id="f02-divider"></div>
+
+        <div class="f02-band" id="f02-top">
+          <div class="f02-chip" id="f02-chip-us">AI MỸ</div>
+          <div class="f02-card" id="f02-card-a">
+            <svg viewBox="0 0 96 116"><path d="M8 6 H62 L88 32 V110 H8 Z" fill="#f2f2f0" stroke="#0a0a0a" stroke-width="6" stroke-linejoin="round"/><path d="M62 6 V32 H88" fill="none" stroke="#0a0a0a" stroke-width="6" stroke-linejoin="round"/><path d="M24 56 H72 M24 74 H72 M24 92 H56" stroke="#2563eb" stroke-width="7" stroke-linecap="round"/></svg>
+            <div class="f02-card-t">1 việc</div>
+          </div>
+          <div class="f02-tag" id="f02-tag-us"><span class="f02-price">$$$$</span></div>
+          <div class="f02-res" id="f02-res-a">
+            <svg viewBox="0 0 72 72"><path class="f02-box" id="f02-box-a" d="M6 6 H66 V66 H6 Z"/><path class="f02-tick" id="f02-tick-a" d="M18 38 L31 51 L55 22"/></svg>
+            <div class="f02-res-t">Kết quả</div>
+          </div>
+        </div>
+
+        <div class="f02-band" id="f02-bot">
+          <div class="f02-res" id="f02-res-b">
+            <svg viewBox="0 0 72 72"><path class="f02-box" id="f02-box-b" d="M6 6 H66 V66 H6 Z"/><path class="f02-tick" id="f02-tick-b" d="M18 38 L31 51 L55 22"/></svg>
+            <div class="f02-res-t">Kết quả</div>
+          </div>
+          <div class="f02-card" id="f02-card-b">
+            <svg viewBox="0 0 96 116"><path d="M8 6 H62 L88 32 V110 H8 Z" fill="#f2f2f0" stroke="#0a0a0a" stroke-width="6" stroke-linejoin="round"/><path d="M62 6 V32 H88" fill="none" stroke="#0a0a0a" stroke-width="6" stroke-linejoin="round"/><path d="M24 56 H72 M24 74 H72 M24 92 H56" stroke="#2563eb" stroke-width="7" stroke-linecap="round"/></svg>
+            <div class="f02-card-t">1 việc</div>
+          </div>
+          <div class="f02-tag" id="f02-tag-cn"><span class="f02-price">$</span></div>
+          <div class="f02-chip" id="f02-chip-cn">AI TRUNG QUỐC</div>
+        </div>
+
+        <div class="f02-approx" id="f02-approx"><span>≈</span></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script>
+    (function () {
+      var D = 7.054;
+      var tl = gsap.timeline({ paused: true });
+      var E = "power3.out";
+
+      // Nền: lưới trôi + camera đẩy chậm suốt khung (tối đa 3.8%)
+      tl.fromTo(".f02-grid", { x: 0, y: 0 }, { x: -52, y: -52, duration: D, ease: "none" }, 0);
+      tl.fromTo("#f02-cam", { scale: 1 }, { scale: 1.012, duration: 5.5, ease: "none" }, 0);
+      tl.to("#f02-cam", { scale: 1.038, duration: D - 5.5, ease: "power1.out" }, 5.5);
+
+      // Scene 1 (0–1.5): "Lý do?" per-word + thẻ việc trượt lên
+      tl.fromTo("#f02-w1", { y: 70, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: E }, 0.05);
+      tl.fromTo("#f02-w2", { y: 70, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: E }, 0.22);
+      tl.fromTo("#f02-card-a", { x: 244, y: 675, scale: 1.215, opacity: 0 }, { y: 375, opacity: 1, duration: 0.75, ease: E }, 0.4);
+      tl.fromTo("#f02-card-b", { x: 244, y: -75, scale: 1.215, opacity: 0 }, { y: -375, opacity: 1, duration: 0.75, ease: E }, 0.4);
+      tl.fromTo(".f02-q", { scale: 1 }, { scale: 1.05, duration: 1.1, ease: "none" }, 0.4);
+
+      // Scene 2 (1.5–2.4): chữ bay lên, thẻ tách đôi từ tâm, đường chia vẽ ra
+      tl.to(".f02-q", { y: -150, opacity: 0, duration: 0.45, ease: "power2.in" }, 1.5);
+      tl.to("#f02-card-a", { y: 0, scale: 1, duration: 0.8, ease: E }, 1.55);
+      tl.to("#f02-card-b", { y: 0, scale: 1, duration: 0.8, ease: E }, 1.6);
+      tl.fromTo("#f02-divider", { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: E }, 1.8);
+
+      // Scene 3 (2.4–3.7): làn Mỹ, thẻ giá mực rơi xuống, rung, dải nghiêng −4°
+      tl.fromTo("#f02-chip-us", { x: -60, opacity: 0 }, { x: 0, opacity: 1, duration: 0.45, ease: E }, 2.4);
+      tl.to("#f02-card-a", { x: 0, duration: 0.6, ease: E }, 2.45);
+      tl.fromTo("#f02-tag-us", { y: -560, opacity: 0 }, { y: 0, opacity: 1, duration: 0.38, ease: "power2.in" }, 2.55);
+      tl.to("#f02-tag-us", { rotation: -5, duration: 0.07, ease: "power1.out" }, 2.93);
+      tl.to("#f02-tag-us", { rotation: 4, duration: 0.08, ease: "sine.inOut" }, 3.0);
+      tl.to("#f02-tag-us", { rotation: -2, duration: 0.08, ease: "sine.inOut" }, 3.08);
+      tl.to("#f02-tag-us", { rotation: 0, duration: 0.1, ease: "sine.out" }, 3.16);
+      tl.fromTo("#f02-top", { rotation: 0, rotationX: 0, transformPerspective: 1400 }, { rotation: -4, rotationX: 6, duration: 0.6, ease: E }, 3.1);
+      tl.to("#f02-tag-us", { rotation: 2, duration: 0.35, ease: "sine.inOut" }, 3.4);
+      tl.to("#f02-tag-us", { rotation: -1.4, duration: 0.35, ease: "sine.inOut" }, 3.75);
+      tl.to("#f02-tag-us", { rotation: 0.8, duration: 0.3, ease: "sine.inOut" }, 4.1);
+      tl.to("#f02-tag-us", { rotation: 0, duration: 0.3, ease: "sine.out" }, 4.4);
+
+      // Scene 4 (3.7–5.5): làn Trung Quốc, thẻ giá xanh nhỏ pop, dải nghiêng +4°
+      tl.fromTo("#f02-chip-cn", { x: -60, opacity: 0 }, { x: 0, opacity: 1, duration: 0.45, ease: E }, 3.7);
+      tl.to("#f02-card-b", { x: 0, duration: 0.6, ease: E }, 3.75);
+      tl.fromTo("#f02-tag-cn", { scale: 0, rotation: -14, opacity: 0 }, { scale: 1, rotation: 0, opacity: 1, duration: 0.55, ease: "back.out(1.6)" }, 3.95);
+      tl.fromTo("#f02-bot", { rotation: 0, rotationX: 0, transformPerspective: 1400 }, { rotation: 4, rotationX: -6, duration: 0.6, ease: E }, 4.3);
+      tl.to("#f02-tag-cn", { rotation: 4, duration: 0.3, ease: "sine.inOut" }, 4.75);
+      tl.to("#f02-tag-cn", { rotation: -2.5, duration: 0.3, ease: "sine.inOut" }, 5.05);
+      tl.to("#f02-tag-cn", { rotation: 0, duration: 0.3, ease: "sine.out" }, 5.35);
+
+      // Scene 5 (5.5–7.05): hai ô kết quả + dấu tích vẽ + "≈" slam
+      ["a", "b"].forEach(function (k) {
+        ["#f02-box-" + k, "#f02-tick-" + k].forEach(function (sel) {
+          var p = document.querySelector(sel);
+          var len = p.getTotalLength() * 1.05;
+          p.style.strokeDasharray = len;
+          p.style.strokeDashoffset = len;
+        });
+      });
+      tl.fromTo("#f02-res-a", { y: -30, scale: 0.9, opacity: 0 }, { y: 0, scale: 1, opacity: 1, duration: 0.45, ease: E }, 5.5);
+      tl.fromTo("#f02-res-b", { y: 30, scale: 0.9, opacity: 0 }, { y: 0, scale: 1, opacity: 1, duration: 0.45, ease: E }, 5.6);
+      tl.to("#f02-box-a", { strokeDashoffset: 0, duration: 0.4, ease: "power2.out" }, 5.6);
+      tl.to("#f02-tick-a", { strokeDashoffset: 0, duration: 0.35, ease: "power2.out" }, 5.9);
+      tl.to("#f02-box-b", { strokeDashoffset: 0, duration: 0.4, ease: "power2.out" }, 5.7);
+      tl.to("#f02-tick-b", { strokeDashoffset: 0, duration: 0.35, ease: "power2.out" }, 6.0);
+      tl.fromTo("#f02-approx", { scale: 3.2, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.26, ease: "power4.in" }, 6.12);
+      tl.to("#f02-approx", { scaleX: 1.14, scaleY: 0.88, duration: 0.07, ease: "power1.out" }, 6.38);
+      tl.to("#f02-approx", { scaleX: 1, scaleY: 1, duration: 0.3, ease: "back.out(2)" }, 6.45);
+      tl.to("#f02-shake", { y: 9, duration: 0.05, ease: "power1.out" }, 6.38);
+      tl.to("#f02-shake", { y: -5, duration: 0.07, ease: "sine.inOut" }, 6.43);
+      tl.to("#f02-shake", { y: 0, duration: 0.12, ease: "sine.out" }, 6.5);
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines["02-cung-mot-viec"] = tl;
+    })();
+  </script>
+</div>
+</template>

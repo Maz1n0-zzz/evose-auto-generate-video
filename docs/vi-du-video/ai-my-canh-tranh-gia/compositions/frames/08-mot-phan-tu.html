@@ -1,0 +1,244 @@
+<template>
+  <div id="root" data-composition-id="08-mot-phan-tu" data-width="1080" data-height="1920" data-duration="7.041">
+    <style>
+      /* Fonts: fontsource woff2 (Hanken Grotesk 800/600, JetBrains Mono 500), latin + latin-ext + vietnamese */
+      @font-face { font-family: "Hanken Grotesk"; src: url("assets/fonts/HankenGrotesk-VF.ttf") format("truetype"); font-weight: 100 900; }
+    @font-face { font-family: "JetBrains Mono"; src: url("assets/fonts/JetBrainsMono-Regular.ttf") format("truetype"); font-weight: 100 599; }
+    @font-face { font-family: "JetBrains Mono"; src: url("assets/fonts/JetBrainsMono-Bold.ttf") format("truetype"); font-weight: 600 900; }
+      
+      
+      
+      
+      
+      
+      
+      
+
+      #root {
+        position: relative;
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        font-family: "Hanken Grotesk", sans-serif;
+        color: #0a0a0a;
+      }
+      [data-composition-id="08-mot-phan-tu"] .clip { position: absolute; inset: 0; }
+      [id="mpt08-bg"] { background: #f2f2f0; overflow: hidden; }
+      [id="mpt08-grid"] {
+        position: absolute;
+        inset: -80px;
+        background-image: radial-gradient(circle, #d6d6d1 2.4px, transparent 2.6px);
+        background-size: 40px 40px;
+      }
+      [id="mpt08-cam"] { position: absolute; inset: 0; transform-origin: 540px 905px; }
+      [data-composition-id="08-mot-phan-tu"] .abs { position: absolute; }
+
+      /* continuity bars from frame 7 */
+      [data-composition-id="08-mot-phan-tu"] .bar { left: 140px; height: 24px; background: #2563eb; }
+
+      [id="mpt08-coin"] { left: 240px; top: 460px; width: 600px; height: 600px; overflow: visible; }
+
+      [id="mpt08-chip"] {
+        left: 0; right: 0; top: 356px;
+        margin: 0 auto;
+        width: fit-content;
+        display: flex; align-items: center; gap: 16px;
+        padding: 14px 26px;
+        border: 3px solid #0a0a0a;
+        background: #f2f2f0;
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 500;
+        font-size: 30px;
+        letter-spacing: 0.12em;
+        line-height: 1.2;
+      }
+      [id="mpt08-chip-dot"] { width: 14px; height: 14px; background: #2563eb; }
+
+      [id="mpt08-user"] { left: 140px; top: 1100px; width: 170px; height: 170px; }
+      [id="mpt08-user-label"] {
+        left: 105px; top: 1282px; width: 240px; text-align: center;
+        font-family: "JetBrains Mono", monospace; font-weight: 500;
+        font-size: 24px; letter-spacing: 0.14em; line-height: 1.2;
+      }
+      [id="mpt08-arrow"] { left: 330px; top: 1085px; width: 80px; height: 230px; overflow: visible; }
+
+      [id="mpt08-num"] { left: 430px; top: 1060px; width: 580px; height: 290px; transform-origin: 0% 50%; }
+      [data-composition-id="08-mot-phan-tu"] .digit {
+        font-weight: 800; font-size: 184px; line-height: 1.12;
+        letter-spacing: -0.02em; font-variant-numeric: tabular-nums;
+      }
+      [id="mpt08-approx"] { left: 0; top: 100px; width: 170px; height: 96px; overflow: visible; }
+      [id="mpt08-d1"] { left: 200px; top: -16px; }
+      [id="mpt08-slash"] { left: 300px; top: 22px; width: 120px; height: 250px; overflow: visible; }
+      [id="mpt08-d4"] { left: 400px; top: 76px; }
+
+      [id="mpt08-underline"] { left: 430px; top: 1350px; width: 560px; height: 20px; overflow: visible; }
+      [id="mpt08-line"] {
+        left: 430px; top: 1384px; width: 600px;
+        font-weight: 600; font-size: 42px; line-height: 1.2;
+        white-space: nowrap;
+      }
+      [id="mpt08-line"] span { display: inline-block; margin-right: 0.26em; }
+    </style>
+
+    <!-- background: paper + drifting dot grid -->
+    <div id="mpt08-bg" class="clip" data-start="0" data-duration="7.041" data-track-index="0">
+      <div id="mpt08-grid"></div>
+    </div>
+
+    <!-- foreground -->
+    <div id="mpt08-fg" class="clip" data-start="0" data-duration="7.041" data-track-index="1">
+      <div id="mpt08-cam">
+        <div id="mpt08-bar1" class="abs bar" style="top:330px;width:160px"></div>
+        <div id="mpt08-bar2" class="abs bar" style="top:368px;width:400px"></div>
+        <div id="mpt08-bar3" class="abs bar" style="top:406px;width:640px"></div>
+
+        <div id="mpt08-chip" class="abs">
+          <div id="mpt08-chip-dot"></div>
+          <div>TỪ GIỮA THÁNG BẢY</div>
+        </div>
+
+        <svg id="mpt08-coin" class="abs" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <clipPath id="mpt08-clip-main">
+              <path d="M300 300 L300 30 A270 270 0 1 0 570 300 Z" />
+            </clipPath>
+            <clipPath id="mpt08-clip-slice">
+              <path d="M300 300 L300 30 A270 270 0 0 1 570 300 Z" />
+            </clipPath>
+          </defs>
+          <path id="mpt08-ghost" d="M300 300 L300 60 A240 240 0 0 1 540 300 Z"
+            fill="none" stroke="#2563eb" stroke-width="4" stroke-opacity="0.55" stroke-linejoin="round" />
+          <g id="mpt08-main"><g clip-path="url(#mpt08-clip-main)" data-mpt="face"></g></g>
+          <g id="mpt08-slice"><g clip-path="url(#mpt08-clip-slice)" data-mpt="face"></g></g>
+          <line id="mpt08-cut1" x1="300" y1="300" x2="300" y2="48" stroke="#2563eb" stroke-width="8" stroke-linecap="round" />
+          <line id="mpt08-cut2" x1="300" y1="300" x2="552" y2="300" stroke="#2563eb" stroke-width="8" stroke-linecap="round" />
+        </svg>
+
+        <svg id="mpt08-user" class="abs" viewBox="0 0 170 170" xmlns="http://www.w3.org/2000/svg">
+          <rect x="4" y="4" width="162" height="162" fill="#f2f2f0" stroke="#0a0a0a" stroke-width="6" />
+          <circle cx="85" cy="66" r="26" fill="none" stroke="#0a0a0a" stroke-width="8" />
+          <path d="M38 142 C 42 108, 128 108, 132 142" fill="none" stroke="#0a0a0a" stroke-width="8" stroke-linecap="round" />
+        </svg>
+        <div id="mpt08-user-label" class="abs">KHÁCH HÀNG</div>
+
+        <svg id="mpt08-arrow" class="abs" viewBox="0 0 80 230" xmlns="http://www.w3.org/2000/svg">
+          <path id="mpt08-arrow-shaft" d="M40 12 L40 214" fill="none" stroke="#2563eb" stroke-width="12" stroke-linecap="round" />
+          <path id="mpt08-arrow-head" d="M10 180 L40 214 L70 180" fill="none" stroke="#2563eb" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+
+        <div id="mpt08-num" class="abs">
+          <svg id="mpt08-approx" class="abs" viewBox="0 0 170 96" xmlns="http://www.w3.org/2000/svg">
+            <path id="mpt08-wave1" d="M10 34 C 38 8, 62 8, 85 30 S 132 52, 160 26" fill="none" stroke="#2563eb" stroke-width="14" stroke-linecap="round" />
+            <path id="mpt08-wave2" d="M10 74 C 38 48, 62 48, 85 70 S 132 92, 160 66" fill="none" stroke="#2563eb" stroke-width="14" stroke-linecap="round" />
+          </svg>
+          <div id="mpt08-d1" class="abs digit">1</div>
+          <svg id="mpt08-slash" class="abs" viewBox="0 0 120 250" xmlns="http://www.w3.org/2000/svg">
+            <path id="mpt08-slash-line" d="M104 10 L16 240" fill="none" stroke="#0a0a0a" stroke-width="14" stroke-linecap="round" />
+          </svg>
+          <div id="mpt08-d4" class="abs digit">4</div>
+        </div>
+
+        <svg id="mpt08-underline" class="abs" viewBox="0 0 560 20" xmlns="http://www.w3.org/2000/svg">
+          <path id="mpt08-underline-path" d="M4 10 L556 10" fill="none" stroke="#2563eb" stroke-width="6" stroke-linecap="round" />
+        </svg>
+        <div id="mpt08-line" class="abs"><span>mô</span><span>hình</span><span>hàng</span><span>đầu</span><span>của</span><span>Mỹ</span></div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script>
+      (function () {
+        const FID = "08-mot-phan-tu";
+        const D = 6.541;
+        const $ = (n) => document.getElementById("mpt08-" + n);
+        const rootEl = document.querySelector('[data-composition-id="' + FID + '"]');
+
+        // Coin face, built twice (3/4 body + 1/4 slice), each clipped to its sector.
+        let ticks = "";
+        for (let i = 0; i < 60; i++) {
+          const a = (i / 60) * Math.PI * 2;
+          const x1 = (300 + Math.cos(a) * 206).toFixed(2), y1 = (300 + Math.sin(a) * 206).toFixed(2);
+          const x2 = (300 + Math.cos(a) * 226).toFixed(2), y2 = (300 + Math.sin(a) * 226).toFixed(2);
+          ticks += '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" />';
+        }
+        const face =
+          '<circle cx="300" cy="300" r="240" fill="#0a0a0a" />' +
+          '<g data-mpt="ticks" stroke="#f2f2f0" stroke-opacity="0.32" stroke-width="3">' + ticks + "</g>" +
+          '<circle cx="300" cy="300" r="190" fill="none" stroke="#2563eb" stroke-opacity="0.6" stroke-width="3" />' +
+          '<text x="300" y="304" text-anchor="middle" dominant-baseline="central" fill="#f2f2f0" ' +
+          'font-family="Hanken Grotesk, sans-serif" font-weight="800" font-size="230">$</text>' +
+          '<circle data-mpt="rim" cx="300" cy="300" r="240" fill="none" stroke="#2563eb" stroke-width="16" transform="rotate(-90 300 300)" />';
+        rootEl.querySelectorAll('[data-mpt="face"]').forEach((g) => { g.innerHTML = face; });
+
+        // svg-path-draw setup: measured lengths
+        const prep = (el) => {
+          const len = el.getTotalLength() * 1.02;
+          el.style.strokeDasharray = len;
+          el.style.strokeDashoffset = len;
+          return el;
+        };
+        const rims = Array.from(rootEl.querySelectorAll('[data-mpt="rim"]')).map(prep);
+        ["ghost", "cut1", "cut2", "arrow-shaft", "arrow-head", "wave1", "wave2", "slash-line", "underline-path"].forEach((n) => prep($(n)));
+        const tickGroups = rootEl.querySelectorAll('[data-mpt="ticks"]');
+
+        const tl = gsap.timeline({ paused: true });
+
+        // Ambient: grid drift + camera push (≤4%) + coin edge rotation, full duration
+        tl.fromTo($("grid"), { x: 0, y: 0 }, { x: -40, y: -40, duration: D, ease: "none" }, 0);
+        tl.fromTo($("cam"), { scale: 1 }, { scale: 1.012, duration: 3.9, ease: "sine.inOut" }, 0);
+        tl.to($("cam"), { scale: 1.036, duration: D - 3.9, ease: "sine.inOut" }, 3.9);
+        tl.fromTo(tickGroups, { rotation: 0 }, { rotation: 36, svgOrigin: "300 300", duration: D, ease: "none" }, 0);
+
+        // Scene 1 (0–2.4): three bars shrink and merge into the coin (scale-swap)
+        const bars = [
+          { el: $("bar1"), top: 330, w: 160 },
+          { el: $("bar2"), top: 368, w: 400 },
+          { el: $("bar3"), top: 406, w: 640 },
+        ];
+        bars.forEach((b, i) => {
+          const dx = 540 - (140 + b.w / 2);
+          const dy = 760 - (b.top + 12);
+          tl.fromTo(b.el, { x: 0, y: 0, scaleX: 1, scaleY: 1, opacity: 1 },
+            { x: dx, y: dy, scaleX: 0.12, scaleY: 0.5, opacity: 0, duration: 0.55, ease: "power3.in" }, 0.08 + i * 0.06);
+        });
+        tl.fromTo($("coin"), { scale: 0.25, opacity: 0, filter: "blur(12px)", transformOrigin: "50% 50%" },
+          { scale: 1, opacity: 1, filter: "blur(0px)", duration: 0.8, ease: "power3.out" }, 0.3);
+        tl.to(rims, { strokeDashoffset: 0, duration: 0.7, ease: "power2.out" }, 0.9);
+        tl.fromTo($("chip"), { opacity: 0, y: 24, clipPath: "inset(0% 100% 0% 0%)" },
+          { opacity: 1, y: 0, clipPath: "inset(0% 0% 0% 0%)", duration: 0.55, ease: "power3.out" }, 1.6);
+        tl.fromTo($("chip-dot"), { scale: 0 }, { scale: 1, duration: 0.4, ease: "back.out(1.6)" }, 1.85);
+
+        // Scene 2 (2.4–3.9): customer icon, then the down arrow draws at 3.4
+        tl.fromTo($("user"), { opacity: 0, scale: 0.6, y: 30, transformOrigin: "50% 100%" },
+          { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: "power3.out" }, 2.4);
+        tl.fromTo($("user-label"), { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, 2.65);
+        tl.to($("arrow-shaft"), { strokeDashoffset: 0, duration: 0.45, ease: "power2.out" }, 3.4);
+        tl.to($("arrow-head"), { strokeDashoffset: 0, duration: 0.3, ease: "power2.out" }, 3.72);
+
+        // Scene 3 (3.9–6.54): quarter slice detaches and drifts down-right (below the chip); ≈ ¼ pops
+        tl.to([$("cut1"), $("cut2")], { strokeDashoffset: 0, duration: 0.18, ease: "power2.out" }, 3.85);
+        tl.fromTo($("slice"), { x: 0, y: 0, rotation: 0, scale: 1 },
+          { x: 110, y: 60, rotation: 6, scale: 0.96, svgOrigin: "420 180", duration: 0.4, ease: "power3.out" }, 3.97);
+        tl.to($("slice"), { x: 225, y: 190, rotation: 14, scale: 0.84, svgOrigin: "420 180", duration: 1.0, ease: "power1.inOut" }, 4.37);
+        tl.fromTo($("slice"), { opacity: 1 }, { opacity: 0, duration: 0.55, ease: "power1.in" }, 4.82);
+        tl.fromTo([$("cut1"), $("cut2")], { opacity: 1 }, { opacity: 0, duration: 0.3, ease: "power1.out" }, 4.1);
+        tl.fromTo($("main"), { x: 0, y: 0 }, { x: -10, y: 10, duration: 0.5, ease: "power3.out" }, 4.0);
+        tl.to($("ghost"), { strokeDashoffset: 0, duration: 0.6, ease: "power2.out" }, 4.35);
+
+        tl.fromTo($("num"), { opacity: 0, scale: 0.55, y: 40 },
+          { opacity: 1, scale: 1, y: 0, duration: 0.55, ease: "back.out(1.6)" }, 4.0);
+        tl.to([$("wave1"), $("wave2")], { strokeDashoffset: 0, duration: 0.45, ease: "power2.out", stagger: 0.1 }, 4.05);
+        tl.to($("slash-line"), { strokeDashoffset: 0, duration: 0.35, ease: "power2.out" }, 4.2);
+
+        // "cho các mô hình hàng đầu của Mỹ" (5.0)
+        tl.fromTo($("line").children, { opacity: 0, x: -28 },
+          { opacity: 1, x: 0, duration: 0.45, ease: "power3.out", stagger: 0.07 }, 5.0);
+        tl.to($("underline-path"), { strokeDashoffset: 0, duration: 0.6, ease: "power2.out" }, 5.5);
+
+        window.__timelines = window.__timelines || {};
+        window.__timelines[FID] = tl;
+      })();
+    </script>
+  </div>
+</template>

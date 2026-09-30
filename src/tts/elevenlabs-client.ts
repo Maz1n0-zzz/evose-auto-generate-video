@@ -162,12 +162,23 @@ export class ElevenLabsClient implements TtsClient {
    * đó. Lệch một ký tự là cắt vào giữa từ, mà lại lệch âm thầm, nên kiểm ngay
    * ở đây và ném lỗi thay vì để pipeline cho ra file hỏng.
    */
-  async generateAlignedTake(text: string): Promise<AlignedTake> {
-    const resp = await this.post<TimestampsResponse>(
-      "/with-timestamps",
-      { text, model_id: this.model, voice_settings: VOICE_SETTINGS },
-      "json",
-    );
+  async generateAlignedTake(text: string, opts?: { speed?: number }): Promise<AlignedTake> {
+    const speed = opts?.speed;
+    const body = (withSpeed: boolean) => ({
+      text,
+      model_id: this.model,
+      voice_settings: withSpeed ? { ...VOICE_SETTINGS, speed } : VOICE_SETTINGS,
+    });
+    const wantSpeed = speed !== undefined && Math.abs(speed - 1) > 0.001;
+    let resp: AxiosResponse<TimestampsResponse>;
+    try {
+      resp = await this.post<TimestampsResponse>("/with-timestamps", body(wantSpeed), "json");
+    } catch (e) {
+      // Model nào không nhận `speed` thì đọc lại ở tốc độ gốc, đừng làm hỏng cả lượt.
+      if (!wantSpeed || !/speed/i.test(String((e as Error).message))) throw e;
+      console.warn(`[elevenlabs] model ${this.model} không nhận speed=${speed} — đọc ở tốc độ gốc`);
+      resp = await this.post<TimestampsResponse>("/with-timestamps", body(false), "json");
+    }
     const { audio_base64: audioB64, alignment } = resp.data;
     if (!audioB64) throw new Error("ElevenLabs: phản hồi thiếu audio_base64");
 

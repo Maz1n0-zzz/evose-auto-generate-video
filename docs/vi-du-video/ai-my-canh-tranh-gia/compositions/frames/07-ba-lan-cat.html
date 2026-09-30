@@ -1,0 +1,487 @@
+<template>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <style>
+    @font-face { font-family: "Hanken Grotesk"; src: url("assets/fonts/HankenGrotesk-VF.ttf") format("truetype"); font-weight: 100 900; }
+    @font-face { font-family: "JetBrains Mono"; src: url("assets/fonts/JetBrainsMono-Regular.ttf") format("truetype"); font-weight: 100 599; }
+    @font-face { font-family: "JetBrains Mono"; src: url("assets/fonts/JetBrainsMono-Bold.ttf") format("truetype"); font-weight: 600 900; }
+    
+    
+
+    #root {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: "Hanken Grotesk", sans-serif;
+      color: #0a0a0a;
+    }
+
+    /* nền giấy + lưới chấm (full-bleed) */
+    [id="07-ba-lan-cat-bg"] {
+      position: absolute;
+      inset: 0;
+      background: #f2f2f0;
+      overflow: hidden;
+    }
+    [id="07-ba-lan-cat-grid"] {
+      position: absolute;
+      inset: -140px;
+      background-image: radial-gradient(circle, #d6d6d1 2.6px, transparent 3.2px);
+      background-size: 48px 48px;
+    }
+
+    [id="07-ba-lan-cat-content"] {
+      position: absolute;
+      inset: 0;
+      perspective: 1500px;
+    }
+    [id="07-ba-lan-cat-cam"] {
+      position: absolute;
+      inset: 0;
+      transform-origin: 540px 900px;
+      perspective: 1500px;
+    }
+
+    /* Scene 1 — nhãn lịch lật */
+    [id="07-ba-lan-cat-flip"] {
+      position: absolute;
+      left: 80px;
+      top: 326px;
+      font-family: "JetBrains Mono", monospace;
+      font-weight: 700;
+      font-size: 88px;
+      line-height: 1.2;
+      letter-spacing: 0.02em;
+      color: #0a0a0a;
+      white-space: nowrap;
+      transform-style: preserve-3d;
+    }
+    .\30 7-ba-lan-cat-word {
+      display: inline-block;
+      transform-origin: 50% 100%;
+      backface-visibility: hidden;
+    }
+
+    /* khung chờ của ba dòng: viền chip rỗng + rãnh thanh mờ */
+    .\30 7-ba-lan-cat-ph {
+      position: absolute;
+      left: 80px;
+      width: 920px;
+      height: 240px;
+    }
+    .\30 7-ba-lan-cat-ph-chip {
+      position: absolute;
+      left: 0;
+      top: 44px;
+      width: 440px;
+      height: 82px;
+      box-sizing: border-box;
+      border: 3px dashed rgba(10, 10, 10, 0.22);
+    }
+    .\30 7-ba-lan-cat-ph-dot {
+      position: absolute;
+      left: 20px;
+      top: 29px;
+      width: 18px;
+      height: 18px;
+      box-sizing: border-box;
+      border: 3px solid rgba(10, 10, 10, 0.22);
+    }
+    .\30 7-ba-lan-cat-ph-line {
+      position: absolute;
+      left: 56px;
+      top: 33px;
+      height: 10px;
+      background: rgba(10, 10, 10, 0.1);
+    }
+    .\30 7-ba-lan-cat-ph-pct {
+      position: absolute;
+      right: 0;
+      top: 96px;
+      width: 180px;
+      height: 14px;
+      background: rgba(10, 10, 10, 0.08);
+    }
+    .\30 7-ba-lan-cat-ph-track {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 152px;
+      height: 80px;
+      box-sizing: border-box;
+      background: rgba(10, 10, 10, 0.04);
+      border: 2px dashed rgba(10, 10, 10, 0.16);
+    }
+    [id="07-ba-lan-cat-kicker"] {
+      position: absolute;
+      right: 80px;
+      top: 372px;
+      font-family: "Hanken Grotesk", sans-serif;
+      font-weight: 700;
+      font-size: 26px;
+      line-height: 1.2;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #2563eb;
+    }
+    [id="07-ba-lan-cat-rule"] {
+      position: absolute;
+      left: 80px;
+      top: 462px;
+      width: 920px;
+      height: 4px;
+      background: #0a0a0a;
+      transform-origin: left center;
+    }
+
+    /* ba dòng giá */
+    .\30 7-ba-lan-cat-row {
+      position: absolute;
+      left: 80px;
+      width: 920px;
+      height: 240px;
+    }
+    .\30 7-ba-lan-cat-head {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      height: 132px;
+    }
+    .\30 7-ba-lan-cat-chip {
+      position: absolute;
+      left: 0;
+      bottom: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 24px 14px 20px;
+      border: 3px solid #0a0a0a;
+      background: #f2f2f0;
+      font-size: 38px;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+    .\30 7-ba-lan-cat-dot {
+      width: 18px;
+      height: 18px;
+      background: #0a0a0a;
+    }
+    .\30 7-ba-lan-cat-brand {
+      font-weight: 800;
+      letter-spacing: -0.01em;
+    }
+    .\30 7-ba-lan-cat-sep {
+      font-weight: 400;
+      color: rgba(10, 10, 10, 0.45);
+    }
+    .\30 7-ba-lan-cat-desc {
+      font-weight: 500;
+    }
+    .\30 7-ba-lan-cat-pct {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      font-family: "JetBrains Mono", monospace;
+      font-weight: 700;
+      font-size: 108px;
+      line-height: 1.12;
+      font-variant-numeric: tabular-nums;
+      color: #2563eb;
+      transform-origin: right bottom;
+      white-space: nowrap;
+    }
+    .\30 7-ba-lan-cat-half {
+      font-family: "Hanken Grotesk", sans-serif;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .\30 7-ba-lan-cat-track {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 152px;
+      height: 80px;
+      background: rgba(10, 10, 10, 0.06);
+    }
+    .\30 7-ba-lan-cat-ghostbar {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      right: 0;
+      background: repeating-linear-gradient(
+        -45deg,
+        rgba(214, 69, 69, 0.3) 0 7px,
+        rgba(214, 69, 69, 0.1) 7px 16px
+      );
+      opacity: 0;
+    }
+    .\30 7-ba-lan-cat-strike {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 37px;
+      height: 6px;
+      background: #d64545;
+      transform-origin: left center;
+    }
+    .\30 7-ba-lan-cat-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: #0a0a0a;
+      transform-origin: left center;
+    }
+    .\30 7-ba-lan-cat-blue {
+      position: absolute;
+      inset: 0;
+      background: #2563eb;
+      opacity: 0;
+    }
+    .\30 7-ba-lan-cat-cut {
+      position: absolute;
+      top: -18px;
+      width: 6px;
+      height: 116px;
+      margin-left: -3px;
+      background: #d64545;
+      transform-origin: center top;
+    }
+    .\30 7-ba-lan-cat-glow {
+      position: absolute;
+      left: -10px;
+      top: -10px;
+      bottom: -10px;
+      border: 4px solid #2563eb;
+      opacity: 0;
+    }
+
+    /* thước đo phía dưới, không số */
+    [id="07-ba-lan-cat-ruler"] {
+      position: absolute;
+      left: 80px;
+      top: 1420px;
+      width: 920px;
+      height: 22px;
+      border-top: 3px solid rgba(10, 10, 10, 0.35);
+      transform-origin: left center;
+    }
+    .\30 7-ba-lan-cat-tick {
+      position: absolute;
+      top: 0;
+      width: 3px;
+      height: 18px;
+      margin-left: -1.5px;
+      background: rgba(10, 10, 10, 0.35);
+    }
+  </style>
+
+  <div id="root" data-composition-id="07-ba-lan-cat" data-width="1080" data-height="1920" data-start="0" data-duration="11.463">
+    <div id="07-ba-lan-cat-bg" class="clip" data-start="0" data-duration="11.463" data-track-index="0">
+      <div id="07-ba-lan-cat-grid"></div>
+    </div>
+
+    <div id="07-ba-lan-cat-content" class="clip" data-start="0" data-duration="11.463" data-track-index="1">
+      <div id="07-ba-lan-cat-cam">
+        <div id="07-ba-lan-cat-flip" data-target="CUỐI THÁNG 7"></div>
+        <div id="07-ba-lan-cat-kicker">Giá API</div>
+        <div id="07-ba-lan-cat-rule"></div>
+
+        <div id="07-ba-lan-cat-ph-1" class="07-ba-lan-cat-ph" style="top: 530px">
+          <div class="07-ba-lan-cat-ph-chip"><div class="07-ba-lan-cat-ph-dot"></div><div class="07-ba-lan-cat-ph-line" style="width: 330px"></div></div>
+          <div class="07-ba-lan-cat-ph-pct"></div>
+          <div class="07-ba-lan-cat-ph-track"></div>
+        </div>
+        <div id="07-ba-lan-cat-ph-2" class="07-ba-lan-cat-ph" style="top: 830px">
+          <div class="07-ba-lan-cat-ph-chip"><div class="07-ba-lan-cat-ph-dot"></div><div class="07-ba-lan-cat-ph-line" style="width: 300px"></div></div>
+          <div class="07-ba-lan-cat-ph-pct"></div>
+          <div class="07-ba-lan-cat-ph-track"></div>
+        </div>
+        <div id="07-ba-lan-cat-ph-3" class="07-ba-lan-cat-ph" style="top: 1130px">
+          <div class="07-ba-lan-cat-ph-chip"><div class="07-ba-lan-cat-ph-dot"></div><div class="07-ba-lan-cat-ph-line" style="width: 270px"></div></div>
+          <div class="07-ba-lan-cat-ph-pct"></div>
+          <div class="07-ba-lan-cat-ph-track"></div>
+        </div>
+
+        <!-- dòng 1 -->
+        <div id="07-ba-lan-cat-row-1" class="07-ba-lan-cat-row" style="top: 530px">
+          <div class="07-ba-lan-cat-head">
+            <div id="07-ba-lan-cat-chip-1" class="07-ba-lan-cat-chip">
+              <span class="07-ba-lan-cat-dot"></span>
+              <span class="07-ba-lan-cat-brand">OpenAI</span>
+              <span class="07-ba-lan-cat-sep">·</span>
+              <span class="07-ba-lan-cat-desc">bản rẻ nhất</span>
+            </div>
+            <div id="07-ba-lan-cat-pct-1" class="07-ba-lan-cat-pct">−<span id="07-ba-lan-cat-num-1">0</span>%</div>
+          </div>
+          <div class="07-ba-lan-cat-track">
+            <div id="07-ba-lan-cat-ghost-1" class="07-ba-lan-cat-ghostbar" style="left: 20%">
+              <div id="07-ba-lan-cat-strike-1" class="07-ba-lan-cat-strike"></div>
+            </div>
+            <div id="07-ba-lan-cat-glow-1" class="07-ba-lan-cat-glow" style="width: calc(20% + 20px)"></div>
+            <div id="07-ba-lan-cat-fill-1" class="07-ba-lan-cat-fill">
+              <div id="07-ba-lan-cat-blue-1" class="07-ba-lan-cat-blue"></div>
+            </div>
+            <div id="07-ba-lan-cat-cut-1" class="07-ba-lan-cat-cut" style="left: 20%"></div>
+          </div>
+        </div>
+
+        <!-- dòng 2 -->
+        <div id="07-ba-lan-cat-row-2" class="07-ba-lan-cat-row" style="top: 830px">
+          <div class="07-ba-lan-cat-head">
+            <div id="07-ba-lan-cat-chip-2" class="07-ba-lan-cat-chip">
+              <span class="07-ba-lan-cat-dot"></span>
+              <span class="07-ba-lan-cat-brand">Anthropic</span>
+              <span class="07-ba-lan-cat-sep">·</span>
+              <span class="07-ba-lan-cat-desc">mô hình mới</span>
+            </div>
+            <div id="07-ba-lan-cat-pct-2" class="07-ba-lan-cat-pct 07-ba-lan-cat-half">½ giá</div>
+          </div>
+          <div class="07-ba-lan-cat-track">
+            <div id="07-ba-lan-cat-ghost-2" class="07-ba-lan-cat-ghostbar" style="left: 50%">
+              <div id="07-ba-lan-cat-strike-2" class="07-ba-lan-cat-strike"></div>
+            </div>
+            <div id="07-ba-lan-cat-glow-2" class="07-ba-lan-cat-glow" style="width: calc(50% + 20px)"></div>
+            <div id="07-ba-lan-cat-fill-2" class="07-ba-lan-cat-fill">
+              <div id="07-ba-lan-cat-blue-2" class="07-ba-lan-cat-blue"></div>
+            </div>
+            <div id="07-ba-lan-cat-cut-2" class="07-ba-lan-cat-cut" style="left: 50%"></div>
+          </div>
+        </div>
+
+        <!-- dòng 3 -->
+        <div id="07-ba-lan-cat-row-3" class="07-ba-lan-cat-row" style="top: 1130px">
+          <div class="07-ba-lan-cat-head">
+            <div id="07-ba-lan-cat-chip-3" class="07-ba-lan-cat-chip">
+              <span class="07-ba-lan-cat-dot"></span>
+              <span class="07-ba-lan-cat-brand">OpenAI</span>
+              <span class="07-ba-lan-cat-sep">·</span>
+              <span class="07-ba-lan-cat-desc">tầm trung</span>
+            </div>
+            <div id="07-ba-lan-cat-pct-3" class="07-ba-lan-cat-pct">−<span id="07-ba-lan-cat-num-3">0</span>%</div>
+          </div>
+          <div class="07-ba-lan-cat-track">
+            <div id="07-ba-lan-cat-ghost-3" class="07-ba-lan-cat-ghostbar" style="left: 80%">
+              <div id="07-ba-lan-cat-strike-3" class="07-ba-lan-cat-strike"></div>
+            </div>
+            <div id="07-ba-lan-cat-glow-3" class="07-ba-lan-cat-glow" style="width: calc(80% + 20px)"></div>
+            <div id="07-ba-lan-cat-fill-3" class="07-ba-lan-cat-fill">
+              <div id="07-ba-lan-cat-blue-3" class="07-ba-lan-cat-blue"></div>
+            </div>
+            <div id="07-ba-lan-cat-cut-3" class="07-ba-lan-cat-cut" style="left: 80%"></div>
+          </div>
+        </div>
+
+        <div id="07-ba-lan-cat-ruler">
+          <div class="07-ba-lan-cat-tick" style="left: 0%"></div>
+          <div class="07-ba-lan-cat-tick" style="left: 25%"></div>
+          <div class="07-ba-lan-cat-tick" style="left: 50%"></div>
+          <div class="07-ba-lan-cat-tick" style="left: 75%"></div>
+          <div class="07-ba-lan-cat-tick" style="left: 100%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var ID = "07-ba-lan-cat";
+      var DUR = 10.963;
+      function $(s) {
+        return document.getElementById(ID + "-" + s);
+      }
+      var tl = gsap.timeline({ paused: true });
+
+      // nền: lưới trôi chậm suốt khung
+      tl.fromTo($("grid"), { x: 0, y: 0 }, { x: -48, y: -96, duration: DUR, ease: "none" }, 0);
+
+      // camera: đẩy chậm theo dòng mới, rồi lùi nhẹ để thấy đủ ba dòng
+      tl.fromTo($("cam"), { scale: 1, y: 0 }, { scale: 1.035, y: -14, duration: 7.8, ease: "sine.inOut" }, 0);
+      tl.to($("cam"), { scale: 0.99, y: 0, duration: DUR - 7.8, ease: "power2.inOut" }, 7.8);
+
+      // Scene 1 — lật 3D từng chữ "CUỐI THÁNG 7" (không trộn ký tự giả)
+      var wrap = $("flip");
+      var words = wrap.getAttribute("data-target").split(" ");
+      var T0 = 0.08, WSTAG = 0.14, FLIP = 0.6;
+      words.forEach(function (w, i) {
+        if (i > 0) wrap.appendChild(document.createTextNode(" "));
+        var span = document.createElement("span");
+        span.className = ID + "-word";
+        span.textContent = w;
+        wrap.appendChild(span);
+        tl.fromTo(
+          span,
+          { rotationX: -95, opacity: 0, y: 20 },
+          { rotationX: 0, opacity: 1, y: 0, duration: FLIP, ease: "back.out(1.4)" },
+          T0 + i * WSTAG
+        );
+      });
+      tl.fromTo($("rule"), { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: "power3.out" }, 0.45);
+      tl.fromTo($("kicker"), { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 0.8);
+
+      // dòng giá: trượt vào, thanh mọc full, rồi co lại đúng mốc lời đọc
+      [1, 2, 3].forEach(function (n, k) {
+        tl.fromTo($("ph-" + n), { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, 0.55 + k * 0.1);
+      });
+      function enterRow(n, t) {
+        tl.to($("ph-" + n), { opacity: 0, duration: 0.35, ease: "power2.out" }, t);
+        tl.fromTo($("row-" + n), { x: -70, opacity: 0 }, { x: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, t);
+        tl.fromTo(
+          $("chip-" + n),
+          { clipPath: "inset(0% 100% 0% 0%)" },
+          { clipPath: "inset(0% 0% 0% 0%)", duration: 0.55, ease: "power3.out" },
+          t + 0.05
+        );
+        tl.fromTo($("fill-" + n), { scaleX: 0 }, { scaleX: 1, duration: 0.75, ease: "power3.out" }, t + 0.15);
+      }
+      function cutRow(n, t, keep, dur) {
+        tl.set($("ghost-" + n), { opacity: 1 }, t);
+        tl.fromTo($("cut-" + n), { scaleY: 0 }, { scaleY: 1, duration: 0.25, ease: "power3.out" }, t);
+        tl.to($("fill-" + n), { scaleX: keep, duration: dur, ease: "power3.out" }, t);
+        tl.fromTo($("blue-" + n), { opacity: 0 }, { opacity: 1, duration: dur * 0.7, ease: "power2.out" }, t + 0.1);
+        tl.fromTo($("strike-" + n), { scaleX: 0 }, { scaleX: 1, duration: 0.45, ease: "power3.out" }, t + 0.2);
+      }
+      function countPct(n, t, value, dur) {
+        tl.fromTo($("pct-" + n), { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.3, ease: "power3.out" }, t);
+        tl.fromTo(
+          $("num-" + n),
+          { innerText: 0 },
+          { innerText: value, snap: { innerText: 1 }, duration: dur, ease: "power3.out" },
+          t
+        );
+      }
+
+      // Scene 2 — OpenAI bản rẻ nhất, −80%
+      enterRow(1, 1.39);
+      tl.fromTo($("ruler"), { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: 1.0, ease: "power3.out" }, 1.6);
+      cutRow(1, 3.55, 0.2, 0.9);
+      countPct(1, 3.55, 80, 0.9);
+
+      // Scene 3 — Anthropic mô hình mới, ½ giá
+      enterRow(2, 4.49);
+      cutRow(2, 6.58, 0.5, 0.85);
+      tl.fromTo(
+        $("pct-2"),
+        { opacity: 0, scale: 0.4 },
+        { opacity: 1, scale: 1, duration: 0.55, ease: "back.out(1.6)" },
+        6.62
+      );
+
+      // Scene 4 — OpenAI tầm trung, −20%; dòng 1 và 2 nháy xanh khi dòng 3 chốt
+      enterRow(3, 7.82);
+      cutRow(3, 10.1, 0.8, 0.8);
+      countPct(3, 10.1, 20, 0.6); // chốt đúng −20% lúc 10.7s, trước mốc kết 10.963s
+      [1, 2].forEach(function (n, k) {
+        var t = 10.4 + k * 0.08;
+        tl.fromTo($("glow-" + n), { opacity: 0 }, { opacity: 1, duration: 0.18, ease: "power2.out" }, t);
+        tl.to($("glow-" + n), { opacity: 0.35, duration: 0.35, ease: "power2.in" }, t + 0.18);
+      });
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines[ID] = tl;
+    })();
+  </script>
+</template>

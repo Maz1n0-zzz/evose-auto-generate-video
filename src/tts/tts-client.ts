@@ -66,7 +66,7 @@ export interface TtsClient {
    * pipeline tự cắt ra từng cảnh. Đây là cách duy nhất giữ ngữ điệu liền mạch
    * với những model từ chối nối giữa các lần gọi (`eleven_v3`).
    */
-  generateAlignedTake?(text: string): Promise<AlignedTake>;
+  generateAlignedTake?(text: string, opts?: { speed?: number }): Promise<AlignedTake>;
 }
 
 import type { Config } from "../config.js";

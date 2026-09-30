@@ -283,6 +283,8 @@ export interface SfxMixSpec {
   startSec: number;
   /** Volume 0–1 */
   volume: number;
+  /** Đổi tốc độ phát (1 = nguyên bản). Dùng để mỗi lần lặp nghe hơi khác. */
+  rate?: number;
 }
 
 /**
@@ -320,8 +322,9 @@ export async function mixSfxOntoVoice(
     const outLabel = `s${i}`;
     const delayMs = Math.max(0, Math.round(s.startSec * 1000));
     // Per-SFX chain: resample to 44100 mono → adelay to start time → volume
+    const rate = s.rate && s.rate !== 1 ? `asetrate=44100*${s.rate.toFixed(3)},` : "";
     filterParts.push(
-      `[${inputIdx}:a]aresample=44100,aformat=sample_fmts=fltp:channel_layouts=mono,` +
+      `[${inputIdx}:a]aresample=44100,${rate}aresample=44100,aformat=sample_fmts=fltp:channel_layouts=mono,` +
       `adelay=${delayMs}|${delayMs},volume=${s.volume}[${outLabel}]`
     );
     sfxLabels.push(`[${outLabel}]`);
@@ -418,4 +421,69 @@ export async function padSilence(inPath: string, sec: number, outPath: string): 
     p.on("close", (c) => (c === 0 ? res() : rej(new Error(`padSilence ffmpeg thoát mã ${c}`))));
     p.on("error", rej);
   });
+}
+
+/**
+ * Các quãng lặng trong file, theo ffmpeg silencedetect. Trả về [bắt đầu, kết thúc].
+ */
+export async function detectSilences(
+  path: string,
+  noiseDb = -40,
+  minSec = 0.3,
+): Promise<[number, number][]> {
+  const { stderr } = await runBoth("ffmpeg", [
+    "-hide_banner", "-i", path,
+    "-af", `silencedetect=noise=${noiseDb}dB:d=${minSec}`,
+    "-f", "null", "-",
+  ]);
+  const out: [number, number][] = [];
+  let start: number | undefined;
+  for (const line of stderr.split("\n")) {
+    const a = /silence_start: (-?[\d.]+)/.exec(line);
+    if (a) start = Math.max(0, parseFloat(a[1]));
+    const b = /silence_end: ([\d.]+)/.exec(line);
+    if (b && start !== undefined) {
+      out.push([start, parseFloat(b[1])]);
+      start = undefined;
+    }
+  }
+  return out;
+}
+
+/**
+ * Gọt các đoạn `cuts` (giây, theo file gốc) khỏi file giọng.
+ *
+ * Mỗi mép cắt có fade 5 ms để không nghe tiếng "tách". Không đoạn nào thì
+ * chép nguyên.
+ */
+export async function removeSpans(
+  inPath: string,
+  cuts: readonly { at: number; len: number }[],
+  outPath: string,
+): Promise<void> {
+  if (cuts.length === 0) {
+    await run("ffmpeg", ["-y", "-loglevel", "error", "-i", inPath, "-c:a", "libmp3lame", "-b:a", "192k", "-ar", "44100", "-ac", "1", outPath]);
+    return;
+  }
+  const keep: [number, number | undefined][] = [];
+  let from = 0;
+  for (const c of [...cuts].sort((a, b) => a.at - b.at)) {
+    keep.push([from, c.at]);
+    from = c.at + c.len;
+  }
+  keep.push([from, undefined]);
+  const F = 0.005;
+  const parts = keep.map(([a, b], i) => {
+    const trim = b === undefined ? `atrim=start=${a.toFixed(4)}` : `atrim=start=${a.toFixed(4)}:end=${b.toFixed(4)}`;
+    const len = b === undefined ? undefined : b - a;
+    const fadeOut = len !== undefined ? `,afade=t=out:st=${Math.max(0, len - F).toFixed(4)}:d=${F}` : "";
+    return `[0:a]${trim},asetpts=PTS-STARTPTS,afade=t=in:st=0:d=${F}${fadeOut}[k${i}]`;
+  });
+  const graph = `${parts.join(";")};${keep.map((_, i) => `[k${i}]`).join("")}concat=n=${keep.length}:v=0:a=1[out]`;
+  await run("ffmpeg", [
+    "-y", "-loglevel", "error", "-i", inPath,
+    "-filter_complex", graph, "-map", "[out]",
+    "-c:a", "libmp3lame", "-b:a", "192k", "-ar", "44100", "-ac", "1",
+    outPath,
+  ]);
 }

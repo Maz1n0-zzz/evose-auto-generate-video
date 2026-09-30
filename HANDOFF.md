@@ -1,3 +1,7 @@
+> **Cập nhật 30/09/2026: file này đã cũ.** Bộ template Light và `npm run pipeline` đã xoá.
+> Quy trình làm video hiện tại: xem `README.md` và `.claude/skills/create-video/SKILL.md`.
+> Phần dưới giữ lại làm lịch sử.
+
 # HANDOFF — Bộ template Evose Light
 
 > File bàn giao để tiếp tục ở phiên Claude Code mới. Cập nhật 2026-09-23.

@@ -1,0 +1,173 @@
+<template>
+<div id="root" data-composition-id="09-cuoc-dua" data-width="1080" data-height="1920" data-duration="8.809">
+  <style>
+    @font-face { font-family: "Hanken Grotesk"; src: url("assets/fonts/HankenGrotesk-VF.ttf") format("truetype"); font-weight: 100 900; }
+    @font-face { font-family: "JetBrains Mono"; src: url("assets/fonts/JetBrainsMono-Regular.ttf") format("truetype"); font-weight: 100 599; }
+    @font-face { font-family: "JetBrains Mono"; src: url("assets/fonts/JetBrainsMono-Bold.ttf") format("truetype"); font-weight: 600 900; }
+    
+    #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; font-family: "Hanken Grotesk", sans-serif; color: #0a0a0a; }
+
+    .cd09-bg { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; overflow: hidden; background-color: #f2f2f0; }
+    .cd09-shot { position: absolute; left: 0; top: 0; width: 1080px; height: auto; opacity: 0.05; }
+    .cd09-dots { position: absolute; inset: -60px; background-image: radial-gradient(circle, #d6d6d1 1.35px, transparent 1.35px); background-size: 26px 26px; }
+
+    /* Khung nhìn: mọi nội dung chính bị cắt trong y 290–1520 */
+    .cd09-view { position: absolute; left: 0; top: 290px; width: 1080px; height: 1230px; overflow: hidden;
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 70px, #000 1150px, transparent 1230px);
+      mask-image: linear-gradient(to bottom, transparent 0, #000 70px, #000 1150px, transparent 1230px); }
+    .cd09-world { position: absolute; left: 0; top: 0; width: 1800px; height: 2200px; transform-origin: 0 0; }
+    .cd09-svg { position: absolute; left: 0; top: 0; width: 1800px; height: 2200px; overflow: visible; }
+    .cd09-svg path { fill: none; stroke: #2563eb; stroke-width: 10; stroke-linecap: butt; stroke-linejoin: round; }
+    .cd09-svg .cd09-ghost { stroke: rgba(37, 99, 235, 0.14); stroke-width: 10; }
+
+    .cd09-node { position: absolute; box-sizing: border-box; width: 32px; height: 32px; margin: -16px 0 0 -16px; background: #0a0a0a; box-shadow: 0 0 0 5px #f2f2f0; }
+    .cd09-node.cd09-past { background: #f2f2f0; border: 5px solid #0a0a0a; }
+
+    .cd09-anchor { position: absolute; width: 0; height: 0; }
+    .cd09-chip { position: absolute; top: 0; right: 0; white-space: nowrap; font-weight: 800; font-size: 48px; line-height: 1.15;
+      padding: 12px 24px 14px; background: #0a0a0a; color: #f2f2f0; transform-origin: 100% 0; }
+    .cd09-chip.cd09-past { background: #f2f2f0; color: #0a0a0a; border: 4px solid #0a0a0a; font-size: 40px; padding: 8px 20px 10px; }
+    .cd09-anchor.cd09-right .cd09-chip { left: 0; right: auto; transform-origin: 0 100%; }
+    .cd09-anchor.cd09-right .cd09-mono { left: 0; right: auto; transform-origin: 0 0; }
+    .cd09-tag { display: flex; align-items: center; gap: 12px; background: #0a0a0a; color: #f2f2f0; }
+    .cd09-tag svg { width: 34px; height: 40px; }
+    .cd09-soft { background: #2563eb; color: #ffffff; }
+    .cd09-mono { position: absolute; top: 0; right: 0; white-space: nowrap; font-family: "JetBrains Mono", monospace; font-size: 42px;
+      line-height: 1.2; letter-spacing: 0.04em; color: #0a0a0a; border-bottom: 4px solid #2563eb; padding-bottom: 6px; transform-origin: 100% 0; }
+
+    .cd09-hdr { position: absolute; left: 70px; top: 300px; transform-origin: 0 0; white-space: nowrap;
+      font-weight: 800; font-size: 170px; line-height: 1.12; letter-spacing: -3px; }
+    .cd09-word { display: inline-block; }
+    .cd09-sub { position: absolute; left: 70px; top: 512px; white-space: nowrap; font-weight: 800; font-size: 46px; line-height: 1.15;
+      color: #2563eb; border-bottom: 5px solid #2563eb; padding-bottom: 4px; }
+  </style>
+
+  <div class="cd09-bg clip" data-start="0" data-duration="8.809" data-track-index="0">
+    <div class="cd09-dots"></div>
+  </div>
+
+  <div class="cd09-view clip" data-start="0" data-duration="8.809" data-track-index="1">
+    <div class="cd09-world" id="cd09-world">
+      <svg class="cd09-svg" viewBox="0 0 1800 2200" xmlns="http://www.w3.org/2000/svg">
+        <path class="cd09-ghost" id="cd09-ghost" d="" />
+        <path id="cd09-segA1" d="" />
+        <path id="cd09-segA2" d="" />
+        <path id="cd09-segB" d="" />
+        <path id="cd09-segC" d="" />
+        <path id="cd09-segD" d="" />
+      </svg>
+
+      <div class="cd09-node cd09-past" id="cd09-n1" style="left:300px;top:360px"></div>
+      <div class="cd09-node cd09-past" id="cd09-n2" style="left:580px;top:690px"></div>
+      <div class="cd09-node" id="cd09-n3" style="left:860px;top:1020px"></div>
+      <div class="cd09-node" id="cd09-n4" style="left:1140px;top:1350px"></div>
+
+      <div class="cd09-anchor cd09-right" style="left:340px;top:450px"><div class="cd09-chip cd09-past" id="cd09-c1">OpenAI</div></div>
+      <div class="cd09-anchor cd09-right" style="left:620px;top:780px"><div class="cd09-chip cd09-past" id="cd09-c2">Anthropic</div></div>
+      <div class="cd09-anchor cd09-right" style="left:900px;top:1112px"><div class="cd09-chip" id="cd09-c3">xAI · Elon Musk</div></div>
+      <div class="cd09-anchor cd09-right" style="left:900px;top:990px"><div class="cd09-chip cd09-tag" id="cd09-down">
+        <svg viewBox="0 0 34 40"><path d="M17 2 V32 M5 22 L17 36 L29 22" fill="none" stroke="#f2f2f0" stroke-width="6" stroke-linejoin="miter" /></svg>hạ phí</div></div>
+      <div class="cd09-anchor cd09-right" style="left:1180px;top:1442px"><div class="cd09-chip" id="cd09-c4">Meta</div></div>
+      <div class="cd09-anchor cd09-right" style="left:1190px;top:1318px"><div class="cd09-chip cd09-soft" id="cd09-soft">giá mềm</div></div>
+      <div class="cd09-anchor cd09-right" style="left:1180px;top:1520px"><div class="cd09-mono" id="cd09-date">đầu tháng 8</div></div>
+    </div>
+  </div>
+
+  <div class="cd09-hdr clip" id="cd09-hdr" data-start="0" data-duration="8.809" data-track-index="2">
+    <span class="cd09-word" id="cd09-w1">CUỘC</span> <span class="cd09-word" id="cd09-w2">ĐUA</span>
+  </div>
+  <div class="cd09-sub clip" id="cd09-sub" data-start="0" data-duration="8.809" data-track-index="3">chưa dừng</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script>
+    (function () {
+      var DUR = 8.209;
+      var VIEW_TOP = 290;
+      var E = "power3.out";
+      var POP = "back.out(1.6)";
+
+      // Đường giá dốc xuống, chia đoạn theo trạm. Độ dài tính từ toạ độ thật.
+      var SEGS = {
+        A1: [[60, 200], [150, 215], [220, 290], [300, 360]],
+        A2: [[300, 360], [380, 395], [450, 540], [510, 585], [580, 690]],
+        B:  [[580, 690], [660, 720], [730, 860], [790, 900], [860, 1020]],
+        C:  [[860, 1020], [940, 1050], [1010, 1190], [1070, 1230], [1140, 1350]],
+        D:  [[1140, 1350], [1220, 1380], [1300, 1560], [1380, 1600], [1460, 1790], [1560, 1830], [1700, 2080]]
+      };
+      function toD(pts) { return pts.map(function (p, i) { return (i ? "L" : "M") + p[0] + " " + p[1]; }).join(" "); }
+      function len(pts) { var s = 0; for (var i = 1; i < pts.length; i++) { s += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); } return s; }
+      var ghostPts = SEGS.A1.concat(SEGS.A2.slice(1), SEGS.B.slice(1), SEGS.C.slice(1), SEGS.D.slice(1));
+      document.getElementById("cd09-ghost").setAttribute("d", toD(ghostPts));
+      var L = {};
+      Object.keys(SEGS).forEach(function (k) {
+        var el = document.getElementById("cd09-seg" + k);
+        el.setAttribute("d", toD(SEGS[k]));
+        L[k] = len(SEGS[k]) + 2;
+        el.style.strokeDasharray = L[k] + " " + (L[k] + 40);
+        el.style.strokeDashoffset = String(L[k]);
+      });
+
+      // Camera: đặt điểm thế giới (wx, wy) vào điểm màn hình (cx, cy) với tỉ lệ s.
+      function cam(s, wx, wy, cx, cy) { return { scale: s, x: cx - s * wx, y: (cy - VIEW_TOP) - s * wy }; }
+      var C0 = cam(1, 300, 360, 460, 820);
+      var C0b = cam(1.03, 440, 525, 420, 985);
+      var C2 = cam(1.1, 860, 1020, 380, 960);
+      var C2b = cam(1.14, 860, 1020, 370, 950);
+      var C3 = cam(1.1, 1140, 1350, 420, 900);
+      var C3b = cam(1.16, 1140, 1350, 410, 890);
+      var C4 = cam(0.56, 800, 920, 470, 980);
+
+      var tl = gsap.timeline({ paused: true });
+      function camMove(from, to, start, dur, ease) {
+        tl.fromTo("#cd09-world", { x: from.x, y: from.y, scale: from.scale },
+          { x: to.x, y: to.y, scale: to.scale, duration: dur, ease: ease, immediateRender: start === 0 }, start);
+      }
+      function draw(k, start, dur, ease) {
+        tl.fromTo("#cd09-seg" + k, { strokeDashoffset: L[k] }, { strokeDashoffset: 0, duration: dur, ease: ease }, start);
+      }
+      function pop(sel, start, ease, dur) {
+        tl.fromTo(sel, { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, duration: dur || 0.5, ease: ease || E }, start);
+      }
+
+      // Nền trôi liên tục suốt khung
+      tl.fromTo(".cd09-dots", { x: 0, y: 0 }, { x: -26, y: -26, duration: DUR, ease: "none" }, 0);
+
+      // Scene 1 (0–2.0): CUỘC ĐUA per-word, đường giá tự vẽ qua hai trạm đã qua
+      tl.fromTo("#cd09-w1", { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.5, ease: E }, 0.1);
+      tl.fromTo("#cd09-w2", { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.5, ease: E }, 0.32);
+      camMove(C0, C0b, 0, 2.0, "none");
+      draw("A1", 0.3, 0.6, "power2.out");
+      pop("#cd09-n1", 0.78, E, 0.35);
+      tl.fromTo("#cd09-c1", { opacity: 0, x: -30 }, { opacity: 0.6, x: 0, duration: 0.45, ease: E }, 0.82);
+      draw("A2", 0.75, 0.75, "power2.out");
+      pop("#cd09-n2", 1.42, E, 0.35);
+      tl.fromTo("#cd09-c2", { opacity: 0, x: -30 }, { opacity: 0.6, x: 0, duration: 0.45, ease: E }, 1.46);
+      tl.fromTo("#cd09-sub", { opacity: 0, x: -40 }, { opacity: 1, x: 0, duration: 0.45, ease: E }, 1.1);
+
+      // Scene 2 (2.0–4.5): tiêu đề thu nhỏ, camera lướt xuống trạm xAI
+      tl.fromTo("#cd09-hdr", { scale: 1 }, { scale: 0.4, duration: 0.6, ease: "power3.inOut" }, 2.0);
+      tl.fromTo("#cd09-sub", { x: 0, y: 0 }, { x: 370, y: -186, duration: 0.6, ease: "power3.inOut", immediateRender: false }, 2.0);
+      camMove(C0b, C2, 2.0, 0.85, "power3.inOut");
+      draw("B", 2.0, 0.85, "power1.inOut");
+      pop("#cd09-n3", 2.8, E, 0.35);
+      pop("#cd09-c3", 2.9, E, 0.5);
+      camMove(C2, C2b, 2.85, 1.6, "none");
+      pop("#cd09-down", 3.84, POP, 0.5);
+
+      // Scene 3 (4.5–8.21): lướt tới Meta, giá mềm, đầu tháng 8, đường vẫn vẽ ra khỏi khung, zoom-out
+      camMove(C2b, C3, 4.45, 0.5, "power3.inOut");
+      draw("C", 4.45, 0.45, "power1.inOut");
+      pop("#cd09-n4", 4.84, E, 0.35);
+      pop("#cd09-c4", 4.89, E, 0.5);
+      draw("D", 4.95, DUR - 4.95, "none");
+      camMove(C3, C3b, 4.95, 2.05, "none");
+      pop("#cd09-soft", 6.63, POP, 0.5);
+      camMove(C3b, C4, 7.0, DUR - 7.0, "power2.inOut");
+      tl.fromTo("#cd09-date", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.45, ease: E }, 7.3);
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines["09-cuoc-dua"] = tl;
+    })();
+  </script>
+</div>
+</template>

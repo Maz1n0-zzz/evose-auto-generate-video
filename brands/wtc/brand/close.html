@@ -1,0 +1,87 @@
+<template>
+<div id="root" data-composition-id="__ID__" data-width="1080" data-height="1920">
+  <style>
+    @font-face { font-family: "Acumin Pro"; src: url("assets/fonts/AcuminPro-Medium.woff2") format("woff2"); font-weight: 500; }
+    @font-face { font-family: "Acumin Pro"; src: url("assets/fonts/AcuminPro-Semibold.woff2") format("woff2"); font-weight: 600; }
+    @font-face { font-family: "Acumin Pro"; src: url("assets/fonts/AcuminPro-Bold.woff2") format("woff2"); font-weight: 700; }
+    @font-face { font-family: "Acumin Pro"; src: url("assets/fonts/AcuminPro-Black.woff2") format("woff2"); font-weight: 800 900; }
+    @font-face { font-family: "Acumin Pro Cond"; src: url("assets/fonts/AcuminProCond-Black.woff2") format("woff2"); font-weight: 800 900; }
+    @font-face { font-family: "JetBrains Mono"; src: url("assets/fonts/JetBrainsMono-Bold.ttf") format("truetype"); font-weight: 600 900; }
+
+    #root { position: relative; width: 1080px; height: 1920px; overflow: hidden;
+      font-family: "Acumin Pro", sans-serif; color: #FFFFFF; background: #000000; }
+
+    .k99-sky { position: absolute; inset: 0; background: #000000; }
+    .k99-glow { position: absolute; left: -20%; top: 28%; width: 140%; height: 62%;
+      background: radial-gradient(ellipse 58% 40% at 50% 45%, rgba(205,102,0,.55) 0%, rgba(140,70,0,.22) 46%, rgba(0,0,0,0) 78%); }
+    .k99-floorwrap { position: absolute; left: 0; right: 0; top: 58%; bottom: 0; overflow: hidden;
+      perspective: 280px; perspective-origin: 50% 0%; }
+    .k99-floor { position: absolute; top: 0; left: -50%; width: 200%; height: 210%; opacity: .5;
+      transform: rotateX(80deg); transform-origin: 50% 0%;
+      background-image:
+        repeating-linear-gradient(90deg, rgba(205,102,0,.95) 0 2px, transparent 2px 44px),
+        repeating-linear-gradient(0deg,  rgba(160,80,0,.90) 0 2px, transparent 2px 44px);
+      background-position: 0 0, 0 0;
+      -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.4) 7%, rgba(0,0,0,1) 30%, rgba(0,0,0,1) 72%, rgba(0,0,0,.15) 100%);
+      mask-image: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.4) 7%, rgba(0,0,0,1) 30%, rgba(0,0,0,1) 72%, rgba(0,0,0,.15) 100%); }
+    .k99-horizon { position: absolute; left: 0; right: 0; top: 58%; height: 2px;
+      background: linear-gradient(90deg, rgba(232,176,24,0), rgba(232,176,24,.5), rgba(232,176,24,0)); }
+
+    .k99-stage { position: absolute; left: 0; top: 250px; width: 1080px; height: 1250px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 64px; }
+    .k99-logo { width: 520px; height: auto; display: block; }
+    .k99-tag { margin-top: 42px; font-family: "Acumin Pro Cond", sans-serif; font-weight: 900;
+      font-size: 60px; line-height: 1.08; letter-spacing: .01em; text-transform: uppercase;
+      text-align: center; color: #FFFFFF; max-width: 880px; }
+    .k99-tag em { font-style: normal; color: #E8B018; }
+    .k99-rule { margin-top: 46px; width: 420px; height: 2px; transform-origin: 50% 50%;
+      background: linear-gradient(90deg, transparent, #E8B018, transparent); }
+    .k99-shine { position: absolute; top: 0; bottom: 0; width: 180px; pointer-events: none;
+      background: linear-gradient(100deg, transparent 0%, rgba(255,255,255,.5) 50%, transparent 100%); }
+    .k99-cta { position: relative; overflow: hidden;
+      margin-top: 46px; display: grid; place-items: center; padding: 30px 86px; border-radius: 999px;
+      background: linear-gradient(180deg, #F7D64A 0%, #A8730A 100%); color: #000000;
+      font-weight: 900; font-size: 48px; letter-spacing: .04em; white-space: nowrap;
+      box-shadow: 0 16px 42px rgba(232,176,24,.32); }
+              </style>
+
+  <div class="k99-sky clip" data-start="0" data-duration="__DURATION__" data-track-index="0"></div>
+  <div class="k99-glow"></div>
+  <div class="k99-floorwrap"><div class="k99-floor"></div></div>
+  <div class="k99-horizon"></div>
+
+  <div class="k99-stage">
+    <img class="k99-logo" src="assets/brand/wtc-lockup-v-gold.png" alt="Wealthy Trading Club" />
+    <div class="k99-tag">Trade smarter<br /><em>Capture moves</em><br />Scale wealth</div>
+    <div class="k99-rule"></div>
+    <div class="k99-cta"><span>JOIN NOW</span><span class="k99-shine"></span></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script>
+    (function () {
+      var tl = gsap.timeline({ paused: true });
+      var ease = "expo.out";
+      tl.fromTo(".k99-glow", { opacity: 0.3 }, { opacity: 1, duration: 1.1, ease: "power2.out" }, 0);
+      tl.fromTo(".k99-logo", { opacity: 0, y: 34, scale: 0.92 }, { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: ease }, 0.15);
+      tl.fromTo(".k99-tag", { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 0.6, ease: ease }, 0.95);
+      tl.fromTo(".k99-cta", { opacity: 0, scale: 0.86 }, { opacity: 1, scale: 1, duration: 0.55, ease: "back.out(1.6)" }, 1.45);
+      // nhịp đập hữu hạn của nút, tua được
+      tl.to(".k99-cta", { scale: 0.955, duration: 0.18, ease: "power1.inOut" }, 2.55);
+      tl.to(".k99-cta", { scale: 1, duration: 0.22, ease: "power1.inOut" }, 2.73);
+      tl.to(".k99-cta", { scale: 0.955, duration: 0.18, ease: "power1.inOut" }, 3.65);
+      tl.to(".k99-cta", { scale: 1, duration: 0.22, ease: "power1.inOut" }, 3.83);
+      // nhịp thứ ba: 1,8 giây cuối trước đây chỉ có lưới nền trôi, nhìn như đứng hình
+      tl.to(".k99-cta", { scale: 0.955, duration: 0.18, ease: "power1.inOut" }, 4.75);
+      tl.to(".k99-cta", { scale: 1, duration: 0.22, ease: "power1.inOut" }, 4.93);
+      // đuôi khung trước đây 4,4 giây không có gì mới vào: thêm gạch vàng và hai lượt quét sáng
+      tl.fromTo(".k99-rule", { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: 0.55, ease: "power2.out" }, 3.10);
+      tl.fromTo(".k99-shine", { x: -460, opacity: 0 }, { x: 460, opacity: 1, duration: 0.80, ease: "power2.inOut" }, 3.90);
+      tl.fromTo(".k99-shine", { x: -460 }, { x: 460, duration: 0.80, ease: "power2.inOut", immediateRender: false }, 5.05);
+      tl.fromTo(".k99-floor", { backgroundPosition: "0 0, 0 0" }, { backgroundPosition: "0 0, 0 176px", duration: __DURATION__, ease: "none" }, 0);
+      tl.fromTo(".k99-stage", { scale: 1 }, { scale: 1.03, duration: __DURATION__, ease: "power1.inOut" }, 0);
+      window.__timelines = window.__timelines || {};
+      window.__timelines["__ID__"] = tl;
+    })();
+  </script>
+</div>
+</template>

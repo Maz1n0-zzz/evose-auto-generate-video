@@ -1,0 +1,12 @@
+{
+  "panel": "#0B0E12",
+  "border": "#2A2E39",
+  "grid": "#1A1E27",
+  "axisText": "#787B86",
+  "up": "#26D07C",
+  "down": "#FF4B4B",
+  "gold": "#E8B018",
+  "textDim": "#9C9790",
+  "demandFill": "rgba(38,208,124,0.12)",
+  "supplyFill": "rgba(255,75,75,0.12)"
+}

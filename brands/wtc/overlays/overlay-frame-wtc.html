@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<title>WTC Overlay Frame · 1080x1920</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1080px; height: 1920px; overflow: hidden; background: transparent; }
+  @font-face { font-family: "Acumin Pro"; src: url("../fonts/AcuminPro-Semibold.woff2") format("woff2"); font-weight: 600; }
+  @font-face { font-family: "Acumin Pro"; src: url("../fonts/AcuminPro-Medium.woff2") format("woff2"); font-weight: 500; }
+  body { font-family: "Acumin Pro", system-ui, sans-serif; }
+
+  /* Scrim để watermark và chân khung nổi trên mọi nền khung */
+  .scrim-top { position: absolute; top: 0; left: 0; right: 0; height: 260px;
+    background: linear-gradient(180deg, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.52) 55%, rgba(0,0,0,0) 100%); z-index: 5; }
+  .scrim-bottom { position: absolute; bottom: 0; left: 0; right: 0; height: 270px;
+    background: linear-gradient(0deg, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.58) 52%, rgba(0,0,0,0) 100%); z-index: 5; }
+
+  /* Watermark — lockup ngang, góc trên trái, y 56–204 */
+  .mark { position: absolute; top: 56px; left: 64px; z-index: 10; }
+  .mark img { width: 300px; height: auto; display: block; }
+
+  /* Chân khung — handle Telegram + dòng miễn trừ, y 1730–1850 */
+  .foot { position: absolute; bottom: 70px; left: 64px; right: 64px; z-index: 10;
+    display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .handle { display: flex; align-items: center; gap: 14px;
+    font-size: 34px; font-weight: 600; letter-spacing: .02em; color: #E8B018; }
+  .handle svg { width: 36px; height: 36px; fill: #E8B018; display: block; }
+  .disc { font-size: 24px; font-weight: 500; letter-spacing: .06em; color: #7A766F; text-transform: uppercase; }
+</style>
+</head>
+<body>
+  <div class="scrim-top"></div>
+  <div class="scrim-bottom"></div>
+
+  <div class="mark"><img src="../logo/wtc-lockup-h-gold.png" alt="Wealthy Trading Club" /></div>
+
+  <div class="foot">
+    <div class="handle">
+      <svg viewBox="0 0 24 24"><path d="M21.9 4.3 18.8 19c-.2 1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.4-5 9.1-8.2c.4-.3-.1-.5-.6-.2L6.4 13.1l-4.8-1.5c-1-.3-1.1-1 .2-1.5l18.7-7.2c.9-.3 1.6.2 1.4 1.4Z"/></svg>
+      <span>@WealthyTradingClub</span>
+    </div>
+    <div class="disc">Not financial advice</div>
+  </div>
+</body>
+</html>

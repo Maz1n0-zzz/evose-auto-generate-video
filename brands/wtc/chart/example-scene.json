@@ -1,0 +1,35 @@
+{
+  "dataset": "brands/wtc/chart/data/btcusdt-1d.json",
+  "theme": "brands/wtc/chart/theme.json",
+  "interval": "1D",
+  "panel": { "x": 64, "y": 300, "w": 952, "h": 1060, "priceAxisW": 136, "timeAxisH": 56 },
+  "shots": [
+    {
+      "id": "demand-wide",
+      "fromDate": "2025-06-20",
+      "toDate": "2025-09-19",
+      "zones": [
+        { "baseFrom": "2025-07-04", "baseTo": "2025-07-08", "to": "end", "kind": "demand", "label": "DEMAND ZONE" }
+      ],
+      "markers": [{ "date": "2025-08-25", "at": "low", "label": "FIRST RETURN" }],
+      "levels": [{ "date": "2025-09-19", "at": "close", "color": "#E8B018", "dash": "4 6", "tag": true }]
+    },
+    {
+      "id": "demand-near",
+      "fromDate": "2025-06-28",
+      "toDate": "2025-07-20",
+      "zones": [
+        { "baseFrom": "2025-07-04", "baseTo": "2025-07-08", "to": "end", "kind": "demand", "label": "THE BASE" }
+      ]
+    },
+    {
+      "id": "supply-wide",
+      "fromDate": "2026-05-10",
+      "toDate": "2026-09-10",
+      "zones": [
+        { "baseFrom": "2026-05-28", "baseTo": "2026-05-31", "to": "end", "kind": "supply", "label": "SUPPLY ZONE" }
+      ],
+      "markers": [{ "date": "2026-08-20", "at": "high", "label": "FIRST RETURN" }]
+    }
+  ]
+}

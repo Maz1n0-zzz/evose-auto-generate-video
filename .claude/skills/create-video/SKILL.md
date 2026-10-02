@@ -27,6 +27,40 @@ rồi báo user khởi động lại Claude Code. `.env.local` phải có `ELEVE
 `ELEVENLABS_VOICE_ID`, `TTS_PROVIDER=elevenlabs`, `ELEVENLABS_MODEL_ID=eleven_v3`.
 Claude KHÔNG đọc/ghi `.env*`. Thiếu key thì lệnh sẽ báo, chuyển nguyên văn cho user.
 
+## Hồ sơ thương hiệu (chọn trước Bước 1)
+
+Mặc định là Evose. Thương hiệu khác thì chạy thêm một lệnh sau `video:new`:
+
+```bash
+npm run video:brand -- <tên-brand> $DIR     # brand có sẵn: ls brands/
+```
+
+Lệnh đó chép luật, hợp đồng bố cục, lớp phủ, phụ đề, font và logo của thương hiệu vào
+thư mục video, sinh `brand/fonts.css`, và bỏ font của template không thuộc bộ đó.
+
+| | Evose (mặc định) | WTC |
+|---|---|---|
+| Ngôn ngữ | tiếng Việt | **tiếng Anh** (`lang: en` ở frontmatter STORYBOARD) |
+| Độ dài | 250–300 chữ, 9–12 khung, 80–90 giây | **60–70 chữ, 6–8 khung, 28–32 giây** |
+| Khung mở / kết | `template/brand/` | `brands/wtc/brand/` (lệnh trên đã chép sẵn vào `$DIR/brand/`) |
+| Câu kết bắt buộc | "Truy cập evose.ai để tạo ra trợ lý AI của riêng bạn." | khung kết WTC đã in sẵn CTA, miễn trừ và handle — **không viết câu kết vào lời đọc** |
+| Chữ trên khung | tiếng Việt | tiếng Anh, in hoa |
+| Số trong lời đọc | viết ra chữ | giữ chữ số, trừ giá tiền: "sixty-eight thousand" thay cho "$68,000" |
+
+**Luật riêng của WTC** nằm ở `brands/wtc/brand/rules.md`, đọc trước khi viết storyboard.
+Hai điều cấm không có ở Evose: không tô vàng vào thân nến hay vùng giá,
+và không cam kết lợi nhuận.
+
+**Tốc độ đọc đo thật, đừng ước.** Giọng tiếng Anh `HNLnm2dLXPBSK0FmAPS0` ở speed 1.06
+chạy **2,2 chữ mỗi giây**, không phải 3,1 như tiếng Việt. Đo ngày 02/10/2026: 97 chữ ra
+43,5 giây. Muốn 30 giây thì viết khoảng 65 chữ. Đổi giọng thì đo lại bằng một video rồi
+sửa con số này, đừng nhân nhẩm.
+
+**Hồ sơ short 30 giây** đổi ba chỗ so với bảng ở Bước 2:
+mục 8 thành 60–70 chữ / 6–8 khung / mỗi khung 1 câu / khoảng 30 giây;
+mục 6 bỏ (khung kết WTC tự lo CTA);
+mục 5 giữ nguyên, nhưng vì ít khung hơn nên tối đa ba khung có thẻ cảm xúc.
+
 ## Bước 1 — Lấy nội dung, tạo thư mục
 
 - **URL** → `WebFetch` lấy title, nội dung chính 500–1500 từ, domain. Lỗi (paywall,
@@ -102,6 +136,8 @@ Theo đúng khuôn của `docs/vi-du-video/ai-my-canh-tranh-gia/STORYBOARD.md`:
 
 1. **Frontmatter:** `format: 1080x1920`, `duration`, `message`, `arc: story-explainer`,
    `mode: autonomous`, `music:` (mood nhạc bằng tiếng Anh, không lời).
+   Lời đọc không phải tiếng Việt thì thêm `lang: en` — thiếu nó, `video:build` tách
+   cụm phụ đề bằng từ điển tiếng Việt và cắt sai chỗ.
 2. **`## Video direction`** (trước Frame 1): palette Evose, type, vùng an toàn, luật
    không đứng yên, motion grammar, nhịp (khung nào chậm), danh sách cấm, "đồ vật
    xuyên suốt" nối các khung. Chép khung của mẫu rồi sửa phần riêng của bài.

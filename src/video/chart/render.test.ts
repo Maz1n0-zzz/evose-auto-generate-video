@@ -262,6 +262,38 @@ describe("renderChart — nhãn không được đè nhau hay lọt ra ngoài", 
     expect(drawn).toHaveLength(coords.timeLabels.length);
   });
 
+  it("nhãn vùng có tấm nền lót phía sau để lưới giá không cắt ngang chữ", () => {
+    const { svg, coords } = renderChart(input({ annotations: {
+      zones: [{ from: 2, to: 8, low: 120, high: 140, kind: "demand", label: "ORIGIN CANDLE" }],
+    } }));
+    const z = coords.zones[0];
+    expect(z.labelW).toBeGreaterThan(0);
+    // tấm nền phải xuất hiện TRƯỚC chữ trong chuỗi SVG, nếu không nó phủ mất chữ
+    const plate = svg.indexOf(`id="zone-0-plate"`);
+    const text = svg.indexOf("ORIGIN CANDLE");
+    expect(plate).toBeGreaterThan(-1);
+    expect(plate).toBeLessThan(text);
+  });
+
+  it("nhãn vùng vẽ sau nến, không bị nến đè lên", () => {
+    const { svg } = renderChart(input({ annotations: {
+      zones: [{ from: 2, to: 8, low: 120, high: 140, kind: "demand", label: "ORIGIN CANDLE" }],
+    } }));
+    const lastCandle = svg.lastIndexOf('id="cdl-');
+    expect(svg.indexOf("ORIGIN CANDLE")).toBeGreaterThan(lastCandle);
+    expect(svg.indexOf('id="zone-0-plate"')).toBeGreaterThan(lastCandle);
+  });
+
+  it("nhãn mốc cũng có tấm nền lót", () => {
+    const { svg } = renderChart(input({ annotations: { markers: [{ i: 8, price: 150, label: "ENTRY" }] } }));
+    expect(svg.indexOf(`id="mk-0-plate"`)).toBeLessThan(svg.indexOf(">ENTRY<"));
+  });
+
+  it("vùng không có nhãn thì không sinh tấm nền thừa", () => {
+    const { svg } = renderChart(input({ annotations: { zones: [{ from: 2, to: 8, low: 120, high: 140, kind: "demand" }] } }));
+    expect(svg).not.toContain("zone-0-plate");
+  });
+
   it("nhãn tên vùng nằm trên ô thì không chạm mép trên vùng vẽ", () => {
     const { coords, scale } = renderChart(input({ view: { from: 0, to: 20, priceLo: 90, priceHi: 400 }, annotations: {
       zones: [{ from: 1, to: 6, low: 380, high: 398, kind: "demand", label: "DEMAND ZONE" }],

@@ -22,13 +22,20 @@
 
 - **Mốc Scene** trong gói là giây thật khớp lời đọc, bám đúng ±0.1s.
 
-- **Ô vùng giá là mô-típ xuyên suốt, kích thước CỐ ĐỊNH 708×160.** Mọi khung vẽ ô vùng cung
-  hoặc vùng cầu đều dùng đúng cỡ này, mặc định canh giữa x 186–894, vị trí dọc tự do.
-  Chỉ được phóng to thu nhỏ bằng camera của khung, không bao giờ vẽ lại ở cỡ khác.
-  Viền vàng `#E8B018` 3px nét đứt 8/8, bo 0. Ruột vùng cầu `rgba(38,208,124,0.12)`,
-  vùng cung `rgba(255,75,75,0.12)`, chưa phân loại thì trong suốt. Không quầng vàng phía sau.
-  Khung có hai ô thì cả hai vẫn 708×160. Người xem phải nhận ra đây là cùng một vật
-  xuất hiện lại, không phải năm cái hộp khác nhau.
+- **Ô vùng giá do bộ vẽ chart sinh ra, không vẽ tay.** Chạy `npm run video:chart` rồi nhúng
+  file `assets/chart/<id>.svg`. Ô vùng nằm đúng toạ độ hai mức giá thật, nên kích thước trên
+  màn hình đổi theo mức zoom của từng khung — đó là đúng, không phải lỗi. Tính liên tục đến từ
+  việc cả video dùng CHUNG MỘT chart, không phải từ việc các ô bằng nhau từng pixel.
+  Viền vàng `#E8B018` 3px nét đứt 8/8, ruột cầu `rgba(38,208,124,0.12)`, ruột cung
+  `rgba(255,75,75,0.12)`. Không quầng vàng phía sau.
+
+  Luật cũ bắt ô cố định 708×160 đã bỏ. Nó là cái nạng cho thời chart vẽ tay, khi mỗi worker
+  tự chọn một cỡ và mô-típ không đọc ra là cùng một vật.
+
+- **Nến và chú thích đọc từ `assets/chart/<id>.coords.json`.** File đó cho toạ độ từng cây nến,
+  từng ô vùng, từng mốc. Mỗi cây nến là một nhóm `id="cdl-000"` nên bám GSAP được để cho nó
+  hiện dần. TUYỆT ĐỐI không tự đặt toạ độ nến. Đây là lỗi làm hỏng cả video trước: tám khung
+  đều vẽ tay nên chart nhìn như vẽ đại.
 
 - **Lấp đầy vùng nội dung, đo được chứ không ước lượng.** Vùng nội dung y 250–1500 cao 1250px.
   Hai ngưỡng, cả hai phải đạt:
@@ -81,8 +88,11 @@
   swing low, long, short, scalp, setup, R:R. Không viết tắt tự chế.
 
 - **Số liệu phải có nguồn.** Mọi giá, phần trăm, ngày tháng phải lấy từ bài gốc hoặc từ
-  file dữ liệu nến trong `capture/`. Không bịa. Chart phải vẽ từ dữ liệu thật, toạ độ chú thích
+  bộ dữ liệu nến đã ghim ở `brands/wtc/chart/data/`. Không bịa. Chart phải vẽ từ dữ liệu thật, toạ độ chú thích
   tính từ dữ liệu đó, không đặt tay. Khung nào không có dữ liệu thì không có chart.
+  Trục giá của chart ĐƯỢC phép hiện số, vì số đó lấy từ file dữ liệu. Luật là cấm số KHÔNG
+  có nguồn, không phải cấm mọi số. Nhãn mã luôn kèm năm, dữ liệu cũ mà thiếu năm là người
+  xem tưởng giá hôm nay.
 
 - **Cấm cam kết lợi nhuận.** Không "chắc thắng", "x lần tài khoản", "không bao giờ lỗ",
   "tín hiệu chính xác 100%". Khung cuối BẮT BUỘC có dòng miễn trừ.

@@ -145,6 +145,8 @@ export interface ZoneCoord extends Rect {
   kind: "demand" | "supply";
   labelX: number;
   labelY: number;
+  /** Bề ngang ước lượng của nhãn, 0 nếu vùng không có nhãn. */
+  labelW: number;
 }
 
 export interface MarkerCoord {
@@ -196,6 +198,16 @@ const CHAR_W = 0.56;
 const MONO_CHAR_W = 0.6;
 
 const textHalfW = (s: string, font: number, cw = CHAR_W) => (s.length * font * cw) / 2;
+
+/**
+ * Tấm nền lót sau một nhãn. Không có nó thì đường lưới giá cắt ngang chữ: nhãn
+ * "ORIGIN CANDLE" từng nằm đúng mức 110.000 và bị gạch một đường xám qua giữa.
+ */
+function plate(id: string, x: number, baselineY: number, w: number, font: number, bg: string): string {
+  const padX = 10;
+  const top = baselineY - font * 0.78;
+  return `<rect id="${id}" x="${round1(x - padX)}" y="${round1(top)}" width="${round1(w + padX * 2)}" height="${round1(font * 1.06)}" fill="${bg}" fill-opacity="0.88"/>`;
+}
 const clamp = (v: number, lo: number, hi: number) => (v < lo ? lo : v > hi ? hi : v);
 const round1 = (v: number) => Math.round(v * 10) / 10;
 
@@ -327,6 +339,7 @@ export function renderChart(input: ChartInput): ChartOutput {
 
   // ── ô vùng, toạ độ lấy từ giá thật ──
   const zones: ZoneCoord[] = [];
+  const zoneLabels: string[] = [];
   (a.zones ?? []).forEach((z, n) => {
     const xRaw = scale.xOf(z.from) - scale.pitch / 2;
     const x = clamp(xRaw, plot.x, axX);
@@ -335,10 +348,16 @@ export function renderChart(input: ChartInput): ChartOutput {
     const yB = scale.yOf(z.low);
     const id = `zone-${n}`;
     const labelY = Math.max(plot.y + ZONE_LABEL_FONT, yT - 16);
-    zones.push({ id, kind: z.kind, x, y: yT, w: x2 - x, h: yB - yT, labelX: x + 16, labelY });
+    const labelX = x + 16;
+    const labelW = z.label ? textHalfW(z.label, ZONE_LABEL_FONT) * 2 : 0;
+    zones.push({ id, kind: z.kind, x, y: yT, w: x2 - x, h: yB - yT, labelX, labelY, labelW });
     P.push(`<g id="${id}"><rect x="${round1(x)}" y="${round1(yT)}" width="${round1(x2 - x)}" height="${round1(yB - yT)}" fill="${z.kind === "demand" ? th.demandFill : th.supplyFill}" stroke="${th.gold}" stroke-width="3" stroke-dasharray="8 8"/></g>`);
+    // Nhãn để dành, vẽ SAU nến. Vẽ ở đây thì cây nến nào chồng lên là che mất chữ.
     if (z.label) {
-      P.push(`<text x="${round1(x + 16)}" y="${round1(labelY)}" fill="${th.gold}" font-family="Acumin Pro" font-size="${ZONE_LABEL_FONT}" font-weight="600" letter-spacing="2">${esc(z.label)}</text>`);
+      zoneLabels.push(
+        plate(`${id}-plate`, labelX, labelY, labelW, ZONE_LABEL_FONT, th.panel) +
+          `\n  <text x="${round1(labelX)}" y="${round1(labelY)}" fill="${th.gold}" font-family="Acumin Pro" font-size="${ZONE_LABEL_FONT}" font-weight="600" letter-spacing="2">${esc(z.label)}</text>`,
+      );
     }
   });
 
@@ -363,6 +382,8 @@ export function renderChart(input: ChartInput): ChartOutput {
     );
   }
 
+  P.push(...zoneLabels);
+
   // ── đường mức ──
   const levels = (a.levels ?? []).map((l) => {
     const y = scale.yOf(l.price);
@@ -385,6 +406,7 @@ export function renderChart(input: ChartInput): ChartOutput {
     const id = `mk-${n}`;
     P.push(`<g id="${id}"><circle cx="${round1(x)}" cy="${round1(y)}" r="11" fill="none" stroke="${th.gold}" stroke-width="4"/></g>`);
     if (m.label) {
+      P.push(plate(`${id}-plate`, flip ? labelX - w : labelX, y + 10, w, MARKER_FONT, th.panel));
       P.push(`<text x="${round1(labelX)}" y="${round1(y + 10)}" fill="${th.gold}" font-family="Acumin Pro" font-size="${MARKER_FONT}" font-weight="600" text-anchor="${flip ? "end" : "start"}">${esc(m.label)}</text>`);
     }
     return { id, x, y, labelX, labelY: y + 10, labelAnchor: flip ? "end" : "start" };

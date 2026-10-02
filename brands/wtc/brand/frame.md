@@ -72,14 +72,12 @@ components:
       và TỐI ĐA MỘT mũi tên cam {colors.amber} mỗi khung.
   zone-box:
     description: >
-      Ô vùng giá — mô-típ xuyên suốt một video, phải nhận ra là CÙNG MỘT VẬT ở mọi khung.
-      Kích thước nội tại CỐ ĐỊNH 708×160 (6 cột × 98 + 5 rãnh × 24, cao 20 baseline).
-      Khung nào cũng vẽ đúng cỡ này, chỉ được phóng to thu nhỏ bằng camera của khung,
-      không bao giờ vẽ lại ở cỡ khác. Mặc định canh giữa, x 186–894; vị trí dọc tự do.
-      Viền {colors.gold} 3px nét đứt 8/8, bo 0, không đổ bóng, không gradient.
-      Ruột: vùng cầu rgba(38,208,124,.12), vùng cung rgba(255,75,75,.12), chưa phân loại
-      thì để trong suốt. TUYỆT ĐỐI không tô vàng vào ruột, kể cả quầng sáng mờ phía sau.
-      Khung có hai ô (đối chiếu cung cầu) thì cả hai giữ nguyên 708×160.
+      Ô vùng giá — mô-típ xuyên suốt một video. Do bộ vẽ chart sinh ra, không vẽ tay:
+      chạy `npm run video:chart` rồi nhúng `assets/chart/<id>.svg`. Ô nằm đúng toạ độ
+      hai mức giá thật nên kích thước trên màn hình đổi theo mức zoom từng khung.
+      Tính liên tục đến từ việc cả video dùng chung một chart, không phải từ pixel bằng nhau.
+      Viền {colors.gold} 3px nét đứt 8/8, bo 0, không đổ bóng, không quầng vàng phía sau.
+      Ruột vùng cầu rgba(38,208,124,.12), vùng cung rgba(255,75,75,.12).
   gold-pill:
     description: >
       Nhãn chú thích — nền gradient 180deg {colors.gold-hi} → {colors.gold-lo},
@@ -283,14 +281,15 @@ Mọi khung nói về kết quả giao dịch phải đi kèm dòng miễn trừ
 - **Số** — mono tabular hết, không có số nào bằng Acumin.
 - **Dấu tiếng Việt** — không bị cắt ngọn ở dòng trên cùng của khối chữ lớn.
 - **Vùng an toàn** — không gì nằm ở y<250 hoặc y>1500.
-- **Ô vùng giá** — đúng 708×160, viền vàng nét đứt, ruột xanh hoặc đỏ nhạt, không bao giờ vàng.
+- **Ô vùng giá** — do bộ vẽ chart sinh ra, viền vàng nét đứt, ruột xanh hoặc đỏ nhạt, không bao giờ vàng.
 - **Lấp đầy** — hộp bao phần sáng cao ít nhất 688px, và không dải 300px nào trống suốt cảnh.
 - **Nguồn** — mọi con số truy được về dữ liệu hoặc bài gốc.
 
 ## Khoảng còn trống
 
 - **Chuyển động ngoài phạm vi.** File này chỉ nói bố cục.
-- **Chart chưa có bộ vẽ.** `components.candle-chart` mô tả hợp đồng, phần dựng nằm ở
-  `brands/wtc/chart/` và chưa xây. Khung nào cần chart mà chưa có bộ vẽ thì dùng ảnh chụp thật.
+- **Chart đã có bộ vẽ.** `src/video/chart/` sinh SVG và bảng toạ độ từ nến thật ghim ở
+  `brands/wtc/chart/data/`. Worker đọc `coords.json`, không tự đặt toạ độ nến.
+  Hiệu ứng nến hiện dần chưa có sẵn, mỗi cây nến là một nhóm `id="cdl-000"` để worker tự gắn.
 - **Acumin Pro là font thương mại của Adobe.** File trong `fonts/` do WTC cung cấp.
   Dùng trong sản phẩm giao cho WTC thì theo giấy phép của họ, không phát hành lại.

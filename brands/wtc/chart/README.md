@@ -80,6 +80,21 @@ tưởng giá hôm nay.
 
 ## Chỗ dễ sai
 
+**Khoảng hở phải đo từ MÉP, không từ TÂM.** Nhãn mốc từng bị chính vòng tròn của nó đè lên
+chữ, vì `MARKER_GAP` đo từ tâm vòng tròn. Trừ bán kính 11, nửa nét 2 và phần thò của tấm nền
+10 thì chỉ còn hở 1px. Giờ `MARKER_GAP` được tính ra từ `MARKER_OUTER + PLATE_PAD_X +
+MARKER_CLEAR`, và `plate()` dùng chung `PLATE_PAD_X`, nên hai chỗ không lệch nhau được nữa.
+Test đo mép tấm nền so với mép ngoài vòng tròn, không đo từ tâm.
+
+Luật rút ra: thêm bất cứ hình nào có nét vẽ hay tấm nền thì hằng số khoảng cách phải suy ra
+từ hình học của nó, đừng gõ một con số rồi tin là đủ.
+
+**Sinh lại SVG thì khung đã nhúng không tự cập nhật.** Worker paste nội dung SVG thẳng vào
+file khung. Chạy lại `npm run video:chart` chỉ đổi file trong `assets/chart/`, bản nhúng
+trong `compositions/frames/*.html` vẫn là bản cũ. Phải vá lại từng khung, và đừng ghi đè cả
+khối vì worker có thêm class và thẻ bọc riêng.
+
+
 Bộ vẽ ước lượng bề ngang chữ để né nhãn chồng nhau. Acumin Pro lấy 0,56em, JetBrains Mono
 lấy 0,6em. Đổi cỡ chữ hay đổi font mà quên sửa hai hằng số này thì nhãn lại dính vào nhau,
 và test sẽ không bắt được vì nó dùng chính hai hằng số đó để tính. Phải nhìn ảnh.

@@ -322,3 +322,49 @@ describe("renderChart — bảng toạ độ cho worker", () => {
     expect(coords.priceHi).toBe(scale.hi);
   });
 });
+
+describe("mốc đánh dấu không bị vòng tròn đè lên chữ", () => {
+  /**
+   * Lỗi thật đã lọt ra video: nhãn ENTRY bị vòng tròn của chính nó đè lên chữ E.
+   * Nguyên nhân là khoảng hở đo từ TÂM vòng tròn chứ không từ MÉP ngoài của nó,
+   * nên sau khi trừ bán kính 11, nét 4 và phần thò của tấm nền 10, chỉ còn 1px.
+   * Test này đo mép tấm nền so với mép ngoài vòng tròn, không đo từ tâm.
+   */
+  const CLEAR = 6; // px tối thiểu giữa mép vòng tròn và mép tấm nền
+
+  function geom(svg: string) {
+    const c = /<g id="mk-0"><circle cx="([-\d.]+)" cy="([-\d.]+)" r="([\d.]+)"[^>]*stroke-width="([\d.]+)"/.exec(svg);
+    const p = /<rect id="mk-0-plate" x="([-\d.]+)"[^>]*width="([\d.]+)"/.exec(svg);
+    if (!c || !p) throw new Error("không tìm thấy vòng tròn hoặc tấm nền của mốc");
+    const cx = +c[1], r = +c[3], sw = +c[4];
+    const outer = r + sw / 2;
+    const px = +p[1], pw = +p[2];
+    return { cx, outer, left: px, right: px + pw };
+  }
+
+  it("nhãn bên phải: tấm nền cách mép vòng tròn ít nhất 6px", () => {
+    const { svg, coords } = renderChart(
+      input({ annotations: { markers: [{ i: 6, price: 150, label: "ENTRY" }] } }),
+    );
+    expect(coords.markers[0].labelAnchor).toBe("start");
+    const g = geom(svg);
+    expect(g.left - (g.cx + g.outer)).toBeGreaterThanOrEqual(CLEAR);
+  });
+
+  it("nhãn bị lật sang trái: tấm nền cũng cách mép vòng tròn ít nhất 6px", () => {
+    const { svg, coords } = renderChart(
+      input({ annotations: { markers: [{ i: 19, price: 290, label: "FIRST RETURN" }] } }),
+    );
+    expect(coords.markers[0].labelAnchor).toBe("end");
+    const g = geom(svg);
+    expect(g.cx - g.outer - g.right).toBeGreaterThanOrEqual(CLEAR);
+  });
+
+  it("nhãn dài hay ngắn đều giữ đúng khoảng hở", () => {
+    for (const label of ["X", "ENTRY", "FIRST RETURN HERE"]) {
+      const { svg } = renderChart(input({ annotations: { markers: [{ i: 5, price: 140, label }] } }));
+      const g = geom(svg);
+      expect(g.left - (g.cx + g.outer)).toBeGreaterThanOrEqual(CLEAR);
+    }
+  });
+});

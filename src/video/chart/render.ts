@@ -187,7 +187,17 @@ export interface ChartOutput {
 }
 
 const MIN_BODY_H = 1.5;
-const MARKER_GAP = 24;
+/** Phần thò ngang của tấm nền ra ngoài chữ. plate() và mọi phép đo hở đều dùng số này. */
+const PLATE_PAD_X = 10;
+const MARKER_R = 11;
+const MARKER_SW = 4;
+/** Mép ngoài của vòng tròn mốc, tính cả nửa nét vẽ. */
+const MARKER_OUTER = MARKER_R + MARKER_SW / 2;
+/** Hở tối thiểu giữa mép vòng tròn và mép tấm nền của nhãn. */
+const MARKER_CLEAR = 8;
+/** Khoảng cách từ TÂM vòng tròn tới điểm đặt chữ. Đo từ tâm thì phải cộng đủ
+ *  bán kính ngoài và phần thò của tấm nền, nếu không vòng tròn đè lên chữ. */
+const MARKER_GAP = MARKER_OUTER + PLATE_PAD_X + MARKER_CLEAR;
 const MARKER_FONT = 28;
 const TIME_FONT = 22;
 const TIME_LABEL_GAP = 24;
@@ -204,7 +214,7 @@ const textHalfW = (s: string, font: number, cw = CHAR_W) => (s.length * font * c
  * "ORIGIN CANDLE" từng nằm đúng mức 110.000 và bị gạch một đường xám qua giữa.
  */
 function plate(id: string, x: number, baselineY: number, w: number, font: number, bg: string): string {
-  const padX = 10;
+  const padX = PLATE_PAD_X;
   const top = baselineY - font * 0.78;
   return `<rect id="${id}" x="${round1(x - padX)}" y="${round1(top)}" width="${round1(w + padX * 2)}" height="${round1(font * 1.06)}" fill="${bg}" fill-opacity="0.88"/>`;
 }
@@ -404,7 +414,7 @@ export function renderChart(input: ChartInput): ChartOutput {
     const flip = x + MARKER_GAP + w > axX;
     const labelX = clamp(flip ? x - MARKER_GAP : x + MARKER_GAP, plot.x, axX);
     const id = `mk-${n}`;
-    P.push(`<g id="${id}"><circle cx="${round1(x)}" cy="${round1(y)}" r="11" fill="none" stroke="${th.gold}" stroke-width="4"/></g>`);
+    P.push(`<g id="${id}"><circle cx="${round1(x)}" cy="${round1(y)}" r="${MARKER_R}" fill="none" stroke="${th.gold}" stroke-width="${MARKER_SW}"/></g>`);
     if (m.label) {
       P.push(plate(`${id}-plate`, flip ? labelX - w : labelX, y + 10, w, MARKER_FONT, th.panel));
       P.push(`<text x="${round1(labelX)}" y="${round1(y + 10)}" fill="${th.gold}" font-family="Acumin Pro" font-size="${MARKER_FONT}" font-weight="600" text-anchor="${flip ? "end" : "start"}">${esc(m.label)}</text>`);

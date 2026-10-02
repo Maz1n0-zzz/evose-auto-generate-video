@@ -99,10 +99,18 @@
 
 - **Ảnh thật** chỉ dùng khi gói có dòng `asset_candidates`, đường dẫn dạng `assets/<file>`.
 
+- **Nhãn không bao giờ che thứ nó gán nhãn.** Pill, chip, biển giá, mốc chữ đều tồn tại để
+  chỉ vào một thứ khác. Thứ được chỉ phải thấy rõ hơn cái nhãn. Đo hở từ mép NGOÀI CÙNG của
+  nhãn, tính cả quầng sáng và bóng đổ, tới mép đối tượng. Tối thiểu 24px. Đo bằng pixel trên
+  ảnh chụp, không đo bằng toạ độ CSS, vì quầng sáng không nằm trong hộp bố cục.
+
 - **Viết file xong, tự chụp để kiểm:** từ thư mục dự án chạy
 
       npx hyperframes snapshot --at <3-4 mốc giây tuyệt đối trong khung> --no-end --timeout 15000 -o <thư mục tạm riêng>
 
   rồi dùng Read xem ảnh. Sửa tới khi không có chữ đè nhau, không cắt chữ, không mất dấu tiếng Việt,
   không vùng trống lớn, không nội dung lọt vào y<250 hay y>1500.
-  Đo hộp bao phần sáng ở từng mốc và xác nhận cao từ 688px trở lên.
+  Ba phép đo bắt buộc ở mỗi mốc, báo số ra chứ đừng nói "đã kiểm":
+  1. Hộp bao phần sáng cao từ 688px trở lên.
+  2. Không khối đen liền nào vừa rộng hơn 320px vừa cao hơn 320px trong y 250–1500.
+  3. Mỗi nhãn hở ít nhất 24px tới đối tượng nó chỉ, đo cả quầng sáng.

@@ -1,7 +1,7 @@
 {
   "name": "aicoding-template-video",
   "version": "2.1.0",
-  "description": "Auto-generate Vietnamese 9:16 short news videos from URL/txt using professional HyperFrames templates — Claude Code skill + OmniVoice TTS",
+  "description": "Auto-generate Vietnamese 9:16 short news videos from URL/txt using professional HyperFrames templates \u2014 Claude Code skill + OmniVoice TTS",
   "main": "src/cli.ts",
   "type": "module",
   "scripts": {
@@ -11,6 +11,9 @@
     "typecheck": "tsc --noEmit",
     "build": "tsc",
     "video:new": "tsx src/video/new.ts",
+    "video:brand": "tsx src/video/brand.ts",
+    "video:chart": "tsx src/video/chart.ts",
+    "video:chart:fetch": "tsx src/video/chart/fetch.ts",
     "video:voice": "tsx src/video/voice.ts",
     "video:music": "tsx src/video/music.ts",
     "video:sfx": "tsx src/video/sfx.ts",

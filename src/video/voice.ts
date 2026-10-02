@@ -24,6 +24,7 @@ import { planCuts, remapWords, wordsOfScene } from "../timing/word-timing.js";
 import { stripAudioTags } from "../utils/audio-tags.js";
 import {
   REPO_ROOT,
+  brandVoice,
   projectDir,
   readAudioMeta,
   syncDurations,
@@ -49,7 +50,7 @@ async function main(): Promise<void> {
   const takeJson = join(voiceDir, "_take.json");
 
   const have = script.lines.every((l) => existsSync(join(voiceDir, `${pad2(l.frame)}.mp3`))) && existsSync(takeJson);
-  if (!have) await readTake(script, voiceDir);
+  if (!have) await readTake(script, voiceDir, dir);
   else console.log("✓ đã có giọng, không gọi lại ElevenLabs (xoá assets/voice để đọc lại)");
 
   // Mốc từng chữ, đổi sang file đã gọt lặng.
@@ -89,8 +90,17 @@ async function main(): Promise<void> {
   console.log(`✓ ${voices.length} khung, tổng ${total.toFixed(2)}s → audio_meta.json, .hyperframes/words.txt`);
 }
 
-async function readTake(script: Script, voiceDir: string): Promise<void> {
-  const cfg = loadConfig();
+async function readTake(script: Script, voiceDir: string, dir: string): Promise<void> {
+  const base = loadConfig();
+  const bv = brandVoice(dir);
+  const cfg = bv
+    ? { ...base, elevenlabsVoiceId: bv.voiceId, elevenlabsModelId: bv.modelId ?? base.elevenlabsModelId }
+    : base;
+  console.log(
+    bv
+      ? `· giọng của brand: ${bv.voiceId}${bv.note ? ` (${bv.note})` : ""}, model ${cfg.elevenlabsModelId}`
+      : `· giọng từ .env.local: ${cfg.elevenlabsVoiceId}, model ${cfg.elevenlabsModelId}`,
+  );
   const tts = createTtsClient(cfg);
   if (typeof tts.generateAlignedTake !== "function") {
     throw new Error(`TTS "${cfg.ttsProvider}" không hỗ trợ mốc từng chữ. Quy trình làm video cần ElevenLabs (TTS_PROVIDER=elevenlabs).`);

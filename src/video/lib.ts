@@ -10,11 +10,96 @@ import { spawn } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
+import { z } from "zod";
 
 export const REPO_ROOT = resolve(import.meta.dirname, "..", "..");
 export const TEMPLATE_DIR = join(REPO_ROOT, "template");
 export const SFX_LIB_DIR = join(REPO_ROOT, "assets", "sfx");
 export const OVERLAY_PNG = join(REPO_ROOT, "evose-brand-kit", "overlays", "overlay-frame-light.png");
+
+/**
+ * Overlay phủ lên video. Thư mục video có `brand/overlay.png` riêng thì dùng cái đó
+ * (bộ nhận diện khách), không có thì về bộ Evose mặc định.
+ */
+export function overlayPng(dir: string): string {
+  const own = join(dir, "brand", "overlay.png");
+  return existsSync(own) ? own : OVERLAY_PNG;
+}
+
+/**
+ * Thư mục video đã lắp một bộ nhận diện riêng chưa.
+ *
+ * Mốc nhận biết là `brand/rules.md`, vì đó là file `packets.ts` bắt buộc phải có để
+ * không rơi về luật Evose. Đã lắp brand thì các mảnh còn lại phải đủ — xem
+ * `assertBrandComplete`. Chưa lắp thì mọi thứ về bộ Evose như cũ.
+ */
+export function isBranded(dir: string): boolean {
+  return existsSync(join(dir, "brand", "rules.md"));
+}
+
+/**
+ * Lắp brand thì phải lắp đủ, không được thiếu nửa chừng.
+ *
+ * Thiếu một mảnh mà vẫn chạy tiếp là kiểu hỏng tệ nhất của pipeline này: video vẫn
+ * render ra, vẫn có logo, nhưng font hoặc lớp phủ là của Evose. Không ai nhìn log,
+ * và lỗi chỉ lộ ra khi đã gửi cho khách. Nên dừng hẳn ở đây.
+ */
+export function assertBrandComplete(dir: string): void {
+  if (!isBranded(dir)) return;
+  const need: [string, string][] = [
+    [join(dir, "brand", "fonts.css"), "bộ @font-face của brand (build.ts cần, nếu không khung bị áp font Evose)"],
+    [join(dir, "brand", "overlay.png"), "lớp phủ của brand (nếu không video bị phủ logo Evose)"],
+  ];
+  const missing = need.filter(([f]) => !existsSync(f) || readFileSync(f).length === 0);
+  if (missing.length) {
+    throw new Error(
+      `${dir} đã lắp brand (có brand/rules.md) nhưng thiếu hoặc rỗng:\n` +
+        missing.map(([f, why]) => `  · ${f.slice(dir.length + 1)} — ${why}`).join("\n") +
+        `\nLắp lại bằng: npm run video:brand -- <tên-brand> ${dir}`,
+    );
+  }
+}
+
+/** Giọng đọc riêng của một thương hiệu, đặt ở `<dir>/brand/voice.json`. */
+export const BrandVoiceSchema = z.object({
+  voiceId: z.string().min(1),
+  modelId: z.string().min(1).optional(),
+  note: z.string().optional(),
+});
+export type BrandVoice = z.infer<typeof BrandVoiceSchema>;
+
+/** Đọc JSON kèm đường dẫn trong thông báo lỗi — SyntaxError trần không nói file nào hỏng. */
+export function readJsonFile(p: string): unknown {
+  try {
+    return JSON.parse(readFileSync(p, "utf8"));
+  } catch (e) {
+    throw new Error(`${p}: JSON hỏng — ${e instanceof Error ? e.message : e}`);
+  }
+}
+
+/**
+ * Giọng của thương hiệu, nếu thư mục video có `brand/voice.json`.
+ *
+ * Trước đây `ELEVENLABS_VOICE_ID` trong `.env.local` là giọng duy nhất, nên làm video
+ * tiếng Anh phải sửa `.env` rồi nhớ sửa lại — dễ ship nhầm giọng. File này đè lên biến
+ * môi trường cho đúng một thư mục video.
+ */
+export function brandVoice(dir: string): BrandVoice | undefined {
+  const p = join(dir, "brand", "voice.json");
+  if (!existsSync(p)) return undefined;
+  const raw = readJsonFile(p);
+  if (typeof raw === "object" && raw !== null && (raw as { voiceId?: unknown }).voiceId === "REPLACE_ME") {
+    throw new Error(
+      `${p}: chưa điền voiceId thật (đang là "REPLACE_ME"). ` +
+        `Lấy ID ở elevenlabs.io → Voices → ⋮ → Copy voice ID, rồi điền vào brands/<brand>/voice.json.`,
+    );
+  }
+  const parsed = BrandVoiceSchema.safeParse(raw);
+  if (!parsed.success) {
+    throw new Error(`${p}: sai định dạng — ${parsed.error.issues.map((i) => `${i.path.join(".") || "(gốc)"}: ${i.message}`).join("; ")}`);
+  }
+  return parsed.data;
+}
 
 /** Thư mục skill faceless-explainer của HyperFrames (cài bằng `npx hyperframes skills update faceless-explainer`). */
 export function facelessScriptsDir(): string {

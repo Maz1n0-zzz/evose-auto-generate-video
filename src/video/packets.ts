@@ -8,7 +8,7 @@
  * `_role.md`, gói của khung mình, `_dispatch.md`.
  */
 
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { facelessScriptsDir, projectDir, run } from "./lib.js";
 
@@ -43,7 +43,9 @@ async function main(): Promise<void> {
   const sb = readFileSync(join(dir, "STORYBOARD.md"), "utf8");
   const direction = sb.match(/^## Video direction[\s\S]*?(?=^## (?:Frame|Beat|Scene)\b)/m)?.[0] ?? "";
   if (!direction) throw new Error("STORYBOARD.md thiếu mục `## Video direction` (đặt trước Frame 1)");
-  writeFileSync(join(dir, ".hyperframes", "frame-packets", "_dispatch.md"), `${direction.trim()}\n\n${EVOSE_RULES}`);
+  const ownRules = join(dir, "brand", "rules.md");
+  const rules = existsSync(ownRules) ? readFileSync(ownRules, "utf8") : EVOSE_RULES;
+  writeFileSync(join(dir, ".hyperframes", "frame-packets", "_dispatch.md"), `${direction.trim()}\n\n${rules}`);
   console.log("✓ đã ghi .hyperframes/frame-packets/_dispatch.md");
 }
 

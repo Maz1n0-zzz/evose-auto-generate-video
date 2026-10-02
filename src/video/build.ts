@@ -12,7 +12,17 @@
 
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { OVERLAY_PNG, facelessScriptsDir, parseStoryboard, projectDir, readAudioMeta, run } from "./lib.js";
+import {
+  assertBrandComplete,
+  facelessScriptsDir,
+  isBranded,
+  overlayPng,
+  parseStoryboard,
+  projectDir,
+  readAudioMeta,
+  readJsonFile,
+  run,
+} from "./lib.js";
 import { MAX_STILL_SEC, measure } from "./stillness.js";
 import { normalizeFonts } from "./parse.js";
 import { regroupCaptions, type CaptionWord } from "./captions.js";
@@ -21,12 +31,19 @@ import { regroupCaptions, type CaptionWord } from "./captions.js";
 const CAPTION_BAND_TOP = 1530;
 const CAPTION_BAND_HEIGHT = 150;
 
+type RawGroups = { frame: number; words?: Omit<CaptionWord, "frame">[] }[];
+
+/** Đọc caption_groups.json của captions.mjs và kiểm hình dạng. File do máy sinh ra nên
+ *  một kiểm `Array.isArray` là đủ, không cần schema. */
+function readGroups(path: string): { data: { groups: RawGroups }; groups: RawGroups } {
+  const data = readJsonFile(path) as { groups?: RawGroups };
+  if (!Array.isArray(data.groups)) throw new Error(`${path}: thiếu mảng groups`);
+  return { data: data as { groups: RawGroups }, groups: data.groups };
+}
+
 /** Tách lại cụm phụ đề của captions.mjs theo luật tiếng Việt, ghi đè caption_groups.json. */
 function regroupVietnamese(path: string): ReturnType<typeof regroupCaptions> {
-  const data = JSON.parse(readFileSync(path, "utf8")) as {
-    groups?: { frame: number; words?: Omit<CaptionWord, "frame">[] }[];
-  };
-  if (!Array.isArray(data.groups)) throw new Error(`${path}: thiếu mảng groups`);
+  const { data } = readGroups(path);
   const before = data.groups.length;
   const words = data.groups.flatMap((g) => (g.words ?? []).map((w) => ({ ...w, frame: g.frame })));
   if (words.length === 0) throw new Error(`${path}: không có chữ nào để làm phụ đề`);
@@ -36,11 +53,56 @@ function regroupVietnamese(path: string): ReturnType<typeof regroupCaptions> {
   return groups;
 }
 
+/**
+ * Ngôn ngữ lời đọc, lấy từ frontmatter STORYBOARD.md (`lang: en`).
+ *
+ * Chỉ đọc trong khối `---` đầu file: một dòng `lang:` lẫn trong thân bài từng khớp
+ * nhầm. Bỏ dấu nháy và chú thích đuôi. Mặc định tiếng Việt để video Evose cũ không
+ * đổi hành vi, nhưng thư mục đã lắp brand thì BẮT BUỘC khai, vì đoán sai ngôn ngữ
+ * nghĩa là tách cụm phụ đề bằng từ điển tiếng Việt cho lời tiếng Anh, âm thầm.
+ */
+function readLang(sbPath: string, branded: boolean): string {
+  const md = readFileSync(sbPath, "utf8");
+  const fm = md.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  const line = fm?.[1]?.match(/^lang:\s*(.+)$/m)?.[1];
+  const value = line
+    ?.replace(/\s+#.*$/, "")
+    .trim()
+    .replace(/^["']|["']$/g, "")
+    .toLowerCase();
+  if (!value) {
+    if (branded) {
+      throw new Error(
+        `${sbPath}: thư mục đã lắp brand nhưng frontmatter thiếu \`lang:\`. ` +
+          `Thêm \`lang: en\` (hoặc \`lang: vi\`) vào khối --- đầu file. ` +
+          `Đoán sai ngôn ngữ thì phụ đề bị tách bằng từ điển tiếng Việt.`,
+      );
+    }
+    return "vi";
+  }
+  if (!/^[a-z]{2}([-_][a-z0-9]+)*$/.test(value)) {
+    throw new Error(`${sbPath}: \`lang: ${value}\` không phải mã ngôn ngữ hợp lệ (vd \`en\`, \`vi\`, \`en-US\`).`);
+  }
+  return value;
+}
+
 async function main(): Promise<void> {
   const dir = projectDir(process.argv[2], "Dùng: npm run video:build -- <thư mục video> [--no-render]");
   const noRender = process.argv.includes("--no-render");
   const S = facelessScriptsDir();
   const sbPath = join(dir, "STORYBOARD.md");
+
+  // Lắp brand thì phải lắp đủ. Thiếu một mảnh mà vẫn render là ra video mang font
+  // hoặc logo Evose, và không ai nhìn log để biết.
+  assertBrandComplete(dir);
+
+  // Bộ @font-face của thương hiệu. `npm run video:brand` sinh brand/fonts.css từ rules.md.
+  // `|| undefined` để file rỗng rơi về bộ mặc định chứ không xoá sạch font của khung.
+  const brandFontsPath = join(dir, "brand", "fonts.css");
+  const fontFaces = existsSync(brandFontsPath) ? readFileSync(brandFontsPath, "utf8").trim() || undefined : undefined;
+
+  const lang = readLang(sbPath, isBranded(dir));
+  const isVietnamese = lang.split(/[-_]/)[0] === "vi";
 
   // 1. Kiểm khung
   const frameDir = join(dir, "compositions", "frames");
@@ -50,19 +112,26 @@ async function main(): Promise<void> {
   if (missing.length) throw new Error(`chưa dựng: ${missing.join(", ")}`);
   for (const f of files) {
     const p = join(frameDir, f);
-    const html = normalizeFonts(readFileSync(p, "utf8").replace(/\.\.\/\.\.\/assets\//g, "assets/"));
+    const html = normalizeFonts(readFileSync(p, "utf8").replace(/\.\.\/\.\.\/assets\//g, "assets/"), fontFaces);
     const left = html.match(/__[A-Z_]+__/g);
     if (left) throw new Error(`${f} còn chỗ chưa điền: ${[...new Set(left)].join(", ")}`);
     writeFileSync(p, html);
   }
   writeFileSync(sbPath, readFileSync(sbPath, "utf8").replace(/^(\s*[-*]\s+status\s*:\s*)(outline|built)\s*$/gim, "$1animated"));
-  console.log(`✓ ${files.length} khung: font chuẩn hoá, không còn chỗ trống`);
+  console.log(`✓ ${files.length} khung: font chuẩn hoá (${fontFaces ? "brand/fonts.css" : "bộ Evose mặc định"}), không còn chỗ trống`);
 
   // 2–3. Phụ đề, ghép, chuyển cảnh, lint
   await run("node", [join(S, "captions.mjs"), "build", "--storyboard", sbPath, "--audio-meta", join(dir, "audio_meta.json"), "--hyperframes", dir, "--out", join(dir, "caption_groups.json")], dir);
   const capPath = join(dir, "compositions", "captions.html");
   if (existsSync(capPath)) {
-    const groups = regroupVietnamese(join(dir, "caption_groups.json"));
+    const groupsPath = join(dir, "caption_groups.json");
+    let groups: unknown;
+    if (isVietnamese) {
+      groups = regroupVietnamese(groupsPath);
+    } else {
+      groups = readGroups(groupsPath).groups;
+      console.log(`✓ phụ đề lang=${lang}: giữ cách tách của captions.mjs`);
+    }
     // Chèn vào <script>: escape "<" để chữ như "</script>" không cắt ngang script.
     const groupsJs = JSON.stringify(groups).replace(/</g, "\\u003c");
     let html = readFileSync(capPath, "utf8");
@@ -95,7 +164,7 @@ async function main(): Promise<void> {
   const final = join(renders, "final.mp4");
   await run("npx", ["--yes", "hyperframes@0.8.96", "render", "--skill=faceless-explainer", "--quality", "high", "--output", raw], dir);
   await run("ffmpeg", [
-    "-y", "-v", "error", "-i", raw, "-i", OVERLAY_PNG,
+    "-y", "-v", "error", "-i", raw, "-i", overlayPng(dir),
     "-filter_complex", "[0:v][1:v]overlay=0:0:format=auto,format=yuv420p[v]",
     "-map", "[v]", "-map", "0:a", "-c:v", "libx264", "-preset", "slow", "-crf", "22",
     "-c:a", "aac", "-b:a", "160k", "-movflags", "+faststart", final,

@@ -53,20 +53,30 @@ export function parseCues(field: string): { name: string; at: number }[] {
     });
 }
 
-const FONT_FACES = [
+/** Bộ font mặc định (Evose). Brand khác truyền bộ của mình qua tham số `faces`. */
+export const EVOSE_FONT_FACES = [
   '@font-face { font-family: "Hanken Grotesk"; src: url("assets/fonts/HankenGrotesk-VF.ttf") format("truetype"); font-weight: 100 900; }',
   '@font-face { font-family: "JetBrains Mono"; src: url("assets/fonts/JetBrainsMono-Regular.ttf") format("truetype"); font-weight: 100 599; }',
   '@font-face { font-family: "JetBrains Mono"; src: url("assets/fonts/JetBrainsMono-Bold.ttf") format("truetype"); font-weight: 600 900; }',
 ].join("\n    ");
 
-/** Worker hay tự chế đường dẫn font hoặc tải từ Google Fonts. Thay hết bằng font trong dự án. */
-export function normalizeFonts(html: string): string {
+/**
+ * Worker hay tự chế đường dẫn font hoặc tải từ Google Fonts. Thay hết bằng font trong dự án.
+ *
+ * `faces` là bộ @font-face của thương hiệu đang dùng. Thư mục video có `brand/fonts.css`
+ * (do `npm run video:brand` sinh ra từ rules.md) thì build.ts truyền file đó vào. Không có
+ * thì về bộ Evose. Trước đây hằng số này cứng trong code, nên mọi khung của brand khác
+ * bị thay font Evose ngay trước khi render, kể cả khi brand đã khai đúng font của mình.
+ */
+export function normalizeFonts(html: string, faces: string = EVOSE_FONT_FACES): string {
   let out = html.replace(/@import\s+url\([^)]*fonts\.googleapis[^)]*\)\s*;?/g, "");
   out = out.replace(/<link[^>]*fonts\.googleapis[^>]*>/g, "");
   const blocks = out.match(/@font-face\s*\{[^}]*\}/g) ?? [];
-  if (blocks.length === 0) return out.replace(/<style>/, `<style>\n    ${FONT_FACES}`);
+  // Hàm thay thế, không phải chuỗi: `$&` hay `$1` lẫn trong CSS của brand sẽ bị
+  // diễn giải nếu dùng chuỗi.
+  if (blocks.length === 0) return out.replace(/<style>/, () => `<style>\n    ${faces}`);
   const first = out.indexOf(blocks[0]!);
   for (const b of blocks) out = out.replace(b, "");
-  return out.slice(0, first) + FONT_FACES + out.slice(first);
+  return out.slice(0, first) + faces + out.slice(first);
 }
 

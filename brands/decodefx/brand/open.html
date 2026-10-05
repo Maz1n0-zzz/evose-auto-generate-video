@@ -8,38 +8,44 @@
     #root { position: relative; width: 1080px; height: 1920px; overflow: hidden;
       font-family: "Hanken Grotesk", sans-serif; color: #FFFFFF; background: #08090B; }
 
-    /* —— dai giai ma: chu ky thi giac, luon duoi moi noi dung —— */
+    .dfx-sky { position: absolute; inset: 0; background: #08090B; }
+
+    /* dai giai ma: chu ky thi giac, luon duoi moi noi dung */
     .dfx-tape { position: absolute; inset: -220px 0 -220px 0; display: flex; justify-content: space-between;
       padding: 0 28px; pointer-events: none; z-index: 1; }
     .dfx-tape .tc { display: flex; flex-direction: column; font-family: "JetBrains Mono", monospace;
-      font-size: 26px; line-height: 38px; color: rgba(185,188,196,.12); }
+      font-size: 26px; line-height: 38px; color: rgba(185,188,196,.20); }
     .dfx-tape .tc i { font-style: normal; }
-    .dfx-tape .tc i.h { color: rgba(248,206,15,.30); }
+    .dfx-tape .tc i.h { color: rgba(248,206,15,.62); }
     .dfx-veil { position: absolute; inset: 0; z-index: 2; pointer-events: none;
-      background: radial-gradient(ellipse 78% 52% at 50% 44%, rgba(8,9,11,.30) 0%, rgba(8,9,11,.86) 62%, rgba(8,9,11,.97) 100%); }
+      background: radial-gradient(ellipse 82% 56% at 46% 46%, rgba(8,9,11,.22) 0%, rgba(8,9,11,.74) 62%, rgba(8,9,11,.92) 100%); }
 
-    .dfx-sky { position: absolute; inset: 0; background: #08090B; }
-
+    /* Le 80px, khong phai 64px: camera phong 3% quanh tam, 80px co lai con 66px.
+       Dat 64px thi le thuc tut xuong 55px va pha luat cua chinh bo nay. */
     .dfx-stage { position: absolute; left: 0; top: 250px; width: 1080px; height: 1250px; z-index: 3;
-      display: flex; flex-direction: column; justify-content: center; padding: 0 64px; }
+      display: flex; flex-direction: column; justify-content: center; padding: 0 80px; }
 
-    .dfx-slug { display: flex; align-items: center; gap: 18px; margin-bottom: 34px; }
-    .dfx-slug .code { font-family: "JetBrains Mono", monospace; font-size: 26px; font-weight: 400;
-      letter-spacing: .18em; color: #8C8E9E; text-transform: uppercase; }
-    .dfx-slug .bar { height: 2px; flex: 1; background: linear-gradient(90deg, #23262C, rgba(35,38,44,0)); }
+    /* nhan kieu tab cua man hinh giao dich, khong phai kicker chu tran */
+    .dfx-tab { align-self: flex-start; display: flex; align-items: center; gap: 16px;
+      background: #0E1013; border: 1px solid #23262C; border-radius: 4px; padding: 12px 24px; }
+    .dfx-dot { width: 10px; height: 10px; border-radius: 4px; background: #F8CE0F; }
+    .dfx-tab span { font-size: 26px; font-weight: 500; letter-spacing: .18em; text-transform: uppercase;
+      color: #B9BCC4; }
 
-    .dfx-kicker { font-size: 36px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase;
-      color: #F8CE0F; margin-bottom: 26px; }
-
-    .dfx-headwrap { position: relative; padding-left: 36px; }
-    .dfx-bar { position: absolute; left: 0; top: 10px; bottom: 10px; width: 4px;
-      background: linear-gradient(180deg, #FEC91E, #E2B31B); transform-origin: 50% 0%; }
-    .dfx-head { font-size: 112px; font-weight: 900; line-height: .98; letter-spacing: -.015em;
-      text-transform: uppercase; color: #FFFFFF; }
+    /* headline o co lon nhat cua bo, tran sat le trai, khong can giua */
+    .dfx-head { margin-top: 40px; font-size: 150px; font-weight: 900; line-height: .92;
+      letter-spacing: -.02em; text-transform: uppercase; color: #FFFFFF; }
     .dfx-head em { font-style: normal; color: #F8CE0F; }
 
-    .dfx-sub { margin-top: 40px; font-size: 52px; font-weight: 500; line-height: 1.3; color: #B9BCC4;
-      max-width: 880px; }
+    .dfx-rule { margin-top: 40px; height: 2px; transform-origin: 0% 50%;
+      background: linear-gradient(90deg, #F8CE0F 0%, rgba(248,206,15,0) 100%); }
+
+    /* panel terminal lech phai 160px: pha truc doi xung cua khung */
+    .dfx-panel { margin-top: 40px; margin-left: 160px; background: #0E1013; border: 1px solid #23262C;
+      border-radius: 4px; padding: 32px 36px; }
+    .dfx-panel .lab { font-family: "JetBrains Mono", monospace; font-size: 24px; font-weight: 400;
+      letter-spacing: .14em; text-transform: uppercase; color: #8C8E9E; }
+    .dfx-sub { margin-top: 16px; font-size: 44px; font-weight: 400; line-height: 1.35; color: #B9BCC4; }
   </style>
 
   <div class="dfx-sky clip" data-start="0" data-duration="__DURATION__" data-track-index="0"></div>
@@ -60,10 +66,13 @@
   <div class="dfx-veil"></div>
 
   <div class="dfx-stage">
-    <div class="dfx-slug"><span class="code">DFX // 01</span><span class="bar"></span></div>
-    <div class="dfx-kicker">__KICKER__</div>
-    <div class="dfx-headwrap"><span class="dfx-bar"></span><div class="dfx-head">__HEADLINE__</div></div>
-    <div class="dfx-sub">__SUB__</div>
+    <div class="dfx-tab"><span class="dfx-dot"></span><span>__KICKER__</span></div>
+    <div class="dfx-head">__HEADLINE__</div>
+    <div class="dfx-rule"></div>
+    <div class="dfx-panel">
+      <div class="lab">Tổng quan</div>
+      <div class="dfx-sub">__SUB__</div>
+    </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
@@ -71,16 +80,15 @@
     (function () {
       var tl = gsap.timeline({ paused: true });
       var ease = "expo.out";
-      tl.fromTo(".dfx-slug .code", { opacity: 0, x: -18 }, { opacity: 1, x: 0, duration: 0.5, ease: ease }, 0.05);
-      tl.fromTo(".dfx-slug .bar", { scaleX: 0, transformOrigin: "0% 50%" }, { scaleX: 1, duration: 0.6, ease: ease }, 0.15);
-      tl.fromTo(".dfx-kicker", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.5, ease: ease }, 0.35);
-      tl.fromTo(".dfx-bar", { scaleY: 0 }, { scaleY: 1, duration: 0.5, ease: ease }, 0.45);
-      tl.fromTo(".dfx-head", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.7, ease: ease }, 0.5);
-      tl.fromTo(".dfx-sub", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: ease }, 0.95);
-      // dai giai ma troi suot khung, khong bao gio dung yen
-      tl.fromTo(".dfx-tape", { y: 0 }, { y: 152, duration: __DURATION__, ease: "none" }, 0);
-      // camera day cham, toi da 4%
-      tl.fromTo(".dfx-stage", { scale: 1 }, { scale: 1.035, duration: __DURATION__, ease: "power1.inOut" }, 0);
+      tl.fromTo(".dfx-tab", { opacity: 0, y: -14 }, { opacity: 1, y: 0, duration: 0.5, ease: ease }, 0.05);
+      tl.fromTo(".dfx-dot", { scale: 0 }, { scale: 1, duration: 0.4, ease: "back.out(2)" }, 0.25);
+      tl.fromTo(".dfx-head", { opacity: 0, y: 34 }, { opacity: 1, y: 0, duration: 0.75, ease: ease }, 0.35);
+      tl.fromTo(".dfx-rule", { scaleX: 0 }, { scaleX: 1, duration: 0.65, ease: ease }, 0.85);
+      tl.fromTo(".dfx-panel", { opacity: 0, x: 28 }, { opacity: 1, x: 0, duration: 0.6, ease: ease }, 1.00);
+      // dai giai ma troi LEN, 15px moi giay, tinh theo do dai khung
+      tl.fromTo(".dfx-tape", { y: 0 }, { y: -(15 * __DURATION__), duration: __DURATION__, ease: "none" }, 0);
+      // camera day cham, 3% quanh tam. Le 80px o tren da tru hao cho muc nay.
+      tl.fromTo(".dfx-stage", { scale: 1 }, { scale: 1.03, duration: __DURATION__, ease: "power1.inOut" }, 0);
       window.__timelines = window.__timelines || {};
       window.__timelines["__ID__"] = tl;
     })();

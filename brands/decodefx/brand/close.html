@@ -8,34 +8,40 @@
     #root { position: relative; width: 1080px; height: 1920px; overflow: hidden;
       font-family: "Hanken Grotesk", sans-serif; color: #FFFFFF; background: #08090B; }
 
+    .dfx-sky { position: absolute; inset: 0; background: #08090B; }
+
     .dfx-tape { position: absolute; inset: -220px 0 -220px 0; display: flex; justify-content: space-between;
       padding: 0 28px; pointer-events: none; z-index: 1; }
     .dfx-tape .tc { display: flex; flex-direction: column; font-family: "JetBrains Mono", monospace;
-      font-size: 26px; line-height: 38px; color: rgba(185,188,196,.12); }
+      font-size: 26px; line-height: 38px; color: rgba(185,188,196,.20); }
     .dfx-tape .tc i { font-style: normal; }
-    .dfx-tape .tc i.h { color: rgba(248,206,15,.30); }
+    .dfx-tape .tc i.h { color: rgba(248,206,15,.62); }
     .dfx-veil { position: absolute; inset: 0; z-index: 2; pointer-events: none;
-      background: radial-gradient(ellipse 78% 52% at 50% 44%, rgba(8,9,11,.30) 0%, rgba(8,9,11,.86) 62%, rgba(8,9,11,.97) 100%); }
-    .dfx-sky { position: absolute; inset: 0; background: #08090B; }
+      background: radial-gradient(ellipse 82% 56% at 46% 46%, rgba(8,9,11,.22) 0%, rgba(8,9,11,.74) 62%, rgba(8,9,11,.92) 100%); }
 
+    /* Le 80px: camera phong 2,5% quanh tam, 80px co lai con 68px, tren nguong 64px. */
     .dfx-stage { position: absolute; left: 0; top: 250px; width: 1080px; height: 1250px; z-index: 3;
-      display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 64px; }
+      display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 80px; }
 
-    .dfx-logo { width: 560px; height: auto; display: block; }
+    .dfx-logo { width: 600px; height: auto; display: block; }
 
-    .dfx-tag { margin-top: 44px; font-size: 56px; font-weight: 800; line-height: 1.16;
-      text-align: center; color: #FFFFFF; max-width: 860px; }
+    .dfx-tag { margin-top: 40px; font-size: 56px; font-weight: 800; line-height: 1.16;
+      text-align: center; color: #FFFFFF; }
     .dfx-tag em { font-style: normal; color: #F8CE0F; }
 
-    /* bang giay phep — panel terminal, vien 1px, bo 4px */
-    .dfx-lic { margin-top: 48px; display: flex; flex-wrap: wrap; justify-content: center; gap: 14px;
-      max-width: 900px; }
-    .dfx-lic .chip { font-family: "JetBrains Mono", monospace; font-size: 30px; font-weight: 700;
-      letter-spacing: .04em; color: #B9BCC4; background: #0E1013; border: 1px solid #23262C;
-      border-radius: 4px; padding: 14px 24px; }
+    /* licence-row theo brand/frame.md: nam dong doc trong mot panel, co so hieu nguyen van */
+    .dfx-lic { margin-top: 44px; width: 100%; background: #0E1013; border: 1px solid #23262C;
+      border-radius: 4px; padding: 8px 28px; }
+    .dfx-lic .lic-row { display: flex; align-items: baseline; gap: 20px; padding: 20px 0;
+      border-top: 1px solid #23262C; }
+    .dfx-lic .lic-row:first-child { border-top: 0; }
+    .dfx-lic .body { font-size: 36px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase;
+      color: #FFFFFF; min-width: 132px; }
+    .dfx-lic .reg { font-size: 26px; font-weight: 500; color: #8C8E9E; flex: 1; }
+    .dfx-lic .id { font-family: "JetBrains Mono", monospace; font-size: 24px; font-weight: 400;
+      color: #8C8E9E; }
 
-    .dfx-ctawrap { position: relative; margin-top: 56px; }
-    .dfx-cta { position: relative; overflow: hidden; display: grid; place-items: center;
+    .dfx-cta { position: relative; overflow: hidden; margin-top: 44px; display: grid; place-items: center;
       padding: 28px 72px; border-radius: 8px;
       background: linear-gradient(180deg, #FEC91E 0%, #E2B31B 100%); color: #08090B;
       font-weight: 900; font-size: 48px; letter-spacing: .03em; white-space: nowrap; }
@@ -64,13 +70,13 @@
     <img class="dfx-logo" src="assets/brand/decodefx-lockup-h-gold.png" alt="DecodeFX" />
     <div class="dfx-tag">Giải mã thị trường<br /><em>Giao dịch tự tin</em></div>
     <div class="dfx-lic">
-      <span class="chip">ASIC</span>
-      <span class="chip">FSC</span>
-      <span class="chip">VFSC</span>
-      <span class="chip">FSA</span>
-      <span class="chip">FSCA</span>
+      <div class="lic-row"><span class="body">ASIC</span><span class="reg">Úc</span><span class="id">246796</span></div>
+      <div class="lic-row"><span class="body">FSC</span><span class="reg">Mauritius</span><span class="id">GB25204877</span></div>
+      <div class="lic-row"><span class="body">VFSC</span><span class="reg">Vanuatu</span><span class="id">700415</span></div>
+      <div class="lic-row"><span class="body">FSA</span><span class="reg">St. Vincent</span><span class="id">25431BC 2019</span></div>
+      <div class="lic-row"><span class="body">FSCA</span><span class="reg">Nam Phi</span><span class="id">FSP 55001</span></div>
     </div>
-    <div class="dfx-ctawrap"><div class="dfx-cta"><span>__CTA__</span><span class="dfx-shine"></span></div></div>
+    <div class="dfx-cta"><span>__CTA__</span><span class="dfx-shine"></span></div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
@@ -78,19 +84,18 @@
     (function () {
       var tl = gsap.timeline({ paused: true });
       var ease = "expo.out";
-      tl.fromTo(".dfx-logo", { opacity: 0, y: 30, scale: 0.94 }, { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: ease }, 0.10);
-      tl.fromTo(".dfx-tag", { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 0.6, ease: ease }, 0.80);
-      tl.fromTo(".dfx-lic .chip", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.45, ease: ease, stagger: 0.07 }, 1.25);
-      tl.fromTo(".dfx-cta", { opacity: 0, scale: 0.90 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.5)" }, 1.80);
-      // nhip dap huu han cua nut, tua duoc
-      tl.to(".dfx-cta", { scale: 0.962, duration: 0.18, ease: "power1.inOut" }, 2.85);
-      tl.to(".dfx-cta", { scale: 1, duration: 0.22, ease: "power1.inOut" }, 3.03);
-      tl.to(".dfx-cta", { scale: 0.962, duration: 0.18, ease: "power1.inOut" }, 4.15);
-      tl.to(".dfx-cta", { scale: 1, duration: 0.22, ease: "power1.inOut" }, 4.33);
-      // hai luot quet sang, khong qua hai lan theo luat frame.md
-      tl.fromTo(".dfx-shine", { x: -430, opacity: 0 }, { x: 430, opacity: 1, duration: 0.80, ease: "power2.inOut" }, 2.30);
-      tl.fromTo(".dfx-shine", { x: -430 }, { x: 430, duration: 0.80, ease: "power2.inOut", immediateRender: false }, 4.60);
-      tl.fromTo(".dfx-tape", { y: 0 }, { y: 152, duration: __DURATION__, ease: "none" }, 0);
+      tl.fromTo(".dfx-logo", { opacity: 0, y: 28, scale: 0.94 }, { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: ease }, 0.10);
+      tl.fromTo(".dfx-tag", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: ease }, 0.75);
+      tl.fromTo(".dfx-lic", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.55, ease: ease }, 1.15);
+      tl.fromTo(".dfx-lic .lic-row", { opacity: 0, x: -14 }, { opacity: 1, x: 0, duration: 0.40, ease: ease, stagger: 0.08 }, 1.30);
+      tl.fromTo(".dfx-cta", { opacity: 0, scale: 0.90 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.5)" }, 1.95);
+      tl.to(".dfx-cta", { scale: 0.962, duration: 0.18, ease: "power1.inOut" }, 3.00);
+      tl.to(".dfx-cta", { scale: 1, duration: 0.22, ease: "power1.inOut" }, 3.18);
+      tl.to(".dfx-cta", { scale: 0.962, duration: 0.18, ease: "power1.inOut" }, 4.30);
+      tl.to(".dfx-cta", { scale: 1, duration: 0.22, ease: "power1.inOut" }, 4.48);
+      tl.fromTo(".dfx-shine", { x: -430, opacity: 0 }, { x: 430, opacity: 1, duration: 0.80, ease: "power2.inOut" }, 2.45);
+      tl.fromTo(".dfx-shine", { x: -430 }, { x: 430, duration: 0.80, ease: "power2.inOut", immediateRender: false }, 4.75);
+      tl.fromTo(".dfx-tape", { y: 0 }, { y: -(15 * __DURATION__), duration: __DURATION__, ease: "none" }, 0);
       tl.fromTo(".dfx-stage", { scale: 1 }, { scale: 1.025, duration: __DURATION__, ease: "power1.inOut" }, 0);
       window.__timelines = window.__timelines || {};
       window.__timelines["__ID__"] = tl;

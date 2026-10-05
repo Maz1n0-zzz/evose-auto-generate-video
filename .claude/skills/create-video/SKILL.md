@@ -38,16 +38,19 @@ npm run video:brand -- <tên-brand> $DIR     # brand có sẵn: ls brands/
 Lệnh đó chép luật, hợp đồng bố cục, lớp phủ, phụ đề, font và logo của thương hiệu vào
 thư mục video, sinh `brand/fonts.css`, và bỏ font của template không thuộc bộ đó.
 
-| | Evose (mặc định) | WTC |
-|---|---|---|
-| Ngôn ngữ | tiếng Việt | **tiếng Anh** (`lang: en` ở frontmatter STORYBOARD) |
-| Độ dài | 250–300 chữ, 9–12 khung, 80–90 giây | **60–70 chữ, 6–8 khung, 28–32 giây** |
-| Khung mở / kết | `template/brand/` | `brands/wtc/brand/` (lệnh trên đã chép sẵn vào `$DIR/brand/`) |
-| Câu kết bắt buộc | "Truy cập evose.ai để tạo ra trợ lý AI của riêng bạn." | khung kết WTC đã in sẵn CTA, miễn trừ và handle — **không viết câu kết vào lời đọc** |
-| Chữ trên khung | tiếng Việt | tiếng Anh, in hoa |
-| Số trong lời đọc | viết ra chữ | giữ chữ số, trừ giá tiền: "sixty-eight thousand" thay cho "$68,000" |
+| | Evose (mặc định) | WTC | DecodeFX |
+|---|---|---|---|
+| Ngôn ngữ | tiếng Việt | **tiếng Anh** (`lang: en` ở frontmatter STORYBOARD) | tiếng Việt (`lang: vi`) |
+| Độ dài | 250–300 chữ, 9–12 khung, 80–90 giây | **60–70 chữ, 6–8 khung, 28–32 giây** | 60–80 giây, số chữ phải đo lại vì giọng mới chưa ai đo |
+| Khung mở / kết | `template/brand/` | `brands/wtc/brand/` (lệnh trên đã chép sẵn vào `$DIR/brand/`) | `brands/decodefx/brand/` |
+| Câu kết bắt buộc | "Truy cập evose.ai để tạo ra trợ lý AI của riêng bạn." | khung kết WTC đã in sẵn CTA, miễn trừ và handle — **không viết câu kết vào lời đọc** | khung kết đã in sẵn CTA và bảng giấy phép, **không viết câu kết vào lời đọc** |
+| Chữ trên khung | tiếng Việt | tiếng Anh, in hoa | tiếng Việt, không in hoa toàn bộ ở phụ đề |
+| Số trong lời đọc | viết ra chữ | giữ chữ số, trừ giá tiền: "sixty-eight thousand" thay cho "$68,000" | giữ chữ số cho spread và đòn bẩy |
 
 **Luật riêng của WTC** nằm ở `brands/wtc/brand/rules.md`, đọc trước khi viết storyboard.
+**Luật riêng của DecodeFX** nằm ở `brands/decodefx/brand/rules.md` và `brands/decodefx/README.md`.
+Ba điều cấm riêng: chỉ sáu nhóm số được phép dùng, không logo bên thứ ba dù website có bày
+logo đối tác, và không tự thêm câu cảnh báo rủi ro vì Mazino đã chốt không đưa vào.
 Hai điều cấm không có ở Evose: không tô vàng vào thân nến hay vùng giá,
 và không cam kết lợi nhuận.
 

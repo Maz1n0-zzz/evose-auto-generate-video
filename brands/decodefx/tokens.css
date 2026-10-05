@@ -38,7 +38,7 @@
   /* ——— vùng an toàn 1080×1920 ——— */
   --dfx-safe-top:     250px;   /* dưới watermark của lớp phủ */
   --dfx-safe-bottom:  1500px;  /* trên dải phụ đề */
-  --dfx-safe-x:       64px;
+  --dfx-safe-x:       80px;  /* 80 chứ không phải 64: camera phóng 3% ăn mất 14px */
   --dfx-cap-top:      1530px;  /* build.ts cố định, không đổi được */
   --dfx-cap-height:   150px;
 
@@ -53,6 +53,9 @@
   --dfx-num-hero:   128px;
   --dfx-num:        54px;
   --dfx-chip:       30px;
+  --dfx-tagline:    56px;  /* khẩu hiệu khung kết */
+  --dfx-cta:        48px;  /* chữ trong nút kêu gọi */
+  --dfx-site:       34px;  /* tên miền ở lớp phủ */
 
   /* ——— caption skin (captions.mjs đọc đúng 6 biến này từ frame.md) ——— */
   --cap-ink:        #FFFFFF;

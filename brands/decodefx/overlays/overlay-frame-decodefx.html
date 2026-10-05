@@ -16,13 +16,9 @@
   .scrim-bottom { position: absolute; bottom: 0; left: 0; right: 0; height: 250px;
     background: linear-gradient(0deg, rgba(8,9,11,0.94) 0%, rgba(8,9,11,0.58) 52%, rgba(8,9,11,0) 100%); z-index: 5; }
 
-  /* Watermark — lockup ngang, góc trên trái, y 56–155 */
+  /* Watermark lockup ngang, góc trên trái, y 56 tới 175 */
   .mark { position: absolute; top: 56px; left: 64px; z-index: 10; }
-  .mark img { width: 300px; height: auto; display: block; }
-
-  /* Gạch hairline vàng ngay dưới watermark — chữ ký mảnh, không chiếm chỗ */
-  .rule { position: absolute; top: 176px; left: 64px; width: 300px; height: 2px; z-index: 10;
-    background: linear-gradient(90deg, #F8CE0F 0%, rgba(248,206,15,0) 100%); }
+  .mark img { width: 360px; height: auto; display: block; }
 
   /* Chân khung — tên miền, y 1770–1824 */
   .foot { position: absolute; bottom: 96px; left: 64px; right: 64px; z-index: 10;
@@ -36,7 +32,6 @@
   <div class="scrim-bottom"></div>
 
   <div class="mark"><img src="../logo/decodefx-lockup-h-gold.png" alt="DecodeFX" /></div>
-  <div class="rule"></div>
 
   <div class="foot"><div class="site">decodefx.com</div></div>
 </body>

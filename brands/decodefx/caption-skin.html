@@ -1,0 +1,178 @@
+<!--
+  DecodeFX — caption skin (bản của thương hiệu, thay cho caption-skin cream của Cobalt Grid).
+
+  Chép file này đè lên `<dir>/.hyperframes/caption-skin.html` sau `npm run video:new`.
+  captions.mjs điền vào ba chỗ chừa sẵn: mảng GROUPS rỗng, duration + width/height = 0,
+  và khối <style data-brand-tokens> (tokens :root + @font-face lấy từ frame.md).
+
+  BỐN MÓC build.ts VÁ VÀO, KHÔNG ĐƯỢC ĐỔI TÊN HAY XOÁ:
+    · dòng `  var GROUPS = [];`                  (regex /^(\s*var GROUPS = ).*;$/m)
+    · `--cap-band-top: <n>px;`    do captions.mjs chèn vào data-brand-tokens
+    · `--cap-band-height: <n>px;` cũng vậy
+    · `font-weight: 400; font-style: normal;` trong một @font-face sinh ra
+      → phải có ít nhất MỘT file font 400 trong assets/fonts (HankenGrotesk-VF.ttf).
+      Bỏ file đó đi là `npm run video:build` ném lỗi "không tìm thấy font-weight của phụ đề".
+
+  Móc không đổi tên: .caption-group / .caption-word + trạng thái .is-active / .is-spoken,
+  data-composition-id="captions", timeline ở window.__timelines["captions"].
+  Đổi trạng thái bằng gsap.set({className}) — KHÔNG dùng tl.call() (seek không gọi callback).
+
+  Nhìn: không thẻ nền. Chữ Hanken Grotesk Black, trắng, viền đen dày để đọc được
+  trên mọi nền chart. Chữ chưa đọc tới mờ 55%. Chữ đang đọc chuyển vàng DecodeFX và nhích lên 2px.
+  Chữ đã đọc về trắng đặc. Không bo góc, không đổ bóng màu, không hộp.
+-->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+
+<!-- captions.mjs chèn tokens :root của dự án vào đây -->
+<style data-brand-tokens></style>
+
+<style>
+  #captions-root { position: absolute; inset: 0; pointer-events: none; }
+  .caption-layer { position: absolute; inset: 0; z-index: 20; pointer-events: none; }
+
+  /* dải chừa chỗ, lấy từ captionBand(H) — nội dung khung phải nằm phía trên */
+  .caption-stage {
+    position: absolute;
+    left: 0; right: 0;
+    top: var(--cap-band-top, 1530px);
+    height: var(--cap-band-height, 150px);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .caption-group {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0;
+  }
+
+  /* không thẻ nền — chữ đứng thẳng trên khung, đọc được nhờ viền đen */
+  .caption-pill {
+    position: relative;
+    max-width: 88%;
+    padding: 0 24px;
+    background: transparent;
+    border: 0; border-radius: 0; box-shadow: none;
+  }
+  .caption-line {
+    display: flex; flex-wrap: wrap; justify-content: center;
+    gap: 0.08em 0.30em;
+    font-family: var(--font-display, "Hanken Grotesk"), system-ui, sans-serif;
+    font-weight: 900;
+    font-size: clamp(44px, 5vw, 58px);
+    line-height: 1.1;
+    letter-spacing: 0.005em;
+  }
+
+  /* chưa đọc tới — trắng, chỉ từ đang đọc mới đổi sang vàng */
+  .caption-word {
+    display: inline-block;
+    color: #FFFFFF;
+    -webkit-text-stroke: 7px #000000;
+    paint-order: stroke fill;
+  }
+  /* đang đọc — vàng DecodeFX, viền dày hơn một chút để không chìm vào nến xanh đỏ */
+  .caption-word.is-active {
+    color: var(--cap-accent, #F8CE0F);
+    -webkit-text-stroke: 8px #000000;
+  }
+  /* đã đọc — trắng đặc */
+  .caption-word.is-spoken {
+    color: #FFFFFF;
+    -webkit-text-stroke: 7px #000000;
+  }
+
+  /* nhấn theo từ (ngủ cho tới khi có bộ gắn thẻ từ) */
+  .caption-word.cap-brand { color: var(--cap-accent, #F8CE0F); }
+  .caption-word.cap-num {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+  .caption-word.cap-cta { color: #FEC91E; }
+
+  @media (max-aspect-ratio: 9/16) {
+    .caption-pill { max-width: 92%; }
+    .caption-line { font-size: clamp(40px, 5.4vw, 56px); }
+  }
+</style>
+
+<div
+  id="captions-root"
+  data-composition-id="captions"
+  data-timeline-locked
+  data-start="0"
+  data-duration="0"
+  data-fps="30"
+  data-width="0"
+  data-height="0"
+>
+  <div class="caption-layer" aria-hidden="true">
+    <div id="caption-stage" class="caption-stage"></div>
+  </div>
+</div>
+
+<script>
+  // captions.mjs chèn nhóm từ và duration thật vào đây.
+  var GROUPS = [];
+  var DURATION = 0;
+
+  (function () {
+    var stage = document.getElementById("caption-stage");
+
+    GROUPS.forEach(function (group, g) {
+      var groupEl = document.createElement("div");
+      groupEl.className = "caption-group";
+      groupEl.id = "caption-group-" + g;
+      var pill = document.createElement("div");
+      pill.className = "caption-pill";
+      var line = document.createElement("div");
+      line.className = "caption-line";
+      (group.words || []).forEach(function (w, i) {
+        var span = document.createElement("span");
+        span.className = "caption-word";
+        span.id = "caption-word-" + g + "-" + i;
+        span.textContent = String(w.text);
+        line.appendChild(span);
+      });
+      pill.appendChild(line);
+      groupEl.appendChild(pill);
+      stage.appendChild(groupEl);
+    });
+
+    window.__timelines = window.__timelines || {};
+    var tl = gsap.timeline({ paused: true });
+
+    GROUPS.forEach(function (group, g) {
+      var groupEl = document.getElementById("caption-group-" + g);
+      var words = group.words || [];
+      var next = GROUPS[g + 1];
+      var isLast = g === GROUPS.length - 1;
+      var start = Math.max(0, Number(group.start));
+      var end = isLast ? DURATION : Math.min(Number(next.start), Number(group.end) + 0.3);
+      if (end <= start) end = start + 0.01;
+
+      tl.set(groupEl, { opacity: 1 }, start);
+      tl.set(groupEl, { opacity: 0 }, end);
+
+      words.forEach(function (w, i) {
+        var el = document.getElementById("caption-word-" + g + "-" + i);
+        var at = Math.max(start, Number(w.start));
+        tl.set(el, { className: "caption-word" }, start);
+        tl.set(el, { className: "caption-word is-active" }, at);
+        tl.fromTo(el, { y: 0 }, { y: -2, duration: 0.09, ease: "power3.out" }, at);
+        if (i + 1 < words.length) {
+          var nextAt = Math.max(start, Number(words[i + 1].start));
+          tl.set(el, { className: "caption-word is-spoken" }, nextAt);
+          tl.to(el, { y: 0, duration: 0.09, ease: "power2.out" }, nextAt);
+        }
+      });
+      if (words.length) {
+        var lastEl = document.getElementById("caption-word-" + g + "-" + (words.length - 1));
+        var lastSpoken = Math.min(end, Number(words[words.length - 1].end) + 0.1);
+        tl.set(lastEl, { className: "caption-word is-spoken" }, lastSpoken);
+        tl.to(lastEl, { y: 0, duration: 0.09, ease: "power2.out" }, lastSpoken);
+      }
+    });
+
+    tl.to({}, { duration: DURATION }, 0);
+    window.__timelines["captions"] = tl;
+  })();
+</script>

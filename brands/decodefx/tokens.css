@@ -1,0 +1,64 @@
+/* DecodeFX — design tokens (video dọc 1080×1920)
+   Nguồn màu: logo vector rút từ header decodefx.com/vi-VN ngày 05/10/2026,
+   và bảng màu đã duyệt ở ảnh chính sách rebate ngày 03/10/2026.
+   Không sửa tay. Đổi màu thì đo lại từ nguồn rồi ghi nguồn vào đây. */
+
+:root {
+  /* ——— nền ——— */
+  --dfx-ink:        #08090B;  /* nền chuẩn, đo từ trang chủ */
+  --dfx-panel:      #0E1013;  /* thẻ, bảng số */
+  --dfx-panel-2:    #16181D;  /* lớp nổi hơn */
+  --dfx-line:       #23262C;  /* viền 1px của mọi panel */
+  --dfx-hairline:   rgba(248, 206, 15, 0.20);
+
+  /* ——— vàng (màu nhận diện duy nhất) ——— */
+  --dfx-gold:       #F8CE0F;  /* chính, đo từ khung vàng trong logo */
+  --dfx-gold-hi:    #FEC91E;  /* đỉnh gradient */
+  --dfx-gold-lo:    #E2B31B;  /* đáy gradient */
+
+  /* ——— chữ ——— */
+  --dfx-text:       #FFFFFF;
+  --dfx-text-dim:   #B9BCC4;
+  --dfx-text-mute:  #8C8E9E;
+
+  /* ——— dải giải mã (chữ ký thị giác của DecodeFX) ——— */
+  --dfx-tape:       rgba(185, 188, 196, 0.12);  /* ký tự mono trôi ở nền */
+  --dfx-tape-hot:   rgba(248, 206, 15, 0.30);   /* ký tự đã "giải mã" */
+
+  /* ——— chart ——— */
+  --dfx-up:         #26D07C;
+  --dfx-down:       #FF4B4B;
+  --dfx-wick:       #6E7178;
+
+  /* ——— font ——— */
+  --dfx-font-display: "Hanken Grotesk", sans-serif;
+  --dfx-font-text:    "Hanken Grotesk", sans-serif;
+  --dfx-font-num:     "JetBrains Mono", ui-monospace, monospace;
+
+  /* ——— vùng an toàn 1080×1920 ——— */
+  --dfx-safe-top:     250px;   /* dưới watermark của lớp phủ */
+  --dfx-safe-bottom:  1500px;  /* trên dải phụ đề */
+  --dfx-safe-x:       64px;
+  --dfx-cap-top:      1530px;  /* build.ts cố định, không đổi được */
+  --dfx-cap-height:   150px;
+
+  /* ——— thang chữ (px trên khung rộng 1080) ——— */
+  --dfx-hero:       150px;
+  --dfx-headline:   112px;
+  --dfx-title:      88px;
+  --dfx-statement:  64px;
+  --dfx-body:       44px;
+  --dfx-label:      36px;
+  --dfx-micro:      26px;
+  --dfx-num-hero:   128px;
+  --dfx-num:        54px;
+  --dfx-chip:       30px;
+
+  /* ——— caption skin (captions.mjs đọc đúng 6 biến này từ frame.md) ——— */
+  --cap-ink:        #FFFFFF;
+  --cap-canvas:     rgba(0, 0, 0, 0.0);
+  --cap-accent:     #F8CE0F;
+  --cap-accent-2:   #FEC91E;
+  --font-display:   "Hanken Grotesk";
+  --font-body:      "Hanken Grotesk";
+}

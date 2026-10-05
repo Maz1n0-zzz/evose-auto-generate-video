@@ -78,8 +78,17 @@ Video DecodeFX là **tiếng Việt**. `STORYBOARD.md` phải có `lang: vi` ở
 `voice.json` mang giọng riêng và đè `ELEVENLABS_VOICE_ID` trong `.env.local` cho đúng
 thư mục video này.
 
-**Tốc độ đọc của giọng này chưa ai đo.** Con số 3,1 chữ mỗi giây là của giọng Evose cũ.
-Đo lại bằng một lần `video:voice` rồi ghi số thật vào đây trước khi viết lời đủ dài.
+**Tốc độ đọc đo thật ngày 05/10/2026: 2,61 chữ mỗi giây** ở speed 1.06, model `eleven_v3`.
+Phép đo: 185 chữ ra 70,95 giây, thư mục `decodefx-tvc-gioi-thieu-san-20261005-1420`.
+Chậm hơn giọng Evose cũ 16%, nên nhân nhẩm bằng con số 3,1 là hụt mất khoảng mười giây.
+
+| Muốn video dài | Viết khoảng |
+|---|---|
+| 60 giây | 157 chữ |
+| 70 giây | 183 chữ |
+| 80 giây | 209 chữ |
+
+Đổi giọng thì đo lại bằng một video rồi sửa bảng này, đừng nhân nhẩm.
 
 ## Số liệu được phép dùng
 
@@ -121,7 +130,6 @@ thiếu sót. Đừng tự thêm lại, và nếu cần đổi thì hỏi Mazino
   Khung nào cần chart thì dùng ảnh chụp thật.
 - **Khung giữa.** Mới có khung mở và khung kết. Các khung nội dung do worker dựng ở chặng 3.
 - **Nội dung kêu gọi.** `__CTA__` ở khung kết đang để chỗ chừa. Bản thử dùng tạm "MỞ TÀI KHOẢN".
-- **Tốc độ đọc thật của giọng mới.** Xem mục Ngôn ngữ và giọng ở trên.
 - **GSAP tải từ CDN, hai bản khác nhau.** Khung dùng 3.12.5, lớp phụ đề dùng 3.14.2, cả hai
   lấy từ jsDelivr. Cả repo đang như vậy, gồm template, WTC và Redsun. Mazino chốt để riêng
   ngày 05/10/2026 vì sửa thì phải chạy lại thử cả ba bộ, trong đó hai bộ đã giao video thật.

@@ -26,6 +26,7 @@ import {
 import { MAX_STILL_SEC, measure } from "./stillness.js";
 import { normalizeFonts } from "./parse.js";
 import { regroupCaptions, type CaptionWord } from "./captions.js";
+import { probeShape, runCheck } from "./check.js";
 
 /** Dải phụ đề: footer Evose phủ từ y 1690, phụ đề phải nằm trên nó. */
 const CAPTION_BAND_TOP = 1530;
@@ -201,6 +202,19 @@ async function main(): Promise<void> {
     console.log(`  ⚠ vượt trần ${(MAX_FINAL_BYTES / 1024 / 1024).toFixed(0)} MB: nâng crf lên 18 rồi soát lại vùng tối`);
   } else if (finalBytes > WARN_FINAL_BYTES) {
     console.log(`  ⚠ gần trần ${(MAX_FINAL_BYTES / 1024 / 1024).toFixed(0)} MB: video dài hơn nữa sẽ vượt`);
+  }
+
+  const outcome = await runCheck(final, renders, await probeShape(final), dir);
+  if (outcome.status === "skipped") {
+    console.log(`  soát bản xuất: bỏ qua, ${outcome.reason}`);
+  } else if (outcome.status === "failed") {
+    console.log(`  ⚠ soát bản xuất KHÔNG chạy được: ${outcome.reason}`);
+  } else {
+    const { blocking, minor, report } = outcome;
+    console.log(`  soát bản xuất: ${report.passed.length} mục đạt, ${blocking.length} phải sửa, ${minor.length} ghi nhận`);
+    for (const issue of blocking) console.log(`  ⚠ ${issue.p} ${issue.rule} tại ${issue.at}s: ${issue.says}`);
+    for (const issue of minor) console.log(`    ${issue.p} ${issue.rule} tại ${issue.at}s: ${issue.says}`);
+    console.log(`  chi tiết: ${join(renders, "check.json")}`);
   }
 
   console.log(`  contact sheet: ${join(renders, "contact-sheet.jpg")}`);

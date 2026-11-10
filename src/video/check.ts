@@ -9,7 +9,7 @@
  */
 
 import { spawn } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 
 /** Mức ưu tiên raea gán cho một lỗi, P0 nặng nhất. */
@@ -34,7 +34,7 @@ export interface CheckReport {
 export type CheckOutcome =
   | { readonly status: "ran"; readonly report: CheckReport; readonly blocking: readonly CheckIssue[]; readonly minor: readonly CheckIssue[] }
   | { readonly status: "skipped"; readonly reason: string }
-  | { readonly status: "failed"; readonly code: number; readonly reason: string };
+  | { readonly status: "failed"; readonly reason: string; readonly code?: number; readonly signal?: string };
 
 /** Mã thoát raea dùng cho kết quả soát: 0 là sạch, 1 là có lỗi trong video.
  *  Mọi mã khác nghĩa là bản thân lệnh hỏng, ví dụ 2 khi không mở được file. */
@@ -115,12 +115,20 @@ export function parseProbeSize(out: string | null): { w: number; h: number } | n
   return w > 0 && h > 0 ? { w, h } : null;
 }
 
-/** Chạy một lệnh, trả về mã thoát thay vì ném. `null` nghĩa là không tìm thấy lệnh. */
-function spawnForExitCode(cmd: string, args: readonly string[], cwd: string): Promise<number | null> {
+/** Ba kết cục của một lần gọi lệnh. Tách `signal` khỏi `exit` vì một tiến trình bị giết
+ *  không có mã thoát, và gộp nó vào một mã nào đó là biến tai nạn thành kết quả soát. */
+type SpawnResult =
+  | { readonly kind: "exit"; readonly code: number }
+  | { readonly kind: "signal"; readonly signal: string }
+  | { readonly kind: "missing" };
+
+/** Chạy một lệnh, trả về kết cục thay vì ném. */
+function spawnOnce(cmd: string, args: readonly string[], cwd: string): Promise<SpawnResult> {
   return new Promise((res) => {
     const p = spawn(cmd, args, { cwd, stdio: ["ignore", "inherit", "ignore"] });
-    p.on("close", (code) => res(code ?? 1));
-    p.on("error", () => res(null));
+    // `close` vẫn phát sau `error`, nhưng promise chỉ nhận lần resolve đầu nên vô hại.
+    p.on("close", (code, signal) => res(signal ? { kind: "signal", signal } : { kind: "exit", code: code ?? 0 }));
+    p.on("error", () => res({ kind: "missing" }));
   });
 }
 
@@ -135,15 +143,27 @@ function spawnForExitCode(cmd: string, args: readonly string[], cwd: string): Pr
  */
 export async function runCheck(final: string, renders: string, shape: string, dir: string, bin = "raea"): Promise<CheckOutcome> {
   const out = join(renders, "check.json");
-  const code = await spawnForExitCode(bin, ["check", final, "--shape", shape, "-o", out], dir);
+  // Xoá báo cáo của lần dựng trước. Không xoá thì một lần raea không ghi được file sẽ làm
+  // `existsSync` bên dưới đọc nhầm kết quả cũ và báo nó như kết quả của video lần này.
+  rmSync(out, { force: true });
 
-  if (code === null) return { status: "skipped", reason: "chưa cài raea (curl -fsSL https://raea.io/install | sh)" };
-  if (!RESULT_CODES.includes(code)) return { status: "failed", code, reason: `raea check hỏng, thoát mã ${code}: kiểm lại ${final} có mở được không` };
-  if (!existsSync(out)) return { status: "failed", code, reason: `raea thoát mã ${code} nhưng không ghi ${out}` };
+  const r = await spawnOnce(bin, ["check", final, "--shape", shape, "-o", out], dir);
 
-  const report = parseCheckReport(JSON.parse(readFileSync(out, "utf8")) as unknown, "check.json");
-  const { blocking, minor } = rank(report);
-  return { status: "ran", report, blocking, minor };
+  if (r.kind === "missing") return { status: "skipped", reason: "chưa cài raea (curl -fsSL https://raea.io/install | sh)" };
+  if (r.kind === "signal") return { status: "failed", signal: r.signal, reason: `raea check bị giết bằng tín hiệu ${r.signal}, chưa soát xong` };
+  if (!RESULT_CODES.includes(r.code)) return { status: "failed", code: r.code, reason: `raea check hỏng, thoát mã ${r.code}: kiểm lại ${final} có mở được không` };
+  if (!existsSync(out)) return { status: "failed", code: r.code, reason: `raea thoát mã ${r.code} nhưng không ghi ${out}` };
+
+  // Mọi sự cố của bước soát phải thành một trạng thái trả về, không được ném: bản giao đã
+  // xuất xong rồi, giết pipeline ở đây là báo thất bại cho một video dùng được.
+  try {
+    const report = parseCheckReport(JSON.parse(readFileSync(out, "utf8")) as unknown, "check.json");
+    const { blocking, minor } = rank(report);
+    return { status: "ran", report, blocking, minor };
+  } catch (e: unknown) {
+    const why = e instanceof Error ? e.message : String(e);
+    return { status: "failed", code: r.code, reason: `không đọc được ${out}: ${why}` };
+  }
 }
 
 /** Tỉ lệ khung mà raea check nhận, suy từ kích thước khung dựng. */

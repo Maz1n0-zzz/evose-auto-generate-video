@@ -125,6 +125,74 @@ describe("runCheck", () => {
     if (outcome.status === "failed") expect(outcome.reason).toMatch(/không ghi/);
   });
 
+  /** Một raea giả: ghi sẵn nội dung check.json rồi thoát bằng mã đã chọn. */
+  function fakeRaea(dir: string, json: string | null, exit: number): string {
+    const sh = join(dir, `raea-gia-${exit}-${json === null ? "khong-ghi" : "co-ghi"}.sh`);
+    const ghi = json === null ? "" : `cat > "$6" <<'JSON'\n${json}\nJSON\n`;
+    writeFileSync(sh, `#!/bin/sh\n${ghi}exit ${exit}\n`, { mode: 0o755 });
+    return sh;
+  }
+
+  it("mã 0 kèm check.json hợp lệ thì chạy được, không có lỗi phải sửa", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "check-"));
+    const bin = fakeRaea(dir, JSON.stringify(SACH), 0);
+    const outcome = await runCheck(join(dir, "final.mp4"), dir, "9:16", dir, bin);
+    expect(outcome.status).toBe("ran");
+    if (outcome.status === "ran") {
+      expect(outcome.blocking).toHaveLength(0);
+      expect(outcome.report.passed).toHaveLength(1);
+    }
+  });
+
+  it("mã 1 là kết quả soát hợp lệ, không phải lệnh hỏng", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "check-"));
+    const bin = fakeRaea(dir, JSON.stringify(CO_LOI), 1);
+    const outcome = await runCheck(join(dir, "final.mp4"), dir, "9:16", dir, bin);
+    expect(outcome.status).toBe("ran");
+    if (outcome.status === "ran") {
+      expect(outcome.blocking.map((i) => i.rule)).toEqual(["blotching"]);
+      expect(outcome.minor.map((i) => i.rule)).toEqual(["frozen"]);
+    }
+  });
+
+  it("check.json hỏng cú pháp thì báo hỏng, KHÔNG ném ra ngoài giết pipeline", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "check-"));
+    const bin = fakeRaea(dir, '{"file": "a.mp4", "issues": [', 0);
+    const outcome = await runCheck(join(dir, "final.mp4"), dir, "9:16", dir, bin);
+    expect(outcome.status).toBe("failed");
+    if (outcome.status === "failed") expect(outcome.reason).toMatch(/không đọc được/);
+  });
+
+  it("check.json sai hình dạng cũng báo hỏng chứ không ném", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "check-"));
+    const bin = fakeRaea(dir, '{"file": "a.mp4", "passed": []}', 0);
+    const outcome = await runCheck(join(dir, "final.mp4"), dir, "9:16", dir, bin);
+    expect(outcome.status).toBe("failed");
+    if (outcome.status === "failed") expect(outcome.reason).toMatch(/thiếu mảng issues/);
+  });
+
+  it("raea không ghi file mới thì KHÔNG được đọc check.json của lần dựng trước", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "check-"));
+    // Dựng hiện trường: lần trước đã để lại một báo cáo sạch trong thư mục.
+    writeFileSync(join(dir, "check.json"), JSON.stringify(SACH));
+    const bin = fakeRaea(dir, null, 0);
+    const outcome = await runCheck(join(dir, "final.mp4"), dir, "9:16", dir, bin);
+    expect(outcome.status).toBe("failed");
+    if (outcome.status === "failed") expect(outcome.reason).toMatch(/không ghi/);
+  });
+
+  it("bị tín hiệu giết thì báo hỏng kèm tên tín hiệu, không hoá thành mã 1", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "check-"));
+    const sh = join(dir, "tu-giet.sh");
+    writeFileSync(sh, "#!/bin/sh\nkill -TERM $$\n", { mode: 0o755 });
+    const outcome = await runCheck(join(dir, "final.mp4"), dir, "9:16", dir, sh);
+    expect(outcome.status).toBe("failed");
+    if (outcome.status === "failed") {
+      expect(outcome.signal).toBe("SIGTERM");
+      expect(outcome.code).toBeUndefined();
+    }
+  });
+
   it("lệnh thoát mã 2 thì báo hỏng kèm mã, không nuốt lỗi thành bỏ qua", async () => {
     const dir = mkdtempSync(join(tmpdir(), "check-"));
     // raea thoát mã 2 khi không mở được file. Cần một lệnh thật trả đúng mã đó,

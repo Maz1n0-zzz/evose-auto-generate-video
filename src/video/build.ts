@@ -212,8 +212,9 @@ async function main(): Promise<void> {
   } else {
     const { blocking, minor, report } = outcome;
     console.log(`  soát bản xuất: ${report.passed.length} mục đạt, ${blocking.length} phải sửa, ${minor.length} ghi nhận`);
-    for (const issue of blocking) console.log(`  ⚠ ${issue.p} ${issue.rule} tại ${issue.at}s: ${issue.says}`);
-    for (const issue of minor) console.log(`    ${issue.p} ${issue.rule} tại ${issue.at}s: ${issue.says}`);
+    const when = (at: number | null): string => (at === null ? "không rõ thời điểm" : `tại ${at}s`);
+    for (const issue of blocking) console.log(`  ⚠ ${issue.p} ${issue.rule} ${when(issue.at)}: ${issue.says}`);
+    for (const issue of minor) console.log(`    ${issue.p} ${issue.rule} ${when(issue.at)}: ${issue.says}`);
     console.log(`  chi tiết: ${join(renders, "check.json")}`);
   }
 

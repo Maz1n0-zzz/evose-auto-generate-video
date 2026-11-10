@@ -21,7 +21,9 @@ const BLOCKING: readonly CheckPriority[] = ["P0", "P1"];
 export interface CheckIssue {
   readonly rule: string;
   readonly p: CheckPriority;
-  readonly at: number;
+  /** Giây xảy ra lỗi, hoặc `null` khi lỗi không gắn với một thời điểm nào.
+   *  Raea thật ghi `null` cho lỗi độ ồn, vì độ ồn đo trên cả bài chứ không ở một giây. */
+  readonly at: number | null;
   readonly says: string;
 }
 
@@ -59,12 +61,13 @@ export function parseCheckReport(raw: unknown, source: string): CheckReport {
     if (typeof issue.p !== "string" || !PRIORITIES.includes(issue.p)) {
       throw new Error(`${source}: issues[${i}] có mức ưu tiên lạ: ${String(issue.p)}`);
     }
-    return {
-      rule: issue.rule,
-      p: issue.p as CheckPriority,
-      at: typeof issue.at === "number" ? issue.at : 0,
-      says: issue.says,
-    };
+    // `at` vắng mặt hoặc null là hợp lệ và giữ nguyên là null. Một kiểu khác, hay NaN, là
+    // dấu hiệu raea đổi hình dạng: ném, đừng đổi âm thầm thành 0 rồi in ra "tại 0s".
+    const at = issue.at ?? null;
+    if (at !== null && (typeof at !== "number" || !Number.isFinite(at))) {
+      throw new Error(`${source}: issues[${i}] có at không phải số: ${String(issue.at)}`);
+    }
+    return { rule: issue.rule, p: issue.p as CheckPriority, at, says: issue.says };
   });
 
   return { file: data.file, issues, passed: data.passed.filter((p): p is string => typeof p === "string") };

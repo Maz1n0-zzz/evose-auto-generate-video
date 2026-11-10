@@ -45,9 +45,20 @@ describe("parseCheckReport", () => {
     expect(() => parseCheckReport("[]", "check.json")).toThrow(/không phải một đối tượng JSON/);
   });
 
-  it("thiếu khoá at thì mặc định về 0 chứ không ném", () => {
+  it("thiếu khoá at thì là null, KHÔNG phải 0", () => {
     const thieu = { file: "a.mp4", issues: [{ rule: "x", p: "P2", says: "..." }], passed: [] };
-    expect(parseCheckReport(thieu, "check.json").issues[0].at).toBe(0);
+    expect(parseCheckReport(thieu, "check.json").issues[0].at).toBeNull();
+  });
+
+  it("at là null giữ nguyên null: raea ghi vậy cho lỗi độ ồn", () => {
+    // Nguyên văn raea 0.1.0 trả về cho output/mazino-ai-automation-intro-20261022-1834.
+    const doOn = { file: "a.mp4", issues: [{ rule: "loudness", p: "P1", at: null, says: "-15.1 LUFS" }], passed: [] };
+    expect(parseCheckReport(doOn, "check.json").issues[0].at).toBeNull();
+  });
+
+  it("at sai kiểu thì ném, không đổi âm thầm thành 0", () => {
+    const xau = { file: "a.mp4", issues: [{ rule: "x", p: "P2", at: "12s", says: "..." }], passed: [] };
+    expect(() => parseCheckReport(xau, "check.json")).toThrow(/at không phải số/);
   });
 });
 

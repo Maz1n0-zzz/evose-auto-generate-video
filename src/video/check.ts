@@ -48,6 +48,9 @@ const PRIORITIES: readonly string[] = ["P0", "P1", "P2", "P3"];
  *  có thể đổi khoá, nên kiểm vẫn rẻ hơn là để lỗi hiện ra ở chỗ khác. */
 export function parseCheckReport(raw: unknown, source: string): CheckReport {
   if (typeof raw !== "object" || raw === null) throw new Error(`${source}: không phải một đối tượng JSON`);
+  // Mảng cũng có typeof "object", và nếu để nó đi tiếp thì lỗi báo ra là "thiếu khoá file",
+  // một câu dẫn người đọc đi sai hướng hẳn.
+  if (Array.isArray(raw)) throw new Error(`${source}: là một mảng, phải là một đối tượng`);
   const data = raw as Record<string, unknown>;
   if (typeof data.file !== "string") throw new Error(`${source}: thiếu khoá file`);
   if (!Array.isArray(data.issues)) throw new Error(`${source}: thiếu mảng issues`);
@@ -64,13 +67,20 @@ export function parseCheckReport(raw: unknown, source: string): CheckReport {
     // `at` vắng mặt hoặc null là hợp lệ và giữ nguyên là null. Một kiểu khác, hay NaN, là
     // dấu hiệu raea đổi hình dạng: ném, đừng đổi âm thầm thành 0 rồi in ra "tại 0s".
     const at = issue.at ?? null;
-    if (at !== null && (typeof at !== "number" || !Number.isFinite(at))) {
-      throw new Error(`${source}: issues[${i}] có at không phải số: ${String(issue.at)}`);
+    if (at !== null && (typeof at !== "number" || !Number.isFinite(at) || at < 0)) {
+      throw new Error(`${source}: issues[${i}] có at không phải giây hợp lệ: ${String(issue.at)}`);
     }
     return { rule: issue.rule, p: issue.p as CheckPriority, at, says: issue.says };
   });
 
-  return { file: data.file, issues, passed: data.passed.filter((p): p is string => typeof p === "string") };
+  // Lọc im lặng ở đây là làm `passed.length` hụt mà không ai biết, và chính con số đó đi
+  // thẳng ra dòng tóm tắt "N mục đạt". Raea đổi hình dạng thì phải ném, như mọi khoá khác.
+  const passed = data.passed.map((p, i) => {
+    if (typeof p !== "string") throw new Error(`${source}: passed[${i}] không phải chuỗi: ${String(p)}`);
+    return p;
+  });
+
+  return { file: data.file, issues, passed };
 }
 
 /** Tách lỗi phải sửa khỏi lỗi chỉ ghi nhận. */

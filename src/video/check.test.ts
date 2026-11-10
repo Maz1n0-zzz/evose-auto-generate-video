@@ -1,7 +1,29 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { chmodSync, mkdtempSync, writeFileSync } from "node:fs";
+import { chmodSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
+import { realpathSync } from "node:fs";
 import { join } from "node:path";
+
+/** Mọi thư mục tạm của file này, dọn sau mỗi bài để không rò vào /tmp. */
+const tempDirs: string[] = [];
+function tempDir(prefix: string): string {
+  const d = mkdtempSync(join(tmpdir(), prefix));
+  tempDirs.push(d);
+  return d;
+}
+afterEach(() => {
+  for (const d of tempDirs.splice(0)) {
+    try {
+      chmodSync(d, 0o755);
+    } catch {
+      // thư mục đã bị xoá hoặc chưa từng đổi quyền: không sao
+    }
+    rmSync(d, { recursive: true, force: true });
+  }
+});
+
+/** Bài dựa vào quyền hệ thống thì root bỏ qua được mọi quyền, nên bài sẽ đỏ vì lý do khác. */
+const khongPhaiRoot = process.getuid === undefined || process.getuid() !== 0;
 import { FALLBACK_SHAPE, parseCheckReport, parseProbeSize, probeShape, rank, runCheck, shapeFor, type CheckReport } from "./check.js";
 
 /** Nguyên văn check.json raea ghi ra cho bản DecodeFX ngày 10/11/2026, rút gọn phần says. */
@@ -58,7 +80,54 @@ describe("parseCheckReport", () => {
 
   it("at sai kiểu thì ném, không đổi âm thầm thành 0", () => {
     const xau = { file: "a.mp4", issues: [{ rule: "x", p: "P2", at: "12s", says: "..." }], passed: [] };
-    expect(() => parseCheckReport(xau, "check.json")).toThrow(/at không phải số/);
+    expect(() => parseCheckReport(xau, "check.json")).toThrow(/at không phải giây hợp lệ/);
+  });
+
+  it("at là NaN hoặc Infinity thì ném, không lọt qua phép kiểm kiểu", () => {
+    const nan = { file: "a.mp4", issues: [{ rule: "x", p: "P2", at: Number.NaN, says: "..." }], passed: [] };
+    const inf = { file: "a.mp4", issues: [{ rule: "x", p: "P2", at: Number.POSITIVE_INFINITY, says: "..." }], passed: [] };
+    expect(() => parseCheckReport(nan, "check.json")).toThrow(/at không phải giây hợp lệ/);
+    expect(() => parseCheckReport(inf, "check.json")).toThrow(/at không phải giây hợp lệ/);
+  });
+
+  it("at âm thì ném: không có giây âm trong một video", () => {
+    const am = { file: "a.mp4", issues: [{ rule: "x", p: "P2", at: -5, says: "..." }], passed: [] };
+    expect(() => parseCheckReport(am, "check.json")).toThrow(/at không phải giây hợp lệ/);
+  });
+
+  it("at bằng 0 vẫn hợp lệ: lỗi ở ngay giây đầu là có thật", () => {
+    const khong = { file: "a.mp4", issues: [{ rule: "x", p: "P2", at: 0, says: "..." }], passed: [] };
+    expect(parseCheckReport(khong, "check.json").issues[0].at).toBe(0);
+  });
+
+  it("raw là null thì ném, không đọc thuộc tính của null", () => {
+    expect(() => parseCheckReport(null, "check.json")).toThrow(/không phải một đối tượng JSON/);
+  });
+
+  it("raw là mảng thật thì nói đúng là mảng, không nói thiếu khoá file", () => {
+    expect(() => parseCheckReport([], "check.json")).toThrow(/là một mảng/);
+  });
+
+  it("thiếu mảng passed thì ném", () => {
+    expect(() => parseCheckReport({ file: "a.mp4", issues: [] }, "check.json")).toThrow(/thiếu mảng passed/);
+  });
+
+  it("issues[i] không phải đối tượng thì ném kèm chỉ số", () => {
+    const xau = { file: "a.mp4", issues: ["khong-phai-doi-tuong"], passed: [] };
+    expect(() => parseCheckReport(xau, "check.json")).toThrow(/issues\[0\] không phải đối tượng/);
+  });
+
+  it("thiếu rule hoặc thiếu says thì ném, mỗi cái gọi đúng tên khoá", () => {
+    const thieuRule = { file: "a.mp4", issues: [{ p: "P2", at: 1, says: "..." }], passed: [] };
+    const thieuSays = { file: "a.mp4", issues: [{ rule: "x", p: "P2", at: 1 }], passed: [] };
+    expect(() => parseCheckReport(thieuRule, "check.json")).toThrow(/thiếu rule/);
+    expect(() => parseCheckReport(thieuSays, "check.json")).toThrow(/thiếu says/);
+  });
+
+  it("passed có phần tử không phải chuỗi thì ném, KHÔNG lọc im lặng", () => {
+    // Lọc im lặng làm số "N mục đạt" hụt đi mà không ai biết.
+    const xau = { file: "a.mp4", issues: [], passed: ["ok: mot muc", 42] };
+    expect(() => parseCheckReport(xau, "check.json")).toThrow(/passed\[1\] không phải chuỗi/);
   });
 });
 
@@ -138,6 +207,12 @@ describe("parseProbeSize", () => {
     expect(parseProbeSize("0x1920")).toBeNull();
   });
 
+  it("số nằm lẫn trong chữ thì KHÔNG nhận: phải khớp trọn một dòng", () => {
+    // Nới lỏng neo đầu dòng và cuối dòng thì "loi1080x1920abc" cũng thành kích thước hợp lệ.
+    expect(parseProbeSize("loi1080x1920")).toBeNull();
+    expect(parseProbeSize("1080x1920abc")).toBeNull();
+  });
+
   it("nhiều luồng thì lấy dòng đầu", () => {
     expect(parseProbeSize("1920x1080\n1280x720\n")).toEqual({ w: 1920, h: 1080 });
   });
@@ -150,10 +225,19 @@ describe("probeShape", () => {
     expect(await probeShape("/khong/co/file/nay.mp4")).toBe(FALLBACK_SHAPE);
   });
 
+  it("ffprobe in ra kích thước nhưng thoát lỗi thì KHÔNG tin đầu ra đó", async () => {
+    // Bỏ qua mã thoát là tin một đầu ra có thể dở dang. Con giả in khung ngang rồi thoát 1,
+    // nên nếu mã thoát bị bỏ qua thì kết quả thành 16:9 thay vì khổ mặc định.
+    const dir = tempDir("probe-");
+    writeFileSync(join(dir, "ffprobe"), "#!/bin/sh\necho 1920x1080\nexit 1\n", { mode: 0o755 });
+    vi.stubEnv("PATH", `${dir}:${process.env.PATH ?? ""}`);
+    expect(await probeShape("bat-ky.mp4")).toBe(FALLBACK_SHAPE);
+  });
+
   it("đo thật: đọc kích thước ffprobe in ra chứ không trả khổ mặc định", async () => {
     // Ca trên xanh cả khi probeShape luôn trả FALLBACK_SHAPE, vì khổ mặc định cũng là 9:16.
     // Ca này dựng một ffprobe giả in ra khung ngang, nên nó đỏ nếu đường đo thật không chạy.
-    const dir = mkdtempSync(join(tmpdir(), "probe-"));
+    const dir = tempDir("probe-");
     writeFileSync(join(dir, "ffprobe"), "#!/bin/sh\necho 1920x1080\n", { mode: 0o755 });
     vi.stubEnv("PATH", `${dir}:${process.env.PATH ?? ""}`);
     expect(await probeShape("bat-ky.mp4")).toBe("16:9");
@@ -162,21 +246,21 @@ describe("probeShape", () => {
 
 describe("runCheck", () => {
   it("máy chưa cài raea thì trả về bỏ qua, không ném", async () => {
-    const dir = mkdtempSync(join(tmpdir(), "check-"));
+    const dir = tempDir("check-");
     const outcome = await runCheck(join(dir, "final.mp4"), dir, "9:16", dir, "raea-khong-ton-tai-tren-may-nay");
     expect(outcome.status).toBe("skipped");
     if (outcome.status === "skipped") expect(outcome.reason).toMatch(/chưa cài raea/);
   });
 
   it("thư mục làm việc không tồn tại thì báo hỏng, KHÔNG báo chưa cài raea", async () => {
-    const dir = mkdtempSync(join(tmpdir(), "check-"));
+    const dir = tempDir("check-");
     const outcome = await runCheck("x.mp4", dir, "9:16", join(dir, "khong-ton-tai"), "true");
     expect(outcome.status).toBe("failed");
     if (outcome.status === "failed") expect(outcome.reason).toMatch(/thư mục làm việc không tồn tại/);
   });
 
-  it("file lệnh thiếu quyền chạy thì báo hỏng, KHÔNG báo chưa cài raea", async () => {
-    const dir = mkdtempSync(join(tmpdir(), "check-"));
+  it.runIf(khongPhaiRoot)("file lệnh thiếu quyền chạy thì báo hỏng, KHÔNG báo chưa cài raea", async () => {
+    const dir = tempDir("check-");
     const sh = join(dir, "khong-quyen.sh");
     writeFileSync(sh, "#!/bin/sh\nexit 0\n", { mode: 0o644 });
     const outcome = await runCheck("x.mp4", dir, "9:16", dir, sh);
@@ -185,23 +269,46 @@ describe("runCheck", () => {
   });
 
   it("lệnh thoát mã 0 nhưng không ghi check.json thì báo hỏng, không báo bỏ qua", async () => {
-    const dir = mkdtempSync(join(tmpdir(), "check-"));
+    const dir = tempDir("check-");
     const outcome = await runCheck(join(dir, "final.mp4"), dir, "9:16", dir, "true");
     expect(outcome.status).toBe("failed");
     if (outcome.status === "failed") expect(outcome.reason).toMatch(/không ghi/);
   });
 
-  /** Một raea giả: ghi sẵn nội dung check.json rồi thoát bằng mã đã chọn. */
-  function fakeRaea(dir: string, json: string | null, exit: number): string {
-    const sh = join(dir, `raea-gia-${exit}-${json === null ? "khong-ghi" : "co-ghi"}.sh`);
-    const ghi = json === null ? "" : `cat > "$6" <<'JSON'\n${json}\nJSON\n`;
-    writeFileSync(sh, `#!/bin/sh\n${ghi}exit ${exit}\n`, { mode: 0o755 });
-    return sh;
+  /**
+   * Một raea giả: ghi lại tham số và thư mục làm việc, ghi sẵn nội dung check.json, rồi
+   * thoát bằng mã đã chọn.
+   *
+   * Nó tìm đường ra bằng cách duyệt tìm cờ `-o`, không lấy cứng `$6`. Lấy cứng vị trí làm
+   * bài test không phát hiện được khi thứ tự tham số đổi mà cờ vẫn đúng.
+   */
+  function fakeRaea(dir: string, json: string | null, exit: number): { bin: string; argv: () => string[]; cwd: () => string } {
+    const stem = `raea-gia-${exit}-${json === null ? "khong-ghi" : "co-ghi"}`;
+    const sh = join(dir, `${stem}.sh`);
+    const log = join(dir, `${stem}.argv`);
+    const cwdLog = join(dir, `${stem}.cwd`);
+    const ghi = json === null ? "" : `[ -n "$out" ] && cat > "$out" <<'JSON'\n${json}\nJSON\n`;
+    writeFileSync(
+      sh,
+      `#!/bin/sh\n` +
+        `: > "${log}"\nfor a in "$@"; do printf '%s\\n' "$a" >> "${log}"; done\n` +
+        `pwd > "${cwdLog}"\n` +
+        `out=; prev=; for a in "$@"; do [ "$prev" = "-o" ] && out=$a; prev=$a; done\n` +
+        ghi +
+        `exit ${exit}\n`,
+      { mode: 0o755 },
+    );
+    const read = (f: string): string => (existsSync(f) ? readFileSync(f, "utf8") : "");
+    return {
+      bin: sh,
+      argv: () => read(log).split("\n").filter((x) => x !== ""),
+      cwd: () => read(cwdLog).trim(),
+    };
   }
 
   it("mã 0 kèm check.json hợp lệ thì chạy được, không có lỗi phải sửa", async () => {
-    const dir = mkdtempSync(join(tmpdir(), "check-"));
-    const bin = fakeRaea(dir, JSON.stringify(SACH), 0);
+    const dir = tempDir("check-");
+    const { bin } = fakeRaea(dir, JSON.stringify(SACH), 0);
     const outcome = await runCheck(join(dir, "final.mp4"), dir, "9:16", dir, bin);
     expect(outcome.status).toBe("ran");
     if (outcome.status === "ran") {
@@ -210,9 +317,31 @@ describe("runCheck", () => {
     }
   });
 
+  it("truyền đúng tham số và đúng thư mục làm việc cho raea", async () => {
+    // Mọi bài khác đều dùng shape "9:16" và renders trùng dir, nên cứng hoá shape hay đổi
+    // chỗ cwd đều không bị bài nào phát hiện. Bài này tách cả ba ra khác nhau.
+    const dir = tempDir("check-");
+    const renders = tempDir("renders-");
+    const { bin, argv, cwd } = fakeRaea(renders, JSON.stringify(SACH), 0);
+    const final = join(dir, "final.mp4");
+    const outcome = await runCheck(final, renders, "4:5", dir, bin);
+    expect(outcome.status).toBe("ran");
+    expect(argv()).toEqual(["check", final, "--shape", "4:5", "-o", join(renders, "check.json")]);
+    expect(cwd()).toBe(realpathSync(dir));
+  });
+
+  it("báo cáo trả về là của lần chạy này, không phải một file nào khác", async () => {
+    const dir = tempDir("check-");
+    const rieng = { file: "dau-nhan-rieng.mp4", issues: [], passed: ["ok: mot muc"] };
+    const { bin } = fakeRaea(dir, JSON.stringify(rieng), 0);
+    const outcome = await runCheck(join(dir, "final.mp4"), dir, "9:16", dir, bin);
+    expect(outcome.status).toBe("ran");
+    if (outcome.status === "ran") expect(outcome.report.file).toBe("dau-nhan-rieng.mp4");
+  });
+
   it("mã 1 là kết quả soát hợp lệ, không phải lệnh hỏng", async () => {
-    const dir = mkdtempSync(join(tmpdir(), "check-"));
-    const bin = fakeRaea(dir, JSON.stringify(CO_LOI), 1);
+    const dir = tempDir("check-");
+    const { bin } = fakeRaea(dir, JSON.stringify(CO_LOI), 1);
     const outcome = await runCheck(join(dir, "final.mp4"), dir, "9:16", dir, bin);
     expect(outcome.status).toBe("ran");
     if (outcome.status === "ran") {
@@ -222,33 +351,39 @@ describe("runCheck", () => {
   });
 
   it("check.json hỏng cú pháp thì báo hỏng, KHÔNG ném ra ngoài giết pipeline", async () => {
-    const dir = mkdtempSync(join(tmpdir(), "check-"));
-    const bin = fakeRaea(dir, '{"file": "a.mp4", "issues": [', 0);
+    const dir = tempDir("check-");
+    const { bin } = fakeRaea(dir, '{"file": "a.mp4", "issues": [', 0);
     const outcome = await runCheck(join(dir, "final.mp4"), dir, "9:16", dir, bin);
     expect(outcome.status).toBe("failed");
-    if (outcome.status === "failed") expect(outcome.reason).toMatch(/không đọc được/);
+    if (outcome.status === "failed") {
+      // "không đọc được" là tiền tố chung cho MỌI lỗi trong khối try, kể cả lỗi hình dạng.
+      // Phải khớp thêm chữ JSON thì mới chứng minh đúng lỗi cú pháp đã bị bắt.
+      expect(outcome.reason).toMatch(/không đọc được/);
+      expect(outcome.reason).toMatch(/JSON/);
+      expect(outcome.reason).not.toMatch(/thiếu mảng/);
+    }
   });
 
   it("check.json sai hình dạng cũng báo hỏng chứ không ném", async () => {
-    const dir = mkdtempSync(join(tmpdir(), "check-"));
-    const bin = fakeRaea(dir, '{"file": "a.mp4", "passed": []}', 0);
+    const dir = tempDir("check-");
+    const { bin } = fakeRaea(dir, '{"file": "a.mp4", "passed": []}', 0);
     const outcome = await runCheck(join(dir, "final.mp4"), dir, "9:16", dir, bin);
     expect(outcome.status).toBe("failed");
     if (outcome.status === "failed") expect(outcome.reason).toMatch(/thiếu mảng issues/);
   });
 
   it("raea không ghi file mới thì KHÔNG được đọc check.json của lần dựng trước", async () => {
-    const dir = mkdtempSync(join(tmpdir(), "check-"));
+    const dir = tempDir("check-");
     // Dựng hiện trường: lần trước đã để lại một báo cáo sạch trong thư mục.
     writeFileSync(join(dir, "check.json"), JSON.stringify(SACH));
-    const bin = fakeRaea(dir, null, 0);
+    const { bin } = fakeRaea(dir, null, 0);
     const outcome = await runCheck(join(dir, "final.mp4"), dir, "9:16", dir, bin);
     expect(outcome.status).toBe("failed");
     if (outcome.status === "failed") expect(outcome.reason).toMatch(/không ghi/);
   });
 
-  it("xoá báo cáo cũ không được thì báo hỏng, KHÔNG ném ra ngoài giết pipeline", async () => {
-    const dir = mkdtempSync(join(tmpdir(), "check-"));
+  it.runIf(khongPhaiRoot)("xoá báo cáo cũ không được thì báo hỏng, KHÔNG ném ra ngoài giết pipeline", async () => {
+    const dir = tempDir("check-");
     writeFileSync(join(dir, "check.json"), JSON.stringify(SACH));
     chmodSync(join(dir, "check.json"), 0o444);
     chmodSync(dir, 0o555);
@@ -262,7 +397,7 @@ describe("runCheck", () => {
   });
 
   it("bị tín hiệu giết thì báo hỏng kèm tên tín hiệu, không hoá thành mã 1", async () => {
-    const dir = mkdtempSync(join(tmpdir(), "check-"));
+    const dir = tempDir("check-");
     const sh = join(dir, "tu-giet.sh");
     writeFileSync(sh, "#!/bin/sh\nkill -TERM $$\n", { mode: 0o755 });
     const outcome = await runCheck(join(dir, "final.mp4"), dir, "9:16", dir, sh);
@@ -274,7 +409,7 @@ describe("runCheck", () => {
   });
 
   it("lệnh thoát mã 2 thì báo hỏng kèm mã, không nuốt lỗi thành bỏ qua", async () => {
-    const dir = mkdtempSync(join(tmpdir(), "check-"));
+    const dir = tempDir("check-");
     // raea thoát mã 2 khi không mở được file. Cần một lệnh thật trả đúng mã đó,
     // vì `false` trả mã 1 và mã 1 vẫn là một kết quả soát hợp lệ.
     const fake = join(dir, "thoat-2.sh");

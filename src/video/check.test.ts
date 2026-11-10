@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { chmodSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -75,6 +75,19 @@ describe("rank", () => {
     expect(minor).toHaveLength(0);
   });
 
+  it("đủ bốn mức: P0 và P1 phải sửa, P2 và P3 ghi nhận", () => {
+    // P0 là mức nặng nhất của hệ soát. Không có ca nào chứa P0 thì bỏ P0 khỏi danh sách
+    // phải sửa vẫn làm cả bảng xanh, tức là mức nặng nhất không được bài nào canh.
+    const bon = {
+      file: "a.mp4",
+      issues: (["P0", "P1", "P2", "P3"] as const).map((p) => ({ rule: `luat-${p}`, p, at: 1, says: "..." })),
+      passed: [],
+    };
+    const { blocking, minor } = rank(parseCheckReport(bon, "check.json"));
+    expect(blocking.map((i) => i.p)).toEqual(["P0", "P1"]);
+    expect(minor.map((i) => i.p)).toEqual(["P2", "P3"]);
+  });
+
   it("chỉ có P3 thì không có mục nào phải sửa", () => {
     const report: CheckReport = { file: "a.mp4", issues: [{ rule: "x", p: "P3", at: 1, says: "..." }], passed: [] };
     expect(rank(report).blocking).toHaveLength(0);
@@ -87,6 +100,17 @@ describe("shapeFor", () => {
   it("khung ngang 1920x1080 là 16:9", () => expect(shapeFor(1920, 1080)).toBe("16:9"));
   it("khung vuông 1080x1080 là 1:1", () => expect(shapeFor(1080, 1080)).toBe("1:1"));
   it("khung 1080x1350 là 4:5", () => expect(shapeFor(1080, 1350)).toBe("4:5"));
+
+  it("tỉ lệ lạ thì lấy khổ gần nhất, không phải khổ đầu danh sách", () => {
+    expect(shapeFor(1080, 1440)).toBe("4:5");
+    expect(shapeFor(2560, 1080)).toBe("16:9");
+  });
+
+  it("đúng điểm giữa hai khổ thì giữ khổ xét trước", () => {
+    // 1090/1600 = 0,68125, cách 9:16 và 4:5 bằng nhau. Luật hoà phải là "giữ cái đang có",
+    // nếu không một khung sát giữa sẽ nhảy khổ tuỳ thứ tự duyệt.
+    expect(shapeFor(1090, 1600)).toBe("9:16");
+  });
 });
 
 describe("parseProbeSize", () => {
@@ -107,7 +131,11 @@ describe("parseProbeSize", () => {
   });
 
   it("kích thước 0 thì trả về null, không chia cho 0", () => {
+    // "0x0" làm cả hai vế cùng sai, nên nó không phân biệt được phép AND với phép OR.
+    // Hai ca lệch bên dưới mới ghim được luật "cả hai chiều đều phải dương".
     expect(parseProbeSize("0x0")).toBeNull();
+    expect(parseProbeSize("1080x0")).toBeNull();
+    expect(parseProbeSize("0x1920")).toBeNull();
   });
 
   it("nhiều luồng thì lấy dòng đầu", () => {
@@ -116,8 +144,19 @@ describe("parseProbeSize", () => {
 });
 
 describe("probeShape", () => {
-  it("video không tồn tại thì lui về khổ dọc, không ném", async () => {
+  afterEach(() => vi.unstubAllEnvs());
+
+  it("ffprobe không đo được thì lui về khổ mặc định, không ném", async () => {
     expect(await probeShape("/khong/co/file/nay.mp4")).toBe(FALLBACK_SHAPE);
+  });
+
+  it("đo thật: đọc kích thước ffprobe in ra chứ không trả khổ mặc định", async () => {
+    // Ca trên xanh cả khi probeShape luôn trả FALLBACK_SHAPE, vì khổ mặc định cũng là 9:16.
+    // Ca này dựng một ffprobe giả in ra khung ngang, nên nó đỏ nếu đường đo thật không chạy.
+    const dir = mkdtempSync(join(tmpdir(), "probe-"));
+    writeFileSync(join(dir, "ffprobe"), "#!/bin/sh\necho 1920x1080\n", { mode: 0o755 });
+    vi.stubEnv("PATH", `${dir}:${process.env.PATH ?? ""}`);
+    expect(await probeShape("bat-ky.mp4")).toBe("16:9");
   });
 });
 
@@ -127,6 +166,22 @@ describe("runCheck", () => {
     const outcome = await runCheck(join(dir, "final.mp4"), dir, "9:16", dir, "raea-khong-ton-tai-tren-may-nay");
     expect(outcome.status).toBe("skipped");
     if (outcome.status === "skipped") expect(outcome.reason).toMatch(/chưa cài raea/);
+  });
+
+  it("thư mục làm việc không tồn tại thì báo hỏng, KHÔNG báo chưa cài raea", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "check-"));
+    const outcome = await runCheck("x.mp4", dir, "9:16", join(dir, "khong-ton-tai"), "true");
+    expect(outcome.status).toBe("failed");
+    if (outcome.status === "failed") expect(outcome.reason).toMatch(/thư mục làm việc không tồn tại/);
+  });
+
+  it("file lệnh thiếu quyền chạy thì báo hỏng, KHÔNG báo chưa cài raea", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "check-"));
+    const sh = join(dir, "khong-quyen.sh");
+    writeFileSync(sh, "#!/bin/sh\nexit 0\n", { mode: 0o644 });
+    const outcome = await runCheck("x.mp4", dir, "9:16", dir, sh);
+    expect(outcome.status).toBe("failed");
+    if (outcome.status === "failed") expect(outcome.reason).toMatch(/không chạy được/);
   });
 
   it("lệnh thoát mã 0 nhưng không ghi check.json thì báo hỏng, không báo bỏ qua", async () => {

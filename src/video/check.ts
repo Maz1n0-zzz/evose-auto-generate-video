@@ -124,6 +124,7 @@ type SpawnResult =
   | { readonly kind: "exit"; readonly code: number }
   | { readonly kind: "signal"; readonly signal: string }
   | { readonly kind: "unknown" }
+  | { readonly kind: "broken"; readonly why: string }
   | { readonly kind: "missing" };
 
 /** Chạy một lệnh, trả về kết cục thay vì ném. */
@@ -139,7 +140,10 @@ function spawnOnce(cmd: string, args: readonly string[], cwd: string): Promise<S
       if (code === null) return res({ kind: "unknown" });
       res({ kind: "exit", code });
     });
-    p.on("error", () => res({ kind: "missing" }));
+    // Chỉ ENOENT mới là "không có lệnh này". Gộp mọi lỗi spawn vào đó là nuốt một cấu
+    // hình hỏng thành "bỏ qua bước soát", và người đọc đi cài lại raea mà không khỏi.
+    p.on("error", (e: NodeJS.ErrnoException) =>
+      res(e.code === "ENOENT" ? { kind: "missing" } : { kind: "broken", why: `${e.code ?? "lỗi"}: ${e.message}` }));
   });
 }
 
@@ -165,9 +169,14 @@ export async function runCheck(final: string, renders: string, shape: string, di
     return { status: "failed", reason: `không xoá được báo cáo cũ ${out}: ${why}` };
   }
 
+  // Thư mục làm việc không có cũng cho ENOENT y như lệnh không có, nên phải loại trừ nó
+  // trước, không thì một đường dẫn sai bị báo thành "chưa cài raea".
+  if (!existsSync(dir)) return { status: "failed", reason: `thư mục làm việc không tồn tại: ${dir}` };
+
   const r = await spawnOnce(bin, ["check", final, "--shape", shape, "-o", out], dir);
 
   if (r.kind === "missing") return { status: "skipped", reason: "chưa cài raea (curl -fsSL https://raea.io/install | sh)" };
+  if (r.kind === "broken") return { status: "failed", reason: `không chạy được ${bin}, ${r.why}` };
   if (r.kind === "signal") return { status: "failed", signal: r.signal, reason: `raea check bị giết bằng tín hiệu ${r.signal}, chưa soát xong` };
   if (r.kind === "unknown") return { status: "failed", reason: "raea check kết thúc không rõ: không có mã thoát và không có tín hiệu" };
   if (!RESULT_CODES.includes(r.code)) return { status: "failed", code: r.code, reason: `raea check hỏng, thoát mã ${r.code}: kiểm lại ${final} có mở được không` };

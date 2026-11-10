@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { mkdtempSync, writeFileSync } from "node:fs";
+import { chmodSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { FALLBACK_SHAPE, parseCheckReport, parseProbeSize, probeShape, rank, runCheck, shapeFor, type CheckReport } from "./check.js";
@@ -179,6 +179,20 @@ describe("runCheck", () => {
     const outcome = await runCheck(join(dir, "final.mp4"), dir, "9:16", dir, bin);
     expect(outcome.status).toBe("failed");
     if (outcome.status === "failed") expect(outcome.reason).toMatch(/không ghi/);
+  });
+
+  it("xoá báo cáo cũ không được thì báo hỏng, KHÔNG ném ra ngoài giết pipeline", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "check-"));
+    writeFileSync(join(dir, "check.json"), JSON.stringify(SACH));
+    chmodSync(join(dir, "check.json"), 0o444);
+    chmodSync(dir, 0o555);
+    try {
+      const outcome = await runCheck(join(dir, "final.mp4"), dir, "9:16", dir, "true");
+      expect(outcome.status).toBe("failed");
+      if (outcome.status === "failed") expect(outcome.reason).toMatch(/không xoá được báo cáo cũ/);
+    } finally {
+      chmodSync(dir, 0o755);
+    }
   });
 
   it("bị tín hiệu giết thì báo hỏng kèm tên tín hiệu, không hoá thành mã 1", async () => {

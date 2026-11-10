@@ -120,6 +120,7 @@ export function parseProbeSize(out: string | null): { w: number; h: number } | n
 type SpawnResult =
   | { readonly kind: "exit"; readonly code: number }
   | { readonly kind: "signal"; readonly signal: string }
+  | { readonly kind: "unknown" }
   | { readonly kind: "missing" };
 
 /** Chạy một lệnh, trả về kết cục thay vì ném. */
@@ -127,7 +128,14 @@ function spawnOnce(cmd: string, args: readonly string[], cwd: string): Promise<S
   return new Promise((res) => {
     const p = spawn(cmd, args, { cwd, stdio: ["ignore", "inherit", "ignore"] });
     // `close` vẫn phát sau `error`, nhưng promise chỉ nhận lần resolve đầu nên vô hại.
-    p.on("close", (code, signal) => res(signal ? { kind: "signal", signal } : { kind: "exit", code: code ?? 0 }));
+    p.on("close", (code, signal) => {
+      if (signal) return res({ kind: "signal", signal });
+      // Theo tài liệu Node thì `code` chỉ null khi có `signal`, nên nhánh này không chạy
+      // trong thực tế và CỐ Ý không có test. Nó ở đây để một kết cục không rõ không bị
+      // đọc thành "thoát sạch": quy về 0 là biến cái không biết thành một kết quả soát.
+      if (code === null) return res({ kind: "unknown" });
+      res({ kind: "exit", code });
+    });
     p.on("error", () => res({ kind: "missing" }));
   });
 }
@@ -145,12 +153,20 @@ export async function runCheck(final: string, renders: string, shape: string, di
   const out = join(renders, "check.json");
   // Xoá báo cáo của lần dựng trước. Không xoá thì một lần raea không ghi được file sẽ làm
   // `existsSync` bên dưới đọc nhầm kết quả cũ và báo nó như kết quả của video lần này.
-  rmSync(out, { force: true });
+  // `force` chỉ nuốt ENOECT, còn EACCES và EISDIR vẫn ném, nên phải bắt: để nó ném là
+  // dựng lại đúng lớp lỗi mà cả hàm này sinh ra để tránh.
+  try {
+    rmSync(out, { force: true });
+  } catch (e: unknown) {
+    const why = e instanceof Error ? e.message : String(e);
+    return { status: "failed", reason: `không xoá được báo cáo cũ ${out}: ${why}` };
+  }
 
   const r = await spawnOnce(bin, ["check", final, "--shape", shape, "-o", out], dir);
 
   if (r.kind === "missing") return { status: "skipped", reason: "chưa cài raea (curl -fsSL https://raea.io/install | sh)" };
   if (r.kind === "signal") return { status: "failed", signal: r.signal, reason: `raea check bị giết bằng tín hiệu ${r.signal}, chưa soát xong` };
+  if (r.kind === "unknown") return { status: "failed", reason: "raea check kết thúc không rõ: không có mã thoát và không có tín hiệu" };
   if (!RESULT_CODES.includes(r.code)) return { status: "failed", code: r.code, reason: `raea check hỏng, thoát mã ${r.code}: kiểm lại ${final} có mở được không` };
   if (!existsSync(out)) return { status: "failed", code: r.code, reason: `raea thoát mã ${r.code} nhưng không ghi ${out}` };
 

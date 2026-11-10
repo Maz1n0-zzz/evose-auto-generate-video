@@ -10,7 +10,7 @@
  *   5. Đo tỉ lệ hình đứng yên → renders/stillness.json, contact sheet → renders/contact-sheet.jpg.
  */
 
-import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   assertBrandComplete,
@@ -30,6 +30,20 @@ import { regroupCaptions, type CaptionWord } from "./captions.js";
 /** Dải phụ đề: footer Evose phủ từ y 1690, phụ đề phải nằm trên nó. */
 const CAPTION_BAND_TOP = 1530;
 const CAPTION_BAND_HEIGHT = 150;
+
+/** Chất lượng của lần mã hoá thứ hai, lúc phủ header và footer lên bản thô.
+ *
+ *  Bản thô do HyperFrames xuất ra ở crf 15 và sạch. Mã hoá lại ở crf 22 bỏ đói vùng gần đen:
+ *  `raea check` bắt được lỗi blotching P1 trên bản DecodeFX, 11 trên 28 frame mẫu. Đo bốn mức
+ *  trên cùng một nguồn ngày 10/11/2026: crf 22 ra P1, crf 20 ra P2, crf 18 vẫn P2, crf 15 sạch.
+ *  Đổi lại là file to lên khoảng 2,3 lần. */
+const OVERLAY_CRF = 15;
+
+/** Trần dung lượng một bản giao, tính bằng byte. Nền tảng nào cũng nhận dưới mức này. */
+const MAX_FINAL_BYTES = 50 * 1024 * 1024;
+
+/** Mốc cảnh báo sớm, để một video dài bất thường lộ ra trước khi chạm trần. */
+const WARN_FINAL_BYTES = 45 * 1024 * 1024;
 
 type RawGroups = { frame: number; words?: Omit<CaptionWord, "frame">[] }[];
 
@@ -166,7 +180,7 @@ async function main(): Promise<void> {
   await run("ffmpeg", [
     "-y", "-v", "error", "-i", raw, "-i", overlayPng(dir),
     "-filter_complex", "[0:v][1:v]overlay=0:0:format=auto,format=yuv420p[v]",
-    "-map", "[v]", "-map", "0:a", "-c:v", "libx264", "-preset", "slow", "-crf", "22",
+    "-map", "[v]", "-map", "0:a", "-c:v", "libx264", "-preset", "slow", "-crf", String(OVERLAY_CRF),
     "-c:a", "aac", "-b:a", "160k", "-movflags", "+faststart", final,
   ], dir);
 
@@ -180,6 +194,15 @@ async function main(): Promise<void> {
   console.log(`\n✓ ${final}`);
   console.log(`  hình đứng yên: ${(report.overallStillRatio * 100).toFixed(0)}% · lâu nhất ${report.longestStillSec}s (ngưỡng ${MAX_STILL_SEC}s)`);
   if (fails.length) console.log(`  ⚠ khung đứng yên quá lâu: ${fails.map((f) => `${f.frame} (${f.longestStillSec}s)`).join(", ")}`);
+  const finalBytes = statSync(final).size;
+  const finalMb = finalBytes / 1024 / 1024;
+  console.log(`  dung lượng: ${finalMb.toFixed(1)} MB (crf ${OVERLAY_CRF})`);
+  if (finalBytes > MAX_FINAL_BYTES) {
+    console.log(`  ⚠ vượt trần ${(MAX_FINAL_BYTES / 1024 / 1024).toFixed(0)} MB: nâng crf lên 18 rồi soát lại vùng tối`);
+  } else if (finalBytes > WARN_FINAL_BYTES) {
+    console.log(`  ⚠ gần trần ${(MAX_FINAL_BYTES / 1024 / 1024).toFixed(0)} MB: video dài hơn nữa sẽ vượt`);
+  }
+
   console.log(`  contact sheet: ${join(renders, "contact-sheet.jpg")}`);
 }
 

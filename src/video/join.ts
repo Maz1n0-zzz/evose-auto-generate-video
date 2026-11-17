@@ -249,10 +249,21 @@ function chapterHasMusic(dir: string): boolean {
   }
 }
 
+/** Quy mọi đường dẫn về tuyệt đối theo `cwd` của lệnh. Phải làm trước khi chạy
+ *  ffmpeg, vì ffmpeg chạy với cwd là thư mục tập nên đường dẫn tương đối sẽ trỏ sai. */
+export function resolveJoinPaths<T extends { episode: string; chapters: string[]; music?: string }>(args: T, cwd: string): T {
+  return {
+    ...args,
+    episode: resolve(cwd, args.episode),
+    chapters: args.chapters.map((c) => resolve(cwd, c)),
+    ...(args.music ? { music: resolve(cwd, args.music) } : {}),
+  };
+}
+
 async function main(): Promise<void> {
-  const args = parseJoinArgs(process.argv.slice(2));
-  const episode = resolve(args.episode);
-  const chapters = args.chapters.map((c) => resolve(c));
+  const args = resolveJoinPaths(parseJoinArgs(process.argv.slice(2)), process.env.INIT_CWD ?? process.cwd());
+  const episode = args.episode;
+  const chapters = args.chapters;
   const files = chapters.map((c) => join(c, "renders", "final.mp4"));
   const missing = files.filter((f) => !existsSync(f));
   if (missing.length) throw new Error(`chưa có bản dựng:\n${missing.map((f) => `  · ${f}`).join("\n")}`);

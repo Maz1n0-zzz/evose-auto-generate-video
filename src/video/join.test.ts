@@ -11,6 +11,7 @@ import {
   checkCompat,
   formatTimestamp,
   parseJoinArgs,
+  resolveJoinPaths,
   parseProbe,
   youtubeChapterWarnings,
   type MediaInfo,
@@ -212,5 +213,17 @@ describe("chapterTitle", () => {
     const d = join(root, "chuong-mot");
     mkdirSync(d);
     expect(chapterTitle(d)).toBe("chuong-mot");
+  });
+});
+
+describe("resolveJoinPaths", () => {
+  it("quy --music tương đối về cwd của lệnh, vì ffmpeg chạy trong thư mục tập", () => {
+    const r = resolveJoinPaths(parseJoinArgs(["ep", "c1", "--music", "nhac/bgm.mp3"]), "/work");
+    expect(r).toMatchObject({ episode: "/work/ep", chapters: ["/work/c1"], music: "/work/nhac/bgm.mp3" });
+  });
+  it("giữ nguyên đường dẫn tuyệt đối và không thêm music khi không có", () => {
+    const r = resolveJoinPaths(parseJoinArgs(["/a/ep", "/a/c1"]), "/work");
+    expect(r.episode).toBe("/a/ep");
+    expect("music" in r).toBe(false);
   });
 });

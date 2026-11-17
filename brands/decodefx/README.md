@@ -11,7 +11,7 @@ chính sách rebate ngày 03/10/2026. Nạp ngày 05/10/2026.
 | `tokens.css` | Biến màu, thang chữ, vùng an toàn. Đọc file này trước. Đây là tài liệu tham chiếu, `video:brand` không chép nó vào thư mục video. |
 | `brand/frame.md` | Hợp đồng bố cục. Worker đọc nó qua `<dir>/frame.md`. |
 | `brand/rules.md` | Luật cứng cho mọi khung. `video:packets` nhét vào `_dispatch.md`. |
-| `brand/open.html` | Khung mở, chỗ chừa `__KICKER__` `__HEADLINE__` `__SUB__` `__ID__` `__DURATION__`. |
+| `brand/open.html` | Khung mở, chỗ chừa `__KICKER__` `__HEADLINE__` `__LABEL__` `__SUB__` `__ID__` `__DURATION__`. `__LABEL__` là nhãn nhỏ trong panel, viết hoa chữ đầu. |
 | `brand/close.html` | Khung kết, chỗ chừa `__CTA__` `__ID__` `__DURATION__`. |
 | `caption-skin.html` | Phụ đề kiểu DecodeFX: chữ trắng viền đen, từ đang đọc chuyển vàng. |
 | `overlays/overlay-frame-decodefx.png` | Lớp phủ 1080×1920: watermark 360px ở trên, `decodefx.com` ở dưới. |

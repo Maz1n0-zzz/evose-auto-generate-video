@@ -8,48 +8,48 @@
     #root { position: relative; width: 1080px; height: 1920px; overflow: hidden;
       font-family: "Hanken Grotesk", sans-serif; color: #FFFFFF; background: #08090B; }
 
-    .dfx-sky { position: absolute; inset: 0; background: #08090B; }
+    .dfo-sky { position: absolute; inset: 0; background: #08090B; }
 
     /* dai giai ma: chu ky thi giac, luon duoi moi noi dung */
-    .dfx-tape { position: absolute; inset: -220px 0 -220px 0; display: flex; justify-content: space-between;
+    .dfo-tape { position: absolute; inset: -220px 0 -220px 0; display: flex; justify-content: space-between;
       padding: 0 28px; pointer-events: none; z-index: 1; }
-    .dfx-tape .tc { display: flex; flex-direction: column; font-family: "JetBrains Mono", monospace;
+    .dfo-tape .tc { display: flex; flex-direction: column; font-family: "JetBrains Mono", monospace;
       font-size: 26px; line-height: 38px; color: rgba(185,188,196,.20); }
-    .dfx-tape .tc i { font-style: normal; }
-    .dfx-tape .tc i.h { color: rgba(248,206,15,.62); }
-    .dfx-veil { position: absolute; inset: 0; z-index: 2; pointer-events: none;
+    .dfo-tape .tc i { font-style: normal; }
+    .dfo-tape .tc i.h { color: rgba(248,206,15,.62); }
+    .dfo-veil { position: absolute; inset: 0; z-index: 2; pointer-events: none;
       background: radial-gradient(ellipse 82% 56% at 46% 46%, rgba(8,9,11,.22) 0%, rgba(8,9,11,.74) 62%, rgba(8,9,11,.92) 100%); }
 
     /* Le 80px, khong phai 64px: camera phong 3% quanh tam, 80px co lai con 66px.
        Dat 64px thi le thuc tut xuong 55px va pha luat cua chinh bo nay. */
-    .dfx-stage { position: absolute; left: 0; top: 250px; width: 1080px; height: 1250px; z-index: 3;
+    .dfo-stage { position: absolute; left: 0; top: 250px; width: 1080px; height: 1250px; z-index: 3;
       display: flex; flex-direction: column; justify-content: center; padding: 0 80px; }
 
     /* nhan kieu tab cua man hinh giao dich, khong phai kicker chu tran */
-    .dfx-tab { align-self: flex-start; display: flex; align-items: center; gap: 16px;
+    .dfo-tab { align-self: flex-start; display: flex; align-items: center; gap: 16px;
       background: #0E1013; border: 1px solid #23262C; border-radius: 4px; padding: 12px 24px; }
-    .dfx-dot { width: 10px; height: 10px; border-radius: 4px; background: #F8CE0F; }
-    .dfx-tab span { font-size: 26px; font-weight: 500; letter-spacing: .18em; text-transform: uppercase;
+    .dfo-dot { width: 10px; height: 10px; border-radius: 4px; background: #F8CE0F; }
+    .dfo-tab span { font-size: 26px; font-weight: 500; letter-spacing: .18em; text-transform: uppercase;
       color: #B9BCC4; }
 
     /* headline o co lon nhat cua bo, tran sat le trai, khong can giua */
-    .dfx-head { margin-top: 40px; font-size: 150px; font-weight: 900; line-height: .92;
+    .dfo-head { margin-top: 40px; font-size: 150px; font-weight: 900; line-height: .92;
       letter-spacing: -.02em; text-transform: uppercase; color: #FFFFFF; }
-    .dfx-head em { font-style: normal; color: #F8CE0F; }
+    .dfo-head em { font-style: normal; color: #F8CE0F; }
 
-    .dfx-rule { margin-top: 40px; height: 2px; transform-origin: 0% 50%;
+    .dfo-rule { margin-top: 40px; height: 2px; transform-origin: 0% 50%;
       background: linear-gradient(90deg, #F8CE0F 0%, rgba(248,206,15,0) 100%); }
 
     /* panel terminal lech phai 160px: pha truc doi xung cua khung */
-    .dfx-panel { margin-top: 40px; margin-left: 160px; background: #0E1013; border: 1px solid #23262C;
+    .dfo-panel { margin-top: 40px; margin-left: 160px; background: #0E1013; border: 1px solid #23262C;
       border-radius: 4px; padding: 32px 36px; }
-    .dfx-panel .lab { font-family: "JetBrains Mono", monospace; font-size: 24px; font-weight: 400;
+    .dfo-panel .lab { font-family: "JetBrains Mono", monospace; font-size: 24px; font-weight: 400;
       letter-spacing: .14em; text-transform: uppercase; color: #8C8E9E; }
-    .dfx-sub { margin-top: 16px; font-size: 44px; font-weight: 400; line-height: 1.35; color: #B9BCC4; }
+    .dfo-sub { margin-top: 16px; font-size: 44px; font-weight: 400; line-height: 1.35; color: #B9BCC4; }
   </style>
 
-  <div class="dfx-sky clip" data-start="0" data-duration="__DURATION__" data-track-index="0"></div>
-  <div class="dfx-tape">
+  <div class="dfo-sky clip" data-start="0" data-duration="__DURATION__" data-track-index="0"></div>
+  <div class="dfo-tape">
       <span class="tc"><i class="">A</i><i class="">C</i><i class="">2</i><i class="">3</i><i class="">1</i><i class="h">6</i><i class="">D</i><i class="">7</i><i class="h">D</i><i class="">+</i><i class="">7</i><i class="">+</i><i class="">+</i><i class="">1</i><i class="">1</i><i class="">4</i><i class="">4</i><i class="">+</i><i class="">·</i><i class="">+</i><i class="">6</i><i class="">Y</i><i class="h">+</i><i class="">6</i><i class="">Y</i><i class="">A</i><i class="">E</i><i class="">7</i><i class="">/</i><i class="">2</i><i class="">X</i><i class="">A</i><i class="">9</i><i class="">2</i><i class="">D</i><i class="">A</i><i class="">F</i><i class="h">·</i><i class="">Y</i><i class="">A</i><i class="">B</i><i class="">+</i><i class="">2</i><i class="">8</i><i class="h">·</i><i class="">/</i><i class="">+</i><i class="">E</i><i class="">C</i><i class="h">B</i><i class="">E</i><i class="">-</i><i class="">1</i><i class="">9</i><i class="">7</i><i class="">F</i></span>
       <span class="tc"><i class="">E</i><i class="">8</i><i class="">D</i><i class="">8</i><i class="">B</i><i class="">C</i><i class="">4</i><i class="">4</i><i class="h">7</i><i class="">+</i><i class="h">9</i><i class="">D</i><i class="">-</i><i class="">4</i><i class="">X</i><i class="">.</i><i class="">1</i><i class="">·</i><i class="">C</i><i class="">C</i><i class="">.</i><i class="h">6</i><i class="">6</i><i class="">3</i><i class="">1</i><i class="">+</i><i class="">3</i><i class="h">-</i><i class="">6</i><i class="">4</i><i class="">B</i><i class="">F</i><i class="">F</i><i class="">E</i><i class="">9</i><i class="">3</i><i class="">8</i><i class="">/</i><i class="">0</i><i class="">X</i><i class="">/</i><i class="">0</i><i class="">9</i><i class="">2</i><i class="">8</i><i class="">5</i><i class="">7</i><i class="">X</i><i class="">7</i><i class="">6</i><i class="">C</i><i class="">7</i><i class="">F</i><i class="">0</i><i class="">8</i><i class="">6</i></span>
       <span class="tc"><i class="">B</i><i class="">B</i><i class="">B</i><i class="">3</i><i class="">6</i><i class="">F</i><i class="">-</i><i class="">F</i><i class="">B</i><i class="">2</i><i class="">3</i><i class="">/</i><i class="">F</i><i class="">D</i><i class="">A</i><i class="">C</i><i class="">2</i><i class="">5</i><i class="">0</i><i class="">E</i><i class="">4</i><i class="">-</i><i class="">·</i><i class="">4</i><i class="h">4</i><i class="">.</i><i class="">4</i><i class="">6</i><i class="h">6</i><i class="">6</i><i class="">7</i><i class="">A</i><i class="">D</i><i class="">1</i><i class="">B</i><i class="">·</i><i class="">X</i><i class="">X</i><i class="">4</i><i class="">0</i><i class="">5</i><i class="">4</i><i class="">F</i><i class="">3</i><i class="">A</i><i class="">X</i><i class="">3</i><i class="">1</i><i class="h">8</i><i class="">3</i><i class="h">Y</i><i class="">2</i><i class="">-</i><i class="">-</i><i class="">/</i><i class="">X</i></span>
@@ -63,15 +63,15 @@
       <span class="tc"><i class="">-</i><i class="">C</i><i class="">/</i><i class="">5</i><i class="">7</i><i class="">-</i><i class="">F</i><i class="h">6</i><i class="">X</i><i class="">B</i><i class="">7</i><i class="h">6</i><i class="">Y</i><i class="h">·</i><i class="">A</i><i class="">-</i><i class="">.</i><i class="">.</i><i class="">+</i><i class="">C</i><i class="">E</i><i class="h">5</i><i class="">-</i><i class="">E</i><i class="">-</i><i class="">E</i><i class="">F</i><i class="">2</i><i class="">D</i><i class="">E</i><i class="h">·</i><i class="">.</i><i class="">A</i><i class="h">X</i><i class="">X</i><i class="">.</i><i class="h">4</i><i class="">2</i><i class="">/</i><i class="">6</i><i class="">F</i><i class="">5</i><i class="h">7</i><i class="">B</i><i class="">8</i><i class="">-</i><i class="">E</i><i class="">X</i><i class="">F</i><i class="">8</i><i class="">7</i><i class="">1</i><i class="">C</i><i class="">8</i><i class="">C</i><i class="">8</i></span>
       <span class="tc"><i class="h">X</i><i class="">B</i><i class="">E</i><i class="">+</i><i class="">3</i><i class="">Y</i><i class="">C</i><i class="">B</i><i class="">B</i><i class="">B</i><i class="">2</i><i class="">5</i><i class="">1</i><i class="">X</i><i class="">.</i><i class="">+</i><i class="">A</i><i class="">1</i><i class="">9</i><i class="">D</i><i class="">B</i><i class="">4</i><i class="">-</i><i class="h">0</i><i class="">+</i><i class="">3</i><i class="">Y</i><i class="">+</i><i class="">4</i><i class="">-</i><i class="">5</i><i class="">7</i><i class="">E</i><i class="">.</i><i class="">·</i><i class="">C</i><i class="h">0</i><i class="">Y</i><i class="">-</i><i class="">E</i><i class="">X</i><i class="">7</i><i class="h">0</i><i class="h">Y</i><i class="">5</i><i class="">1</i><i class="h">3</i><i class="">Y</i><i class="">6</i><i class="">6</i><i class="">.</i><i class="">.</i><i class="">-</i><i class="h">9</i><i class="h">.</i><i class="">F</i></span>
   </div>
-  <div class="dfx-veil"></div>
+  <div class="dfo-veil"></div>
 
-  <div class="dfx-stage">
-    <div class="dfx-tab"><span class="dfx-dot"></span><span>__KICKER__</span></div>
-    <div class="dfx-head">__HEADLINE__</div>
-    <div class="dfx-rule"></div>
-    <div class="dfx-panel">
-      <div class="lab">Tổng quan</div>
-      <div class="dfx-sub">__SUB__</div>
+  <div class="dfo-stage">
+    <div class="dfo-tab"><span class="dfo-dot"></span><span>__KICKER__</span></div>
+    <div class="dfo-head">__HEADLINE__</div>
+    <div class="dfo-rule"></div>
+    <div class="dfo-panel">
+      <div class="lab">__LABEL__</div>
+      <div class="dfo-sub">__SUB__</div>
     </div>
   </div>
 
@@ -80,15 +80,15 @@
     (function () {
       var tl = gsap.timeline({ paused: true });
       var ease = "expo.out";
-      tl.fromTo(".dfx-tab", { opacity: 0, y: -14 }, { opacity: 1, y: 0, duration: 0.5, ease: ease }, 0.05);
-      tl.fromTo(".dfx-dot", { scale: 0 }, { scale: 1, duration: 0.4, ease: "back.out(2)" }, 0.25);
-      tl.fromTo(".dfx-head", { opacity: 0, y: 34 }, { opacity: 1, y: 0, duration: 0.75, ease: ease }, 0.35);
-      tl.fromTo(".dfx-rule", { scaleX: 0 }, { scaleX: 1, duration: 0.65, ease: ease }, 0.85);
-      tl.fromTo(".dfx-panel", { opacity: 0, x: 28 }, { opacity: 1, x: 0, duration: 0.6, ease: ease }, 1.00);
+      tl.fromTo(".dfo-tab", { opacity: 0, y: -14 }, { opacity: 1, y: 0, duration: 0.5, ease: ease }, 0.05);
+      tl.fromTo(".dfo-dot", { scale: 0 }, { scale: 1, duration: 0.4, ease: "back.out(2)" }, 0.25);
+      tl.fromTo(".dfo-head", { opacity: 0, y: 34 }, { opacity: 1, y: 0, duration: 0.75, ease: ease }, 0.35);
+      tl.fromTo(".dfo-rule", { scaleX: 0 }, { scaleX: 1, duration: 0.65, ease: ease }, 0.85);
+      tl.fromTo(".dfo-panel", { opacity: 0, x: 28 }, { opacity: 1, x: 0, duration: 0.6, ease: ease }, 1.00);
       // dai giai ma troi LEN, 15px moi giay, tinh theo do dai khung
-      tl.fromTo(".dfx-tape", { y: 0 }, { y: -(15 * __DURATION__), duration: __DURATION__, ease: "none" }, 0);
+      tl.fromTo(".dfo-tape", { y: 0 }, { y: -(15 * __DURATION__), duration: __DURATION__, ease: "none" }, 0);
       // camera day cham, 3% quanh tam. Le 80px o tren da tru hao cho muc nay.
-      tl.fromTo(".dfx-stage", { scale: 1 }, { scale: 1.03, duration: __DURATION__, ease: "power1.inOut" }, 0);
+      tl.fromTo(".dfo-stage", { scale: 1 }, { scale: 1.03, duration: __DURATION__, ease: "power1.inOut" }, 0);
       window.__timelines = window.__timelines || {};
       window.__timelines["__ID__"] = tl;
     })();

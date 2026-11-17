@@ -8,49 +8,49 @@
     #root { position: relative; width: 1080px; height: 1920px; overflow: hidden;
       font-family: "Hanken Grotesk", sans-serif; color: #FFFFFF; background: #08090B; }
 
-    .dfx-sky { position: absolute; inset: 0; background: #08090B; }
+    .dfc-sky { position: absolute; inset: 0; background: #08090B; }
 
-    .dfx-tape { position: absolute; inset: -220px 0 -220px 0; display: flex; justify-content: space-between;
+    .dfc-tape { position: absolute; inset: -220px 0 -220px 0; display: flex; justify-content: space-between;
       padding: 0 28px; pointer-events: none; z-index: 1; }
-    .dfx-tape .tc { display: flex; flex-direction: column; font-family: "JetBrains Mono", monospace;
+    .dfc-tape .tc { display: flex; flex-direction: column; font-family: "JetBrains Mono", monospace;
       font-size: 26px; line-height: 38px; color: rgba(185,188,196,.20); }
-    .dfx-tape .tc i { font-style: normal; }
-    .dfx-tape .tc i.h { color: rgba(248,206,15,.62); }
-    .dfx-veil { position: absolute; inset: 0; z-index: 2; pointer-events: none;
+    .dfc-tape .tc i { font-style: normal; }
+    .dfc-tape .tc i.h { color: rgba(248,206,15,.62); }
+    .dfc-veil { position: absolute; inset: 0; z-index: 2; pointer-events: none;
       background: radial-gradient(ellipse 82% 56% at 46% 46%, rgba(8,9,11,.22) 0%, rgba(8,9,11,.74) 62%, rgba(8,9,11,.92) 100%); }
 
     /* Le 80px: camera phong 2,5% quanh tam, 80px co lai con 68px, tren nguong 64px. */
-    .dfx-stage { position: absolute; left: 0; top: 250px; width: 1080px; height: 1250px; z-index: 3;
+    .dfc-stage { position: absolute; left: 0; top: 250px; width: 1080px; height: 1250px; z-index: 3;
       display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 80px; }
 
-    .dfx-logo { width: 600px; height: auto; display: block; }
+    .dfc-logo { width: 600px; height: auto; display: block; }
 
-    .dfx-tag { margin-top: 40px; font-size: 56px; font-weight: 800; line-height: 1.16;
+    .dfc-tag { margin-top: 40px; font-size: 56px; font-weight: 800; line-height: 1.16;
       text-align: center; color: #FFFFFF; }
-    .dfx-tag em { font-style: normal; color: #F8CE0F; }
+    .dfc-tag em { font-style: normal; color: #F8CE0F; }
 
     /* licence-row theo brand/frame.md: nam dong doc trong mot panel, co so hieu nguyen van */
-    .dfx-lic { margin-top: 44px; width: 100%; background: #0E1013; border: 1px solid #23262C;
+    .dfc-lic { margin-top: 44px; width: 100%; background: #0E1013; border: 1px solid #23262C;
       border-radius: 4px; padding: 8px 28px; }
-    .dfx-lic .lic-row { display: flex; align-items: baseline; gap: 20px; padding: 20px 0;
+    .dfc-lic .lic-row { display: flex; align-items: baseline; gap: 20px; padding: 20px 0;
       border-top: 1px solid #23262C; }
-    .dfx-lic .lic-row:first-child { border-top: 0; }
-    .dfx-lic .body { font-size: 36px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase;
+    .dfc-lic .lic-row:first-child { border-top: 0; }
+    .dfc-lic .body { font-size: 36px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase;
       color: #FFFFFF; min-width: 132px; }
-    .dfx-lic .reg { font-size: 26px; font-weight: 500; color: #8C8E9E; flex: 1; }
-    .dfx-lic .id { font-family: "JetBrains Mono", monospace; font-size: 24px; font-weight: 400;
+    .dfc-lic .reg { font-size: 26px; font-weight: 500; color: #8C8E9E; flex: 1; }
+    .dfc-lic .id { font-family: "JetBrains Mono", monospace; font-size: 24px; font-weight: 400;
       color: #8C8E9E; }
 
-    .dfx-cta { position: relative; overflow: hidden; margin-top: 44px; display: grid; place-items: center;
+    .dfc-cta { position: relative; overflow: hidden; margin-top: 44px; display: grid; place-items: center;
       padding: 28px 72px; border-radius: 8px;
       background: linear-gradient(180deg, #FEC91E 0%, #E2B31B 100%); color: #08090B;
       font-weight: 900; font-size: 48px; letter-spacing: .03em; white-space: nowrap; }
-    .dfx-shine { position: absolute; top: 0; bottom: 0; width: 170px; pointer-events: none;
+    .dfc-shine { position: absolute; top: 0; bottom: 0; width: 170px; pointer-events: none;
       background: linear-gradient(100deg, transparent 0%, rgba(255,255,255,.55) 50%, transparent 100%); }
   </style>
 
-  <div class="dfx-sky clip" data-start="0" data-duration="__DURATION__" data-track-index="0"></div>
-  <div class="dfx-tape">
+  <div class="dfc-sky clip" data-start="0" data-duration="__DURATION__" data-track-index="0"></div>
+  <div class="dfc-tape">
       <span class="tc"><i class="">A</i><i class="">C</i><i class="">2</i><i class="">3</i><i class="">1</i><i class="h">6</i><i class="">D</i><i class="">7</i><i class="h">D</i><i class="">+</i><i class="">7</i><i class="">+</i><i class="">+</i><i class="">1</i><i class="">1</i><i class="">4</i><i class="">4</i><i class="">+</i><i class="">·</i><i class="">+</i><i class="">6</i><i class="">Y</i><i class="h">+</i><i class="">6</i><i class="">Y</i><i class="">A</i><i class="">E</i><i class="">7</i><i class="">/</i><i class="">2</i><i class="">X</i><i class="">A</i><i class="">9</i><i class="">2</i><i class="">D</i><i class="">A</i><i class="">F</i><i class="h">·</i><i class="">Y</i><i class="">A</i><i class="">B</i><i class="">+</i><i class="">2</i><i class="">8</i><i class="h">·</i><i class="">/</i><i class="">+</i><i class="">E</i><i class="">C</i><i class="h">B</i><i class="">E</i><i class="">-</i><i class="">1</i><i class="">9</i><i class="">7</i><i class="">F</i></span>
       <span class="tc"><i class="">E</i><i class="">8</i><i class="">D</i><i class="">8</i><i class="">B</i><i class="">C</i><i class="">4</i><i class="">4</i><i class="h">7</i><i class="">+</i><i class="h">9</i><i class="">D</i><i class="">-</i><i class="">4</i><i class="">X</i><i class="">.</i><i class="">1</i><i class="">·</i><i class="">C</i><i class="">C</i><i class="">.</i><i class="h">6</i><i class="">6</i><i class="">3</i><i class="">1</i><i class="">+</i><i class="">3</i><i class="h">-</i><i class="">6</i><i class="">4</i><i class="">B</i><i class="">F</i><i class="">F</i><i class="">E</i><i class="">9</i><i class="">3</i><i class="">8</i><i class="">/</i><i class="">0</i><i class="">X</i><i class="">/</i><i class="">0</i><i class="">9</i><i class="">2</i><i class="">8</i><i class="">5</i><i class="">7</i><i class="">X</i><i class="">7</i><i class="">6</i><i class="">C</i><i class="">7</i><i class="">F</i><i class="">0</i><i class="">8</i><i class="">6</i></span>
       <span class="tc"><i class="">B</i><i class="">B</i><i class="">B</i><i class="">3</i><i class="">6</i><i class="">F</i><i class="">-</i><i class="">F</i><i class="">B</i><i class="">2</i><i class="">3</i><i class="">/</i><i class="">F</i><i class="">D</i><i class="">A</i><i class="">C</i><i class="">2</i><i class="">5</i><i class="">0</i><i class="">E</i><i class="">4</i><i class="">-</i><i class="">·</i><i class="">4</i><i class="h">4</i><i class="">.</i><i class="">4</i><i class="">6</i><i class="h">6</i><i class="">6</i><i class="">7</i><i class="">A</i><i class="">D</i><i class="">1</i><i class="">B</i><i class="">·</i><i class="">X</i><i class="">X</i><i class="">4</i><i class="">0</i><i class="">5</i><i class="">4</i><i class="">F</i><i class="">3</i><i class="">A</i><i class="">X</i><i class="">3</i><i class="">1</i><i class="h">8</i><i class="">3</i><i class="h">Y</i><i class="">2</i><i class="">-</i><i class="">-</i><i class="">/</i><i class="">X</i></span>
@@ -64,19 +64,19 @@
       <span class="tc"><i class="">-</i><i class="">C</i><i class="">/</i><i class="">5</i><i class="">7</i><i class="">-</i><i class="">F</i><i class="h">6</i><i class="">X</i><i class="">B</i><i class="">7</i><i class="h">6</i><i class="">Y</i><i class="h">·</i><i class="">A</i><i class="">-</i><i class="">.</i><i class="">.</i><i class="">+</i><i class="">C</i><i class="">E</i><i class="h">5</i><i class="">-</i><i class="">E</i><i class="">-</i><i class="">E</i><i class="">F</i><i class="">2</i><i class="">D</i><i class="">E</i><i class="h">·</i><i class="">.</i><i class="">A</i><i class="h">X</i><i class="">X</i><i class="">.</i><i class="h">4</i><i class="">2</i><i class="">/</i><i class="">6</i><i class="">F</i><i class="">5</i><i class="h">7</i><i class="">B</i><i class="">8</i><i class="">-</i><i class="">E</i><i class="">X</i><i class="">F</i><i class="">8</i><i class="">7</i><i class="">1</i><i class="">C</i><i class="">8</i><i class="">C</i><i class="">8</i></span>
       <span class="tc"><i class="h">X</i><i class="">B</i><i class="">E</i><i class="">+</i><i class="">3</i><i class="">Y</i><i class="">C</i><i class="">B</i><i class="">B</i><i class="">B</i><i class="">2</i><i class="">5</i><i class="">1</i><i class="">X</i><i class="">.</i><i class="">+</i><i class="">A</i><i class="">1</i><i class="">9</i><i class="">D</i><i class="">B</i><i class="">4</i><i class="">-</i><i class="h">0</i><i class="">+</i><i class="">3</i><i class="">Y</i><i class="">+</i><i class="">4</i><i class="">-</i><i class="">5</i><i class="">7</i><i class="">E</i><i class="">.</i><i class="">·</i><i class="">C</i><i class="h">0</i><i class="">Y</i><i class="">-</i><i class="">E</i><i class="">X</i><i class="">7</i><i class="h">0</i><i class="h">Y</i><i class="">5</i><i class="">1</i><i class="h">3</i><i class="">Y</i><i class="">6</i><i class="">6</i><i class="">.</i><i class="">.</i><i class="">-</i><i class="h">9</i><i class="h">.</i><i class="">F</i></span>
   </div>
-  <div class="dfx-veil"></div>
+  <div class="dfc-veil"></div>
 
-  <div class="dfx-stage">
-    <img class="dfx-logo" src="assets/brand/decodefx-lockup-h-gold.png" alt="DecodeFX" />
-    <div class="dfx-tag">Giải mã thị trường<br /><em>Giao dịch tự tin</em></div>
-    <div class="dfx-lic">
+  <div class="dfc-stage">
+    <img class="dfc-logo" src="assets/brand/decodefx-lockup-h-gold.png" alt="DecodeFX" />
+    <div class="dfc-tag">Giải mã thị trường<br /><em>Giao dịch tự tin</em></div>
+    <div class="dfc-lic">
       <div class="lic-row"><span class="body">ASIC</span><span class="reg">Úc</span><span class="id">246796</span></div>
       <div class="lic-row"><span class="body">FSC</span><span class="reg">Mauritius</span><span class="id">GB25204877</span></div>
       <div class="lic-row"><span class="body">VFSC</span><span class="reg">Vanuatu</span><span class="id">700415</span></div>
       <div class="lic-row"><span class="body">FSA</span><span class="reg">St. Vincent</span><span class="id">25431BC 2019</span></div>
       <div class="lic-row"><span class="body">FSCA</span><span class="reg">Nam Phi</span><span class="id">FSP 55001</span></div>
     </div>
-    <div class="dfx-cta"><span>__CTA__</span><span class="dfx-shine"></span></div>
+    <div class="dfc-cta"><span>__CTA__</span><span class="dfc-shine"></span></div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
@@ -84,19 +84,19 @@
     (function () {
       var tl = gsap.timeline({ paused: true });
       var ease = "expo.out";
-      tl.fromTo(".dfx-logo", { opacity: 0, y: 28, scale: 0.94 }, { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: ease }, 0.10);
-      tl.fromTo(".dfx-tag", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: ease }, 0.75);
-      tl.fromTo(".dfx-lic", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.55, ease: ease }, 1.15);
-      tl.fromTo(".dfx-lic .lic-row", { opacity: 0, x: -14 }, { opacity: 1, x: 0, duration: 0.40, ease: ease, stagger: 0.08 }, 1.30);
-      tl.fromTo(".dfx-cta", { opacity: 0, scale: 0.90 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.5)" }, 1.95);
-      tl.to(".dfx-cta", { scale: 0.962, duration: 0.18, ease: "power1.inOut" }, 3.00);
-      tl.to(".dfx-cta", { scale: 1, duration: 0.22, ease: "power1.inOut" }, 3.18);
-      tl.to(".dfx-cta", { scale: 0.962, duration: 0.18, ease: "power1.inOut" }, 4.30);
-      tl.to(".dfx-cta", { scale: 1, duration: 0.22, ease: "power1.inOut" }, 4.48);
-      tl.fromTo(".dfx-shine", { x: -430, opacity: 0 }, { x: 430, opacity: 1, duration: 0.80, ease: "power2.inOut" }, 2.45);
-      tl.fromTo(".dfx-shine", { x: -430 }, { x: 430, duration: 0.80, ease: "power2.inOut", immediateRender: false }, 4.75);
-      tl.fromTo(".dfx-tape", { y: 0 }, { y: -(15 * __DURATION__), duration: __DURATION__, ease: "none" }, 0);
-      tl.fromTo(".dfx-stage", { scale: 1 }, { scale: 1.025, duration: __DURATION__, ease: "power1.inOut" }, 0);
+      tl.fromTo(".dfc-logo", { opacity: 0, y: 28, scale: 0.94 }, { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: ease }, 0.10);
+      tl.fromTo(".dfc-tag", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: ease }, 0.75);
+      tl.fromTo(".dfc-lic", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.55, ease: ease }, 1.15);
+      tl.fromTo(".dfc-lic .lic-row", { opacity: 0, x: -14 }, { opacity: 1, x: 0, duration: 0.40, ease: ease, stagger: 0.08 }, 1.30);
+      tl.fromTo(".dfc-cta", { opacity: 0, scale: 0.90 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.5)" }, 1.95);
+      tl.to(".dfc-cta", { scale: 0.962, duration: 0.18, ease: "power1.inOut" }, 3.00);
+      tl.to(".dfc-cta", { scale: 1, duration: 0.22, ease: "power1.inOut" }, 3.18);
+      tl.to(".dfc-cta", { scale: 0.962, duration: 0.18, ease: "power1.inOut" }, 4.30);
+      tl.to(".dfc-cta", { scale: 1, duration: 0.22, ease: "power1.inOut" }, 4.48);
+      tl.fromTo(".dfc-shine", { x: -430, opacity: 0 }, { x: 430, opacity: 1, duration: 0.80, ease: "power2.inOut" }, 2.45);
+      tl.fromTo(".dfc-shine", { x: -430 }, { x: 430, duration: 0.80, ease: "power2.inOut", immediateRender: false }, 4.75);
+      tl.fromTo(".dfc-tape", { y: 0 }, { y: -(15 * __DURATION__), duration: __DURATION__, ease: "none" }, 0);
+      tl.fromTo(".dfc-stage", { scale: 1 }, { scale: 1.025, duration: __DURATION__, ease: "power1.inOut" }, 0);
       window.__timelines = window.__timelines || {};
       window.__timelines["__ID__"] = tl;
     })();

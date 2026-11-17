@@ -236,3 +236,42 @@ export function syncDurations(md: string, durByFrame: ReadonlyMap<number, number
   }
   return { md: lines.join("\n"), updated: done.size };
 }
+
+/** Dải phụ đề của khổ DỌC 1080×1920: footer Evose phủ từ y 1690, phụ đề phải
+ *  nằm trên nó, nên dải mỏng 150px đặt ở 1530 chứ không lấy mốc tự tính. */
+const CAPTION_BAND_PORTRAIT = { top: 1530, height: 150 };
+/** Phần chiều cao khung dành cho phụ đề, đúng bằng `CAPTION_BAND_FRACTION`
+ *  của `lib/dimensions.mjs` trong skill. */
+const CAPTION_BAND_FRACTION = 0.1667;
+
+/** Khổ khung lấy từ frontmatter `format:` của storyboard, mặc định ngang 1920×1080
+ *  giống `parseFormat` của skill. Thiếu dòng này thì cả video sai khổ, nên không
+ *  đoán theo tên thư mục. */
+export function readFormat(sbPath: string): { w: number; h: number } {
+  const fm = readFileSync(sbPath, "utf8").match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  const raw = fm?.[1]?.match(/^format:\s*(.+)$/m)?.[1]?.replace(/\s+#.*$/, "").trim().toLowerCase() ?? "";
+  const named: Record<string, { w: number; h: number }> = {
+    landscape: { w: 1920, h: 1080 }, portrait: { w: 1080, h: 1920 }, square: { w: 1080, h: 1080 },
+  };
+  if (named[raw]) return named[raw]!;
+  const m = /^(\d+)\s*[x×]\s*(\d+)$/.exec(raw);
+  if (m) {
+    const w = Number(m[1]);
+    const h = Number(m[2]);
+    if (w >= 240 && h >= 240 && w <= 8192 && h <= 8192) return { w, h };
+  }
+  return { w: 1920, h: 1080 };
+}
+
+/** Dải phụ đề cho một chiều cao khung.
+ *
+ *  Trước đây hàm này là hai hằng số cứng 1530 và 150. Khung ngang 1080 cao thì
+ *  1530 nằm DƯỚI mép dưới 450px, nên phụ đề biến mất hoàn toàn khỏi bản render
+ *  mà không node nào báo đỏ. Đã dính thật ngày 22/10/2026 ở video hồ sơ Mazino.
+ *  Khổ dọc 1080×1920 giữ nguyên cặp số đã duyệt, để ba bộ Evose, WTC và DecodeFX
+ *  không đổi một pixel nào. */
+export function captionBandFor(h: number): { top: number; height: number } {
+  if (h === 1920) return CAPTION_BAND_PORTRAIT;
+  const height = Math.round(h * CAPTION_BAND_FRACTION);
+  return { top: h - height, height };
+}

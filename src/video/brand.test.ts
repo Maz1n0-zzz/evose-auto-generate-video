@@ -249,3 +249,85 @@ describe("plan — kết quả sau khi ghi", () => {
     expect(dirFiles()).toEqual(first);
   });
 });
+
+describe("plan — chép logo khi brand không có file -gold.", () => {
+  test("có file -gold. thì chỉ chép đúng những file đó", () => {
+    writeFileSync(join(brand, "logo", "demo-mark-white.png"), "x");
+    run();
+    expect(dirFiles().filter((f) => f.startsWith("assets/brand/"))).toEqual(["assets/brand/demo-mark-gold.png"]);
+  });
+
+  test("không có file -gold. thì chép cả thư mục logo", () => {
+    rmSync(join(brand, "logo", "demo-mark-gold.png"));
+    writeFileSync(join(brand, "logo", "chan-dung.png"), "x");
+    writeFileSync(join(brand, "logo", "wordmark.svg"), "x");
+    run();
+    expect(dirFiles().filter((f) => f.startsWith("assets/brand/")).sort()).toEqual([
+      "assets/brand/chan-dung.png",
+      "assets/brand/wordmark.svg",
+    ]);
+  });
+
+  test("bỏ qua file rác và file không phải ảnh", () => {
+    rmSync(join(brand, "logo", "demo-mark-gold.png"));
+    writeFileSync(join(brand, "logo", "chan-dung.png"), "x");
+    // ._logo.png ĐÚNG đuôi ảnh, nên chỉ phép bỏ dotfile mới chặn được nó.
+    // Bản cũ dùng .DS_Store, mà file đó đã trượt ở phép kiểm đuôi rồi.
+    writeFileSync(join(brand, "logo", "._logo.png"), "x");
+    writeFileSync(join(brand, "logo", ".DS_Store"), "x");
+    writeFileSync(join(brand, "logo", "README.md"), "x");
+    run();
+    expect(dirFiles().filter((f) => f.startsWith("assets/brand/"))).toEqual(["assets/brand/chan-dung.png"]);
+  });
+
+  test("lắp đè brand khác thì logo cũ bị dọn, không ship nhầm thương hiệu", () => {
+    const d = join(dir, "assets", "brand");
+    mkdirSync(d, { recursive: true });
+    writeFileSync(join(d, "brand-cu-gold.png"), "x");
+    run();
+    const got = dirFiles().filter((f) => f.startsWith("assets/brand/"));
+    expect(got).not.toContain("assets/brand/brand-cu-gold.png");
+    expect(got).toEqual(["assets/brand/demo-mark-gold.png"]);
+  });
+
+  test("lệnh dọn chỉ chạm assets/brand, không chạm thư mục em ruột", () => {
+    // Bai truoc chi loc cac duong dan bat dau bang "assets/brand/", nen mot lenh
+    // xoa nham nguyen thu muc "assets" van di qua ma khong ai thay: font bi xoa
+    // roi duoc chep lai o buoc truoc do trong cung mot lan chay.
+    // Khong dung assets/fonts lam bang chung: buoc dong bo font CO CHU Y don
+    // nhung file font khong con trong brand, nen mot file la o do bien mat vi
+    // ly do khac. assets/capture thi khong buoc nao trong plan() cham vao.
+    mkdirSync(join(dir, "assets", "capture"), { recursive: true });
+    writeFileSync(join(dir, "assets", "capture", "anh-chup.png"), "giu-nguyen");
+    run();
+    expect(readFileSync(join(dir, "assets", "capture", "anh-chup.png"), "utf8")).toBe("giu-nguyen");
+    // Va font cua chinh brand van con, tuc thu muc assets khong bi quet sach.
+    expect(dirFiles()).toContain("assets/fonts/Demo-Book.woff2");
+  });
+
+  test("brand không có ảnh nào thì logo cũ vẫn bị dọn, không để lại bản sai", () => {
+    rmSync(join(brand, "logo", "demo-mark-gold.png"));
+    writeFileSync(join(brand, "logo", "README.md"), "x");
+    const d = join(dir, "assets", "brand");
+    mkdirSync(d, { recursive: true });
+    writeFileSync(join(d, "brand-cu-gold.png"), "x");
+    run();
+    expect(dirFiles().filter((f) => f.startsWith("assets/brand/"))).toEqual([]);
+    expect(existsSync(join(d, "brand-cu-gold.png"))).toBe(false);
+  });
+
+  test("tên file -GOLD viết hoa vẫn đi nhánh lọc, không kéo theo bản đen trắng", () => {
+    rmSync(join(brand, "logo", "demo-mark-gold.png"));
+    writeFileSync(join(brand, "logo", "Demo-Mark-GOLD.PNG"), "x");
+    writeFileSync(join(brand, "logo", "demo-mark-mono.png"), "x");
+    run();
+    expect(dirFiles().filter((f) => f.startsWith("assets/brand/"))).toEqual(["assets/brand/Demo-Mark-GOLD.PNG"]);
+  });
+
+  test("chạy lại cùng một brand hai lần cho ra đúng một bộ file", () => {
+    run();
+    const lan1 = dirFiles().filter((f) => f.startsWith("assets/brand/"));
+    run();
+    expect(dirFiles().filter((f) => f.startsWith("assets/brand/"))).toEqual(lan1);
+  });
+});

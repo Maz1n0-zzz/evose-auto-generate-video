@@ -3,7 +3,14 @@
  * `npm run video:music -- <dự án>` — nhạc nền không lời bằng ElevenLabs Music.
  *
  * Mood lấy từ dòng `music:` trong frontmatter STORYBOARD.md. Độ dài = tổng
- * giọng + 4s. Ghi assets/bgm/bgm.mp3 và gắn vào audio_meta.json (âm lượng 0.14,
+ * giọng + 4s.
+ *
+ * HAI CỬA MỞ RA cho phim không phải phim giải thích, thêm ngày 17/11/2026:
+ *   music_prompt:  thay TRỌN câu mô tả, bỏ hẳn phần bọc "news explainer ... sits
+ *                  under a voiceover" phía dưới. Phần bọc đó đóng công cụ vào đúng
+ *                  một thể loại, nên nó chỉ đẻ ra nhạc nền chứ không đẻ ra xương sống.
+ *   music_length:  thay độ dài, tính bằng giây. Phim 30 giây chỉ có 11,7 giây lời,
+ *                  lấy "tổng giọng + 4" thì nhạc dài 15,7 giây trên một phim 30 giây. Ghi assets/bgm/bgm.mp3 và gắn vào audio_meta.json (âm lượng 0.14,
  * nằm dưới giọng đọc). Đã có file thì bỏ qua, muốn tạo lại thì xoá file.
  */
 
@@ -28,12 +35,18 @@ async function main(): Promise<void> {
     const key = process.env.ELEVENLABS_API_KEY;
     if (!key) throw new Error("thiếu ELEVENLABS_API_KEY trong .env.local");
     const sb = readFileSync(join(dir, "STORYBOARD.md"), "utf8");
+    const tron = sb.match(/^music_prompt:\s*(.+)$/m)?.[1]?.trim();
     const mood = sb.match(/^music:\s*(.+)$/m)?.[1]?.trim() || DEFAULT_MOOD;
     const prompt =
-      `Background underscore for a Vietnamese TikTok news explainer. ${mood}. ` +
-      "Subtle build in the middle, gentle resolve at the end. Instrumental only, no vocals, sits under a voiceover.";
-    const lengthMs = Math.min(300_000, Math.round((voiceTotal + 4) * 1000));
-    console.log(`… ElevenLabs Music ${Math.round(lengthMs / 1000)}s: ${mood}`);
+      tron ??
+      (`Background underscore for a Vietnamese TikTok news explainer. ${mood}. ` +
+        "Subtle build in the middle, gentle resolve at the end. Instrumental only, no vocals, sits under a voiceover.");
+    const daiRieng = Number(sb.match(/^music_length:\s*([\d.]+)/m)?.[1]);
+    const lengthMs = Math.min(
+      300_000,
+      Math.round((daiRieng > 0 ? daiRieng : voiceTotal + 4) * 1000),
+    );
+    console.log(`… ElevenLabs Music ${Math.round(lengthMs / 1000)}s: ${tron ? "câu mô tả riêng" : mood}`);
     const res = await fetch("https://api.elevenlabs.io/v1/music?output_format=mp3_44100_128", {
       method: "POST",
       headers: { "xi-api-key": key, "Content-Type": "application/json" },

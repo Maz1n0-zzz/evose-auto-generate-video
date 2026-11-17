@@ -12,7 +12,9 @@
  *   caption-skin    → <dir>/.hyperframes/caption-skin.html
  *   voice.json      → <dir>/brand/voice.json        voice.ts đè ELEVENLABS_VOICE_ID
  *   fonts/*         → <dir>/assets/fonts/
- *   logo/*-gold.*   → <dir>/assets/brand/
+ *   logo/*-gold.*   → <dir>/assets/brand/       bộ nào không có file -gold. thì chép mọi
+ *                                                 file ảnh trong logo/; thư mục đích được
+ *                                                 dọn trước khi chép
  *   brand/open|close.html → <dir>/brand/            mẫu để chép tay vào compositions/frames
  *
  * KIỂM HẾT RỒI MỚI GHI. Hỏng nửa chừng là tệ nhất: thư mục còn lại một nửa bộ Evose
@@ -190,13 +192,35 @@ export function plan(brand: string, name: string, dir: string): Op[] {
     if (dropped.length) console.log(`  · bỏ ${dropped.length} font không thuộc bộ ${name}: ${dropped.join(", ")}`);
   });
 
-  const logos = listFiles(join(brand, "logo"), (f) => f.includes("-gold."));
-  add(`assets/brand/ (${logos.length} file)`, () => {
+  // WTC và DecodeFX để nhiều màu lockup trong `logo/`, và chỉ bản "-gold" được dùng
+  // trên nền tối. Brand nào không có file nào tên như vậy thì trước đây chép RỖNG và
+  // chỉ cảnh báo, nên ảnh hay lockup của nó không bao giờ tới `assets/brand/`.
+  // Khi đó chép mọi file ẢNH trong thư mục.
+  //
+  // Đo ngày 22/10/2026: wtc (8 file khớp) và decodefx (2 file khớp) đi nhánh cũ,
+  // không đổi gì. `redsun` và `mazino` không có file "-gold." nên ĐỔI hành vi:
+  // trước chép 0 file, nay chép đủ. Với redsun đó là sửa một lỗi âm thầm, vì
+  // khung mở/kết của nó vốn đang thiếu logo.
+  const isImage = (f: string) => !f.startsWith(".") && /\.(png|svg|jpe?g|webp)$/i.test(f);
+  // So không phân biệt hoa thường: `Logo-Gold.PNG` mà rơi xuống nhánh dự phòng
+  // thì nó chép luôn cả lockup đen trắng bên cạnh, tức ship nhầm bản.
+  const golds = listFiles(join(brand, "logo"), (f) => f.toLowerCase().includes("-gold.") && isImage(f));
+  const logos = golds.length ? golds : listFiles(join(brand, "logo"), isImage);
+  add(`assets/brand/ (${logos.length} file${golds.length ? "" : ", không lọc -gold"})`, () => {
+    const d = join(dir, "assets", "brand");
+    // Dọn trước khi chép. Lắp đè brand khác mà giữ lại lockup cũ là ship nhầm
+    // thương hiệu, và không có cảnh báo nào — cùng loại lỗi mà phần caption-skin
+    // bên dưới đã phòng.
+    // `force: true` đã bao gồm việc thư mục chưa tồn tại, nên không cần existsSync.
+    // Nói ra số file bị xoá: thư mục này chỉ do bước chép dựng nên, nhưng một file
+    // ai đó đặt tay vào đây sẽ mất, và mất trong im lặng là thứ phải tránh.
+    const stale = existsSync(d) ? listFiles(d, () => true).length : 0;
+    rmSync(d, { recursive: true, force: true });
+    if (stale) console.log(`  · dọn ${stale} file cũ trong assets/brand/`);
     if (!logos.length) {
-      console.log(`  · ⚠ brands/${name}/logo không có file nào tên "*-gold.*" — khung mở/kết sẽ thiếu logo`);
+      console.log(`  · ⚠ brands/${name}/logo không có file ảnh nào — khung mở/kết sẽ thiếu logo`);
       return;
     }
-    const d = join(dir, "assets", "brand");
     mkdirSync(d, { recursive: true });
     for (const f of logos) copyFileSync(join(brand, "logo", f), join(d, f));
   });

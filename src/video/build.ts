@@ -24,13 +24,10 @@ import {
   run,
 } from "./lib.js";
 import { MAX_STILL_SEC, measure } from "./stillness.js";
+import { captionBandFor, readFormat } from "./lib.js";
 import { normalizeFonts } from "./parse.js";
 import { regroupCaptions, type CaptionWord } from "./captions.js";
 import { probeShape, runCheck } from "./check.js";
-
-/** Dải phụ đề: footer Evose phủ từ y 1690, phụ đề phải nằm trên nó. */
-const CAPTION_BAND_TOP = 1530;
-const CAPTION_BAND_HEIGHT = 150;
 
 /** Chất lượng của lần mã hoá thứ hai, lúc phủ header và footer lên bản thô.
  *
@@ -147,13 +144,16 @@ async function main(): Promise<void> {
       groups = readGroups(groupsPath).groups;
       console.log(`✓ phụ đề lang=${lang}: giữ cách tách của captions.mjs`);
     }
+    const { h: canvasH } = readFormat(sbPath);
+    const band = captionBandFor(canvasH);
+    console.log(`✓ dải phụ đề: y ${band.top}–${band.top + band.height} (khung cao ${canvasH})`);
     // Chèn vào <script>: escape "<" để chữ như "</script>" không cắt ngang script.
     const groupsJs = JSON.stringify(groups).replace(/</g, "\\u003c");
     let html = readFileSync(capPath, "utf8");
     const patches: [RegExp, (m: string, ...g: string[]) => string, string][] = [
       [/^(\s*var GROUPS = ).*;$/m, (_m, head) => `${head}${groupsJs};`, "dòng var GROUPS"],
-      [/--cap-band-top:\s*\d+px;/, () => `--cap-band-top: ${CAPTION_BAND_TOP}px;`, "--cap-band-top"],
-      [/--cap-band-height:\s*\d+px;/, () => `--cap-band-height: ${CAPTION_BAND_HEIGHT}px;`, "--cap-band-height"],
+      [/--cap-band-top:\s*\d+px;/, () => `--cap-band-top: ${band.top}px;`, "--cap-band-top"],
+      [/--cap-band-height:\s*\d+px;/, () => `--cap-band-height: ${band.height}px;`, "--cap-band-height"],
       [/font-weight: 400; font-style: normal;/, () => "font-weight: 100 900; font-style: normal;", "font-weight của phụ đề"],
     ];
     for (const [re, fn, label] of patches) {
@@ -194,7 +194,13 @@ async function main(): Promise<void> {
   const fails = report.frames.filter((f) => !f.pass);
   console.log(`\n✓ ${final}`);
   console.log(`  hình đứng yên: ${(report.overallStillRatio * 100).toFixed(0)}% · lâu nhất ${report.longestStillSec}s (ngưỡng ${MAX_STILL_SEC}s)`);
+  if (report.regime && report.regime !== "vertical") {
+    console.log(report.regime === "wide"
+      ? "  ⚠ khổ ngang: đã cắt đúng dải nội dung, nhưng mốc 17% chỉ hiệu chuẩn cho khổ dọc"
+      : "  ⚠ tỉ lệ lạ: đo TOÀN khung, kể cả lề trên và dải phụ đề, nên số này lệch về phía đứng yên");
+  }
   if (fails.length) console.log(`  ⚠ khung đứng yên quá lâu: ${fails.map((f) => `${f.frame} (${f.longestStillSec}s)`).join(", ")}`);
+
   const finalBytes = statSync(final).size;
   const finalMb = finalBytes / 1024 / 1024;
   console.log(`  dung lượng: ${finalMb.toFixed(1)} MB (crf ${OVERLAY_CRF})`);

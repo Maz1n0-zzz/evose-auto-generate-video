@@ -1,0 +1,28 @@
+<!doctype html>
+<!--
+  Bản gốc của lớp phủ 1920×1080 cho series bài giảng AI Engineer.
+  Sửa file này rồi chụp lại ra PNG cùng tên, nền trong suốt (xem README của bộ này):
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new \
+      --disable-gpu --hide-scrollbars --default-background-color=00000000 \
+      --window-size=1920,1080 --screenshot=overlays/overlay-frame-ai-engineer.png \
+      "file://$PWD/overlays/overlay-frame-ai-engineer.html"
+
+  CỐ Ý RẤT NHẸ: chỉ một logo Evose nhỏ ở góc TRÊN phải, x 1711–1856, y 44–80.
+  Không đặt ở góc dưới, vì dải phụ đề y 900–1080 và watermark kênh của YouTube
+  đều nằm ở đó.
+-->
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  html, body { margin: 0; padding: 0; background: transparent; }
+  #ov { position: relative; width: 1920px; height: 1080px; background: transparent; overflow: hidden; }
+  .logo { position: absolute; right: 64px; top: 44px; height: 36px; width: auto; opacity: .9; display: block; }
+</style>
+</head>
+<body>
+  <div id="ov">
+    <img class="logo" src="../logo/evose-horizontal-navy.svg" alt="" />
+  </div>
+</body>
+</html>

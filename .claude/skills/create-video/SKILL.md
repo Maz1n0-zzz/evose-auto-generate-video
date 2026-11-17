@@ -64,6 +64,59 @@ mục 8 thành 60–70 chữ / 6–8 khung / mỗi khung 1 câu / khoảng 30 gi
 mục 6 bỏ (khung kết WTC tự lo CTA);
 mục 5 giữ nguyên, nhưng vì ít khung hơn nên tối đa ba khung có thẻ cảm xúc.
 
+## Hồ sơ bài giảng dài (series YouTube 16:9)
+
+Dùng khi làm video YouTube ngang dài 12 tới 18 phút, ví dụ series "Trở thành AI Engineer từ
+con số không" (`docs/series-ai-engineer/LO-TRINH-SERIES.md`). Một tập không dựng trong một lượt.
+Mỗi chương dài 2 tới 3 phút là một lượt `/create-video` bình thường, đi đủ Bước 1 tới Bước 9.
+Xong đủ chương thì nối lại bằng `video:join`.
+
+Khác quy trình tin tức ở bảy chỗ:
+
+1. **Lắp hồ sơ** ngay sau `video:new`: `npm run video:brand -- ai-engineer $DIR`.
+   Luật đầy đủ ở `brands/ai-engineer/brand/rules.md` và `brands/ai-engineer/README.md`.
+2. **Frontmatter STORYBOARD** ghi `format: 1920x1080` và `lang: vi`. Thêm `title:` để
+   `video:join` lấy làm tên chương. Vùng an toàn là y 120 tới 860, x 130 tới 1790.
+   Dải phụ đề y 900 tới 1080, logo Evose góc trên phải.
+3. **Độ dài chương** khoảng 370 tới 560 chữ, 8 tới 12 khung, mỗi khung 2 tới 3 câu. Con số
+   tính từ tốc độ đã đo 3,1 chữ mỗi giây. Được dùng thuật ngữ, nhưng lần đầu nhắc phải giải
+   thích bằng tiếng Việt đời thường. Số vẫn viết ra chữ. Thẻ cảm xúc vẫn là bảy thẻ ở Bước 2.
+4. **Khung mở và kết** lấy từ `$DIR/brand/open.html` và `$DIR/brand/close.html` của hồ sơ.
+   Khung mở có chỗ chừa `__EPISODE__ __CHAPTER__ __HEADLINE__ __SUB__`. Khung kết chỉ dùng ở
+   chương cuối của tập.
+5. **Câu "Truy cập evose.ai để tạo ra trợ lý AI của riêng bạn."** chỉ có ở khung cuối của
+   chương cuối mỗi tập. Mục 6 của Bước 2 không áp cho các chương khác. Chương giữa kết bằng
+   câu bắc cầu sang chương sau.
+6. **Chiếu code** bằng khung có sẵn `brands/ai-engineer/brand/code.html`, Claude tự điền, không
+   giao worker. Tối đa 14 dòng, code chép từ nguồn thật, phải escape `& < >`. Cách điền ở README
+   của hồ sơ. Output trên khung phải chép từ một lần chạy thật.
+7. **Không chạy `video:music` cho chương.** Chương không có nhạc thì `audio_meta.json` giữ
+   `bgm: null` và `video:build` vẫn dựng bình thường. Nhạc nền trải một lần cho cả tập lúc nối.
+
+Nối các chương thành một tập:
+
+```bash
+npm run video:join -- output/tap-06 <dir chương 1> <dir chương 2> ... \
+  --music <file nhạc> --title "Mở bằng sự việc" --title "Vấn đề" ...
+```
+
+- Đầu vào là `renders/final.mp4` của từng chương. Lệnh đo từng file bằng ffprobe. Lệch khổ,
+  fps, codec, tần số lấy mẫu hay số kênh thì dừng và nêu tên chương lệch.
+- Nối nguyên luồng, không mã hoá lại hình. Ra `output/tap-06/tap.mp4` (đổi tên bằng `--out`).
+- `--music` trải một bản nhạc dưới cả tập ở âm lượng 0.12 (`--music-volume` để đổi), lặp nếu
+  ngắn hơn, tắt dần 4 giây cuối. Bỏ `--music` thì tập không có nhạc nền.
+- Ghi `output/tap-06/chapters.txt` theo định dạng mốc chương YouTube, dòng đầu `00:00`. Dán
+  nguyên vào mô tả video. YouTube chỉ hiện mốc khi có từ 3 chương, mỗi chương từ 10 giây.
+  Lệnh in cảnh báo nếu tập không đạt.
+- Bỏ `--title` thì tên chương lấy `title:` trong STORYBOARD, không có thì lấy tên thư mục.
+
+**Chi phí:** chưa đo. Ước theo tỉ lệ từ con số 1,5 tới 2 triệu token cho 80 tới 90 giây, một
+chương 2 tới 3 phút vào khoảng 3 tới 5 triệu token, một tập 6 chương khoảng 20 tới 30 triệu
+token, chưa tính ElevenLabs. Dựng một chương thật rồi đo lại trước khi chốt cả series.
+
+**Chưa kiểm:** phụ đề khổ ngang trên nền sáng chưa render thật lần nào. Mốc hình đứng yên 17%
+chỉ hiệu chuẩn cho khổ dọc, nên số đo của chương chỉ để tham khảo.
+
 ## Bước 1 — Lấy nội dung, tạo thư mục
 
 - **URL** → `WebFetch` lấy title, nội dung chính 500–1500 từ, domain. Lỗi (paywall,

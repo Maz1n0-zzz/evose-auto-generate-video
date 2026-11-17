@@ -1,0 +1,127 @@
+<template>
+<div id="root" data-composition-id="__ID__" data-width="1920" data-height="1080">
+  <style>
+    @font-face { font-family: "Hanken Grotesk"; src: url("assets/fonts/HankenGrotesk-VF.ttf") format("truetype"); font-weight: 100 900; }
+    @font-face { font-family: "JetBrains Mono"; src: url("assets/fonts/JetBrainsMono-Regular.ttf") format("truetype"); font-weight: 100 599; }
+    @font-face { font-family: "JetBrains Mono"; src: url("assets/fonts/JetBrainsMono-Bold.ttf") format("truetype"); font-weight: 600 900; }
+
+    #root { position: relative; width: 1920px; height: 1080px; overflow: hidden;
+      font-family: "Hanken Grotesk", sans-serif; color: #0a0a0a; background: #f2f2f0; }
+    .cf-bg { position: absolute; inset: -60px; background-color: #f2f2f0;
+      background-image: radial-gradient(circle, #d6d6d1 1.35px, transparent 1.35px); background-size: 26px 26px; }
+
+    /* Vung an toan y 120-860, x 130-1790. The code can giua theo chieu dung trong vung do. */
+    .cf-stage { position: absolute; left: 130px; top: 120px; width: 1660px; height: 740px;
+      transform-origin: 830px 420px; display: flex; align-items: center; }
+    .cf-card { width: 1660px; background: #ffffff; border: 2px solid #0a0a0a; border-radius: 10px; overflow: hidden; }
+    .cf-bar { height: 64px; display: flex; align-items: center; gap: 12px; padding: 0 28px;
+      border-bottom: 2px solid #0a0a0a; background: #f7f7f5; }
+    .cf-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #0a0a0a; background: #ffffff; }
+    .cf-dot-a { background: #2563eb; border-color: #2563eb; }
+    .cf-file { margin-left: 14px; font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 26px;
+      letter-spacing: .02em; color: #0a0a0a; }
+    .cf-body { padding: 24px 0; }
+
+    /* Moi dong: so dong, vach nhan ben trai, ma. JetBrains Mono 28px rong 0.6em = 16.8px moi ky tu. */
+    .cf-row { position: relative; display: flex; align-items: center; height: 41px; padding: 0 28px 0 0;
+      background-color: rgba(219,230,253,0); }
+    .cf-tick { position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: #2563eb; transform-origin: 50% 50%; transform: scaleY(0); }
+    .cf-no { width: 84px; flex: none; text-align: right; padding-right: 28px; font-family: "JetBrains Mono", monospace;
+      font-size: 22px; color: #9ca3af; }
+    .cf-line { position: relative; flex: none; }
+    .cf-code { display: block; font-family: "JetBrains Mono", monospace; font-size: 28px; line-height: 41px;
+      white-space: pre; color: #0a0a0a; clip-path: inset(0 100% 0 0);
+      /* Tat ligature: JetBrains Mono mac dinh ve ">=" thanh mot dau lon-hon-hoac-bang,
+         nguoi hoc go lai theo hinh se go sai. Code tren khung phai dung tung ky tu. */
+      font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0; }
+    .cf-caret { position: absolute; left: 0; top: 6px; width: 14px; height: 29px; background: #2563eb; opacity: 0; }
+  </style>
+
+  <div id="cf-ground-__ID__" class="cf-bg clip" data-start="0" data-duration="__DURATION__" data-track-index="0"></div>
+  <div class="cf-stage">
+    <div class="cf-card">
+      <div class="cf-bar">
+        <span class="cf-dot cf-dot-a"></span><span class="cf-dot"></span><span class="cf-dot"></span>
+        <span class="cf-file">__FILE__</span>
+      </div>
+      <div class="cf-body">
+        <!-- MOI DONG: data-reveal = giay bat dau go dong do. Xoa han dong khong dung, KHONG de trong.
+             Cho chua khong co chu so de build.ts bat duoc cho quen dien. -->
+        <div class="cf-row" data-reveal="__AT_A__"><span class="cf-tick"></span><span class="cf-no">1</span><span class="cf-line"><code class="cf-code">__LINE_A__</code><span class="cf-caret"></span></span></div>
+        <div class="cf-row" data-reveal="__AT_B__"><span class="cf-tick"></span><span class="cf-no">2</span><span class="cf-line"><code class="cf-code">__LINE_B__</code><span class="cf-caret"></span></span></div>
+        <div class="cf-row" data-reveal="__AT_C__"><span class="cf-tick"></span><span class="cf-no">3</span><span class="cf-line"><code class="cf-code">__LINE_C__</code><span class="cf-caret"></span></span></div>
+        <div class="cf-row" data-reveal="__AT_D__"><span class="cf-tick"></span><span class="cf-no">4</span><span class="cf-line"><code class="cf-code">__LINE_D__</code><span class="cf-caret"></span></span></div>
+        <div class="cf-row" data-reveal="__AT_E__"><span class="cf-tick"></span><span class="cf-no">5</span><span class="cf-line"><code class="cf-code">__LINE_E__</code><span class="cf-caret"></span></span></div>
+        <div class="cf-row" data-reveal="__AT_F__"><span class="cf-tick"></span><span class="cf-no">6</span><span class="cf-line"><code class="cf-code">__LINE_F__</code><span class="cf-caret"></span></span></div>
+        <div class="cf-row" data-reveal="__AT_G__"><span class="cf-tick"></span><span class="cf-no">7</span><span class="cf-line"><code class="cf-code">__LINE_G__</code><span class="cf-caret"></span></span></div>
+        <div class="cf-row" data-reveal="__AT_H__"><span class="cf-tick"></span><span class="cf-no">8</span><span class="cf-line"><code class="cf-code">__LINE_H__</code><span class="cf-caret"></span></span></div>
+        <div class="cf-row" data-reveal="__AT_I__"><span class="cf-tick"></span><span class="cf-no">9</span><span class="cf-line"><code class="cf-code">__LINE_I__</code><span class="cf-caret"></span></span></div>
+        <div class="cf-row" data-reveal="__AT_J__"><span class="cf-tick"></span><span class="cf-no">10</span><span class="cf-line"><code class="cf-code">__LINE_J__</code><span class="cf-caret"></span></span></div>
+        <div class="cf-row" data-reveal="__AT_K__"><span class="cf-tick"></span><span class="cf-no">11</span><span class="cf-line"><code class="cf-code">__LINE_K__</code><span class="cf-caret"></span></span></div>
+        <div class="cf-row" data-reveal="__AT_L__"><span class="cf-tick"></span><span class="cf-no">12</span><span class="cf-line"><code class="cf-code">__LINE_L__</code><span class="cf-caret"></span></span></div>
+        <div class="cf-row" data-reveal="__AT_M__"><span class="cf-tick"></span><span class="cf-no">13</span><span class="cf-line"><code class="cf-code">__LINE_M__</code><span class="cf-caret"></span></span></div>
+        <div class="cf-row" data-reveal="__AT_N__"><span class="cf-tick"></span><span class="cf-no">14</span><span class="cf-line"><code class="cf-code">__LINE_N__</code><span class="cf-caret"></span></span></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script>
+    (function () {
+      var D = __DURATION__;
+      // Lich to sang: moi cap [so dong, giay bat dau]. Dong 0 = bo to, moi dong sang deu.
+      // Mot muc to sang keo dai toi muc ke tiep.
+      var FOCUS = [__FOCUS__];
+
+      var CH = 16.8;          // be ngang mot ky tu JetBrains Mono 28px (0.6em)
+      var PER_CHAR = 0.028;   // giay go moi ky tu
+      var MAX_TYPE = 1.4;     // dong dai bao nhieu cung go xong trong 1.4 giay
+      var DIM = 0.35;         // do mo cua dong khong duoc nhac toi
+
+      // Moi selector deu ga vao khung nay. Hai khung code trong cung mot video
+      // dung chung ten class, selector tran se keo ca khung kia chay theo.
+      var S = '[data-composition-id="__ID__"] ';
+      var tl = gsap.timeline({ paused: true });
+      var ease = "expo.out";
+      var rows = Array.prototype.slice.call(document.querySelectorAll(S + ".cf-row"));
+
+      tl.fromTo(S + ".cf-card", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.6, ease: ease }, 0);
+
+      // Dong chua toi luot thi an han, ke ca so dong, de khung khong lo truoc noi dung.
+      rows.forEach(function (row, i) {
+        var at = Number(row.getAttribute("data-reveal"));
+        var code = row.querySelector(".cf-code");
+        var caret = row.querySelector(".cf-caret");
+        // Dem ky tu tren chu da giai ma (&lt; la mot ky tu), khong dem tren HTML.
+        var n = Math.max(1, (code.textContent || "").replace(/\s+$/, "").length);
+        var dur = Math.min(MAX_TYPE, n * PER_CHAR);
+        tl.set(row, { opacity: 0 }, 0);
+        tl.set(row, { opacity: 1 }, at);
+        tl.fromTo(code, { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: dur, ease: "steps(" + n + ")" }, at);
+        tl.set(caret, { opacity: 1, x: 0 }, at);
+        tl.to(caret, { x: n * CH, duration: dur, ease: "steps(" + n + ")" }, at);
+        tl.set(caret, { opacity: 0 }, at + dur + 0.25);
+      });
+
+      // To sang dong dang noi toi, cac dong khac mo di. Chi tween opacity va mau nen.
+      FOCUS.forEach(function (f) {
+        var line = f[0], t = f[1];
+        rows.forEach(function (row, i) {
+          // Dong chua go toi thi de nguyen, khong de lich to sang lam no hien som.
+          if (Number(row.getAttribute("data-reveal")) > t) return;
+          var on = line === 0 || i + 1 === line;
+          tl.to(row, { opacity: on ? 1 : DIM, backgroundColor: (line !== 0 && on) ? "rgba(219,230,253,1)" : "rgba(219,230,253,0)",
+            duration: 0.3, ease: "power2.out", immediateRender: false }, t);
+          tl.to(row.querySelector(".cf-tick"), { scaleY: (line !== 0 && on) ? 1 : 0, duration: 0.3, ease: "power2.out", immediateRender: false }, t);
+        });
+      });
+
+      // Khong dung yen: luoi troi cheo, camera day cham 3% suot khung.
+      tl.fromTo(S + ".cf-bg", { x: 0, y: 0 }, { x: -26, y: -26, duration: D, ease: "none" }, 0);
+      tl.fromTo(S + ".cf-stage", { scale: 1 }, { scale: 1.03, duration: D, ease: "power1.inOut" }, 0);
+      window.__timelines = window.__timelines || {};
+      window.__timelines["__ID__"] = tl;
+    })();
+  </script>
+</div>
+</template>

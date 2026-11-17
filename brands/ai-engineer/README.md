@@ -26,6 +26,7 @@ Bộ `mazino` cũng là khổ ngang nhưng nền tối và tiếng Anh. Bộ nà
 | `brand/frame.md` | Hợp đồng bố cục và token màu. Worker đọc qua `<dir>/frame.md`, phụ đề lấy màu từ đây. |
 | `brand/open.html` | Khung mở chương. Chỗ chừa xem bên dưới. |
 | `brand/close.html` | Khung kết tập, chỉ thay `__ID__` và `__DURATION__`. |
+| `brand/code.html` | Khung chiếu code chạy từng dòng. Chép thẳng từ đây, xem mục bên dưới. |
 | `overlays/overlay-frame-ai-engineer.png` | Lớp phủ 1920×1080, chỉ có logo Evose ở x 1711–1856, y 44–80. |
 | `overlays/overlay-frame-ai-engineer.html` | Bản gốc của lớp phủ, sửa rồi chụp lại. |
 | `logo/` | Logo Evose navy, chép từ `evose-brand-kit/logos`. `video:brand` chép sang `assets/brand/`. |
@@ -69,6 +70,60 @@ Tên series in sẵn ở cột phải. Khung mở có con trỏ nhấp nháy và
 Chép `brand/close.html` vào `compositions/frames/NN-ket.html`, thay `__ID__` và `__DURATION__`.
 Chỉ dùng ở chương cuối của tập, cùng khung có câu "Truy cập evose.ai để tạo ra trợ lý AI của riêng bạn."
 Chương giữa tập kết bằng một khung nội dung có câu bắc cầu sang chương sau.
+
+## Khung chiếu code
+
+Khung 1920×1080 chiếu tối đa 14 dòng code. Từng dòng hiện ra theo kiểu gõ phím, dòng đang nói
+tới có nền xanh nhạt và vạch trái màu nhấn, các dòng khác mờ còn 35%. Claude tự điền, không giao
+worker. `video:brand` không chép file này, nên chép thẳng từ `brands/ai-engineer/brand/code.html`.
+
+```bash
+cp brands/ai-engineer/brand/code.html "$DIR/compositions/frames/05-code.html"
+```
+
+| Chỗ chừa | Giá trị |
+|---|---|
+| `__ID__` | id khung, trùng tên file, vd `05-code` |
+| `__DURATION__` | duration của khung, giây |
+| `__FILE__` | nhãn trên thanh tiêu đề, vd `agent_loop.py · run_agent` |
+| `__LINE_A__` tới `__LINE_N__` | dòng code thứ 1 tới 14, đã escape |
+| `__AT_A__` tới `__AT_N__` | giây bắt đầu gõ dòng đó, lấy từ `words.txt` |
+| `__FOCUS__` | lịch tô sáng, các cặp `[số dòng, giây]` cách nhau dấu phẩy |
+
+Ví dụ lịch tô sáng: `[2,4.4],[5,7.2],[0,12]`. Từ giây 4,4 dòng 2 sáng, từ giây 7,2 dòng 5 sáng,
+từ giây 12 bỏ tô và mọi dòng sáng đều. Một mục kéo dài tới mục kế tiếp. Dòng chưa gõ tới thì
+lịch tô sáng không đụng vào nó.
+
+Chỗ chừa dùng chữ cái A tới N chứ không dùng số. `video:build` bắt chỗ chưa điền bằng mẫu
+`__[A-Z_]+__`, mẫu đó không khớp chữ số.
+
+**Ít hơn 14 dòng thì xoá trọn hàng** `<div class="cf-row" ...>...</div>` của các dòng thừa. Đừng
+để trống chỗ chừa, `video:build` sẽ dừng vì còn chỗ chưa điền.
+
+**Escape trước khi dán code vào.** Code nằm trong HTML, nên thay theo đúng thứ tự:
+
+1. `&` thành `&amp;` (làm trước, nếu không bước sau bị escape hai lần)
+2. `<` thành `&lt;`
+3. `>` thành `&gt;`
+
+Dấu nháy không cần escape vì code nằm trong thẻ, không nằm trong thuộc tính. Trong Python:
+`html.escape(dong, quote=False)`. Thụt đầu dòng giữ nguyên bằng dấu cách, khung dùng
+`white-space: pre`. Đổi tab thành dấu cách trước khi dán.
+
+Code có tên viết hoa kẹp giữa hai cặp gạch dưới, như `__ALL__`, sẽ bị `video:build` tưởng là
+chỗ chưa điền. Thay một dấu gạch dưới bằng `&#95;` để chữ hiện ra vẫn đúng.
+
+**Giới hạn đo bằng ảnh chụp ngày 17/11/2026.** Chữ 28px, mỗi ký tự rộng 16,8px, nên một dòng chứa
+khoảng 85 ký tự. Dòng dài hơn thì bị cắt ở mép thẻ, hãy xuống dòng như trong nguồn hoặc chọn
+đoạn code khác. Đủ 14 dòng ở mức camera phóng 3% thì thẻ nằm trong y 133 tới 843, dưới logo và
+trên dải phụ đề.
+
+**Ligature đã tắt.** JetBrains Mono mặc định vẽ `>=` thành một ký hiệu duy nhất. Người học gõ lại
+theo hình sẽ gõ sai, nên khung tắt `liga` và `calt`. Đã thấy lỗi này trên ảnh chụp đầu tiên.
+
+**Chuyển động.** Lưới trôi chéo và camera đẩy 3% suốt khung, nên khung không bao giờ đứng yên dù
+lời đọc dừng lâu ở một dòng. Mọi selector GSAP gắn với `[data-composition-id="__ID__"]`, hai khung
+code trong cùng một video không kéo nhau chạy theo.
 
 ## Vùng an toàn, đo bằng máy
 

@@ -114,3 +114,48 @@ describe("hồ sơ ai-engineer khai khổ ngang 1920×1080", () => {
     expect(read("brand", "rules.md")).toMatch(/CHỈ có ở khung cuối của\s+chương cuối mỗi tập/);
   });
 });
+
+describe("khung chiếu code brand/code.html", () => {
+  const code = read("brand", "code.html");
+  // Chữ cái A tới N, không phải số: build.ts bắt chỗ chưa điền bằng /__[A-Z_]+__/,
+  // chỗ chừa có chữ số sẽ lọt qua và khung render ra chữ "__L05__".
+  const ROWS = "ABCDEFGHIJKLMN".split("");
+
+  test("khổ ngang, bắt đầu bằng <template>", () => {
+    expect(code.trimStart().startsWith("<template>")).toBe(true);
+    expect(code).toContain('data-width="1920" data-height="1080"');
+  });
+
+  test("đúng bộ chỗ chừa: 14 dòng code, 14 mốc hiện, lịch tô sáng", () => {
+    const want = ["__DURATION__", "__FILE__", "__FOCUS__", "__ID__"];
+    for (const r of ROWS) want.push(`__LINE_${r}__`, `__AT_${r}__`);
+    expect(placeholders(code)).toEqual(want.sort());
+    expect(code.match(/class="cf-row"/g)).toHaveLength(14);
+    expect(code).not.toMatch(/__[A-Z_]*\d[A-Z_\d]*__/);
+  });
+
+  test("mỗi dòng code nằm trong một hàng có data-reveal riêng, xoá được trọn hàng", () => {
+    for (const r of ROWS) {
+      expect(code).toMatch(new RegExp(`<div class="cf-row" data-reveal="__AT_${r}__">.*__LINE_${r}__.*</div>`));
+    }
+  });
+
+  test("tắt ligature để >= không bị vẽ thành một ký hiệu", () => {
+    expect(code).toMatch(/font-variant-ligatures:\s*none/);
+  });
+
+  test("selector GSAP đều gắn vào khung này, không selector trần", () => {
+    // Hai khung code trong một video dùng chung tên class. Selector trần kéo cả khung kia.
+    expect(code).not.toMatch(/tl\.(?:to|from|fromTo|set)\(\s*["']\./);
+    expect(code).toContain(`var S = '[data-composition-id="__ID__"] '`);
+  });
+
+  test("tất định: không Math.random, không Date, không repeat vô hạn", () => {
+    expect(code).not.toMatch(/Math\.random|Date\.|new Date|repeat:\s*-1/);
+  });
+
+  test("có chuyển động suốt khung: camera đẩy và lưới trôi theo __DURATION__", () => {
+    expect(code).toMatch(/\.cf-stage", \{ scale: 1 \}, \{ scale: 1\.03, duration: D/);
+    expect(code).toMatch(/\.cf-bg", \{ x: 0, y: 0 \}, \{ x: -26, y: -26, duration: D/);
+  });
+});

@@ -53,6 +53,9 @@ nối các chương thành một tập 12 tới 18 phút.
 - **Được chiếu code.** Code phải ngắn, tối đa khoảng 14 dòng một khung, và chép từ nguồn thật
   (repo bài học, tài liệu chính chủ). Không tự viết code "cho đẹp" rồi gán là của nguồn.
   Output hiện trên khung phải là output chép từ một lần chạy thật. Không bịa output.
+- Chiếu code thì dùng khung có sẵn `brands/ai-engineer/brand/code.html`. Claude tự điền,
+  không giao worker. Code hiện từng dòng, dòng đang nói tới sáng lên bằng màu nhấn, các dòng
+  khác mờ đi. Cách điền và cách escape ký tự `< > &` xem README của bộ.
 - Ảnh thật chỉ dùng khi gói có dòng asset_candidates, đường dẫn dạng assets/<file>.
 
 ### Lời đọc kiểu bài giảng (đè lên luật lời đọc TikTok của skill)

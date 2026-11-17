@@ -30,6 +30,10 @@ import { BrandVoiceSchema, REPO_ROOT, projectDir, readJsonFile } from "./lib.js"
 
 const BRANDS_DIR = join(REPO_ROOT, "brands");
 
+/** Skin phụ đề mặc định mà `video:new` chép vào mọi video. Brand không có skin riêng
+ *  thì lắp lại bản này: build.ts cần skin để tìm `--cap-band-top`, xoá đi là gãy build. */
+export const TEMPLATE_SKIN = join(REPO_ROOT, "template", ".hyperframes", "caption-skin.html");
+
 /** Vùng trong rules.md chứa bộ @font-face chính thức của brand. Phải có mốc, nếu không
  *  một khối @font-face nêu làm ví dụ phản diện cũng bị rút nhầm vào fonts.css. */
 export const FONT_REGION = /<!--\s*fonts:start\s*-->([\s\S]*?)<!--\s*fonts:end\s*-->/;
@@ -81,7 +85,7 @@ export interface Op {
 }
 
 /** Kiểm toàn bộ bộ nhận diện và dựng danh sách việc. Ném lỗi là chưa ghi gì cả. */
-export function plan(brand: string, name: string, dir: string): Op[] {
+export function plan(brand: string, name: string, dir: string, templateSkin: string = TEMPLATE_SKIN): Op[] {
   const ops: Op[] = [];
   const add = (label: string, run: () => void) => ops.push({ label, run });
   const need = (p: string, why: string) => {
@@ -147,6 +151,11 @@ export function plan(brand: string, name: string, dir: string): Op[] {
     const html = readFileSync(skinSrc, "utf8");
     const miss = SKIN_HOOKS.filter(([re]) => !re.test(html)).map(([, l]) => l);
     if (miss.length) throw new Error(`${skinSrc} thiếu móc: ${miss.join(", ")}`);
+  } else if (!existsSync(templateSkin)) {
+    throw new Error(
+      `brands/${name} không có caption-skin.html và cũng không thấy skin template ở ${templateSkin} — ` +
+        `build.ts cần một caption skin để chạy.`,
+    );
   }
 
   // --- giọng riêng (tuỳ chọn) ---
@@ -225,14 +234,18 @@ export function plan(brand: string, name: string, dir: string): Op[] {
     for (const f of logos) copyFileSync(join(brand, "logo", f), join(d, f));
   });
 
-  // Phụ đề và giọng là tuỳ chọn, nên phải DỌN bản của brand trước. Lắp đè brand khác
-  // mà giữ lại skin hay voice.json cũ là ship nhầm giọng, không có cảnh báo nào.
+  // Phụ đề và giọng là tuỳ chọn. Lắp đè brand khác mà giữ lại skin hay voice.json cũ
+  // là ship nhầm giọng, không có cảnh báo nào. voice.json thì xoá được (voice.ts rơi về
+  // .env.local), còn skin thì KHÔNG: build.ts cần nó để tìm --cap-band-top, xoá đi là gãy
+  // build. Brand không có skin riêng thì chép lại bản template đè lên skin đang có, kể
+  // cả skin của brand lắp trước. Thư mục chưa có skin nào (không do video:new dựng) thì
+  // để nguyên, đúng như các file template khác mà lệnh này không tự dựng.
   add(existsSync(skinSrc) ? ".hyperframes/caption-skin.html" : ".hyperframes/caption-skin.html (về bản template)", () => {
     if (existsSync(skinSrc)) {
       mkdirSync(join(dir, ".hyperframes"), { recursive: true });
       copyFileSync(skinSrc, skinDest);
     } else if (existsSync(skinDest)) {
-      rmSync(skinDest);
+      copyFileSync(templateSkin, skinDest);
     }
   });
   add(existsSync(voiceSrc) ? `brand/voice.json${voiceNote}` : "brand/voice.json (không có, dùng .env.local)", () => {

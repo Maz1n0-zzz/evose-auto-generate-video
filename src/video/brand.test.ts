@@ -34,9 +34,13 @@ function rulesMd(faces: string[] = FACES): string {
   ].join("\n");
 }
 
+/** Skin của template, có `--cap-band-top` như bản thật trong template/.hyperframes. */
+const TEMPLATE_SKIN = SKIN.replace("<style data-brand-tokens></style>", "<style data-brand-tokens></style><style>:root{--cap-band-top:0}</style>");
+
 let root: string;
 let brand: string;
 let dir: string;
+let templateSkin: string;
 
 /** Brand hợp lệ + thư mục video giả, giống cái `video:new` tạo ra. */
 function makeFixture(): void {
@@ -56,9 +60,12 @@ function makeFixture(): void {
   writeFileSync(join(brand, "overlays", "overlay-demo.png"), "x");
   writeFileSync(join(brand, "caption-skin.html"), SKIN);
   writeFileSync(join(brand, "voice.json"), JSON.stringify({ voiceId: "abc123", modelId: "eleven_v3" }));
+  templateSkin = join(root, "template", ".hyperframes", "caption-skin.html");
+  mkdirSync(join(root, "template", ".hyperframes"), { recursive: true });
+  writeFileSync(templateSkin, TEMPLATE_SKIN);
 }
 
-const run = () => plan(brand, "demo", dir).forEach((op) => op.run());
+const run = () => plan(brand, "demo", dir, templateSkin).forEach((op) => op.run());
 /** Mọi thứ brand có thể ghi vào thư mục video. */
 const dirFiles = () =>
   existsSync(dir)
@@ -239,7 +246,26 @@ describe("plan — kết quả sau khi ghi", () => {
     run();
 
     expect(existsSync(join(dir, "brand", "voice.json"))).toBe(false);
-    expect(existsSync(join(dir, ".hyperframes", "caption-skin.html"))).toBe(false);
+    // Skin thì KHÔNG xoá: build.ts cần skin để tìm --cap-band-top. Brand không có skin
+    // riêng phải nhận lại bản template, không phải bản của brand trước.
+    expect(readFileSync(join(dir, ".hyperframes", "caption-skin.html"), "utf8")).toBe(TEMPLATE_SKIN);
+  });
+
+  test("brand không có skin riêng giữ nguyên skin template mà video:new đã chép", () => {
+    rmSync(join(brand, "caption-skin.html"));
+    mkdirSync(join(dir, ".hyperframes"), { recursive: true });
+    writeFileSync(join(dir, ".hyperframes", "caption-skin.html"), TEMPLATE_SKIN);
+    const ops = plan(brand, "demo", dir, templateSkin);
+    ops.forEach((op) => op.run());
+    expect(readFileSync(join(dir, ".hyperframes", "caption-skin.html"), "utf8")).toBe(TEMPLATE_SKIN);
+    expect(ops.find((o) => o.label.includes("caption-skin"))?.label).toMatch(/template/);
+  });
+
+  test("brand không có skin riêng mà template cũng thiếu skin thì chặn trước khi ghi", () => {
+    rmSync(join(brand, "caption-skin.html"));
+    rmSync(templateSkin);
+    expect(() => plan(brand, "demo", dir, templateSkin)).toThrow(/caption-skin/);
+    expect(dirFiles()).toEqual([]);
   });
 
   test("chạy lại hai lần ra cùng kết quả", () => {

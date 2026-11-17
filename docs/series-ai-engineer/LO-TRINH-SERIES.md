@@ -42,13 +42,13 @@ Một tập gồm sáu chương. Mỗi chương là một lượt `/create-video
 | 5. Câu hỏi phỏng vấn | 2 phút | Hai tới ba câu từ PDF, trả lời bằng lời của mình | Thẻ hỏi đáp |
 | 6. Bài tập và cầu nối | 1 phút | Việc người xem làm ngay, nhắc tập sau | Đường dẫn bài học trong repo |
 
-Độ dài lời đọc tính theo tốc độ đã đo của giọng tiếng Việt, 3,1 chữ mỗi giây:
+Độ dài lời đọc tính theo tốc độ đo trên chương mẫu ngày 17/11/2026, 3,7 chữ mỗi giây:
 
 | Thời lượng tập | Số chữ lời đọc |
 |---|---|
-| 12 phút | khoảng 2.200 chữ |
-| 15 phút | khoảng 2.800 chữ |
-| 18 phút | khoảng 3.300 chữ |
+| 12 phút | khoảng 2.650 chữ |
+| 15 phút | khoảng 3.300 chữ |
+| 18 phút | khoảng 4.000 chữ |
 
 ## 3. Lộ trình 18 tập
 
@@ -180,7 +180,7 @@ Một tập gồm sáu chương. Mỗi chương là một lượt `/create-video
 
 ## 4. Kịch bản mẫu: tập 6, tự viết agent loop
 
-Thời lượng đích 15 phút, khoảng 2.800 chữ, sáu chương.
+Thời lượng đích 15 phút, khoảng 3.300 chữ, sáu chương.
 
 | Chương | Thời lượng | Lời đọc chính | Hình | Minh hoạ thật |
 |---|---|---|---|---|

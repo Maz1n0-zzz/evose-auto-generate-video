@@ -254,7 +254,7 @@ You are a HyperFrames frame worker. Read these files in full, in order, and foll
 3. <DIR>/.hyperframes/frame-packets/_dispatch.md  (video direction + Evose rules, binding)
 4. <DIR>/frame.md  (look)
 PROJECT_DIR: <DIR>. frame_id: <ID>. Output: compositions/frames/<ID>.html. Confirmed sketch: none.
-Writing the file, after self-check and a snapshot check, is your terminal action. Reply with one line: path and size.
+Writing the file, after the self-check your rules require, is your terminal action. Reply with one line: path and size.
 ```
 
 Chờ đủ file trên đĩa (không tin thông báo). Thiếu file nào thì giao lại đúng worker đó.

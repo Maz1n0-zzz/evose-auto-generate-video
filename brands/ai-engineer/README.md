@@ -98,7 +98,7 @@ cp brands/ai-engineer/brand/code.html "$DIR/compositions/frames/05-code.html"
 | `__NUM_A__` tới `__NUM_N__` | số dòng THẬT trong file nguồn của dòng code đó, vd `38` |
 | `__LINE_A__` tới `__LINE_N__` | dòng code thứ 1 tới 14, đã escape |
 | `__AT_A__` tới `__AT_N__` | giây bắt đầu gõ dòng đó, lấy từ `words.txt` |
-| `__FOCUS__` | lịch tô sáng, các cặp `[số dòng, giây]` cách nhau dấu phẩy |
+| `__FOCUS__` | lịch tô sáng, các cặp `[thứ tự hàng trong khung 1 tới 14, giây]` cách nhau dấu phẩy. Không dùng số dòng của file nguồn |
 
 Ví dụ lịch tô sáng: `[2,4.4],[5,7.2],[0,12]`. Từ giây 4,4 dòng 2 sáng, từ giây 7,2 dòng 5 sáng,
 từ giây 12 bỏ tô và mọi dòng sáng đều. Một mục kéo dài tới mục kế tiếp. Dòng chưa gõ tới thì

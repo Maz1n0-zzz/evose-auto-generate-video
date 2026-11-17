@@ -6,7 +6,7 @@
  *   1. Kiểm khung: còn chỗ điền `__X__`, font tải từ mạng → sửa hoặc dừng.
  *   2. Phụ đề (captions.mjs), tách lại cụm theo tiếng Việt, kéo dải phụ đề lên trên footer Evose.
  *   3. Ghép index.html, gắn chuyển cảnh, lint.
- *   4. Render → renders/video.mp4, phủ header/footer Evose → renders/final.mp4 (dưới 50 MB).
+ *   4. Render → renders/video.mp4, phủ header/footer Evose → renders/final.mp4 (khổ dọc: dưới 50 MB).
  *   5. Đo tỉ lệ hình đứng yên → renders/stillness.json, contact sheet → renders/contact-sheet.jpg.
  */
 
@@ -25,6 +25,7 @@ import {
 } from "./lib.js";
 import { MAX_STILL_SEC, measure } from "./stillness.js";
 import { captionBandFor, readFormat } from "./lib.js";
+import { MAX_FINAL_BYTES, sizeVerdict } from "./size-cap.js";
 import { normalizeFonts } from "./parse.js";
 import { regroupCaptions, type CaptionWord } from "./captions.js";
 import { probeShape, runCheck } from "./check.js";
@@ -37,11 +38,6 @@ import { probeShape, runCheck } from "./check.js";
  *  Đổi lại là file to lên khoảng 2,3 lần. */
 const OVERLAY_CRF = 15;
 
-/** Trần dung lượng một bản giao, tính bằng byte. Nền tảng nào cũng nhận dưới mức này. */
-const MAX_FINAL_BYTES = 50 * 1024 * 1024;
-
-/** Mốc cảnh báo sớm, để một video dài bất thường lộ ra trước khi chạm trần. */
-const WARN_FINAL_BYTES = 45 * 1024 * 1024;
 
 type RawGroups = { frame: number; words?: Omit<CaptionWord, "frame">[] }[];
 
@@ -204,9 +200,11 @@ async function main(): Promise<void> {
   const finalBytes = statSync(final).size;
   const finalMb = finalBytes / 1024 / 1024;
   console.log(`  dung lượng: ${finalMb.toFixed(1)} MB (crf ${OVERLAY_CRF})`);
-  if (finalBytes > MAX_FINAL_BYTES) {
+  // Trần 50 MB chỉ áp cho khổ dọc 1920 cao. Lý do ở size-cap.ts.
+  const verdict = sizeVerdict(finalBytes, readFormat(sbPath).h);
+  if (verdict === "over") {
     console.log(`  ⚠ vượt trần ${(MAX_FINAL_BYTES / 1024 / 1024).toFixed(0)} MB: nâng crf lên 18 rồi soát lại vùng tối`);
-  } else if (finalBytes > WARN_FINAL_BYTES) {
+  } else if (verdict === "near") {
     console.log(`  ⚠ gần trần ${(MAX_FINAL_BYTES / 1024 / 1024).toFixed(0)} MB: video dài hơn nữa sẽ vượt`);
   }
 

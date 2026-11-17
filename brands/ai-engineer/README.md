@@ -33,7 +33,16 @@ Bộ `mazino` cũng là khổ ngang nhưng nền tối và tiếng Anh. Bộ nà
 | `fonts/` | Hanken Grotesk VF và JetBrains Mono, cùng bộ với `brands/mazino/fonts`. |
 
 Không có `voice.json` và `caption-skin.html`. Giọng lấy từ `.env.local`, tức giọng tiếng Việt
-đã đo 3,1 chữ mỗi giây. Phụ đề dùng skin mặc định, màu lấy từ `frame.md`.
+mặc định. Phụ đề dùng skin mặc định, màu lấy từ `frame.md`.
+
+Tốc độ đọc đo trên chương thử ngày 17/11/2026:
+
+| Số chữ | Thời lượng | Tốc độ |
+|---|---|---|
+| 494 chữ | 132 giây | 3,7 chữ mỗi giây |
+
+Một chương 2:30 tới 3:00 vì vậy cần khoảng 560 tới 670 chữ lời đọc, chia 11 tới 14 khung. Số cũ 3,1 chữ mỗi giây
+làm chương thử ngắn hơn dự kiến.
 
 ## Lắp vào một chương
 
@@ -86,6 +95,7 @@ cp brands/ai-engineer/brand/code.html "$DIR/compositions/frames/05-code.html"
 | `__ID__` | id khung, trùng tên file, vd `05-code` |
 | `__DURATION__` | duration của khung, giây |
 | `__FILE__` | nhãn trên thanh tiêu đề, vd `agent_loop.py · run_agent` |
+| `__NUM_A__` tới `__NUM_N__` | số dòng THẬT trong file nguồn của dòng code đó, vd `38` |
 | `__LINE_A__` tới `__LINE_N__` | dòng code thứ 1 tới 14, đã escape |
 | `__AT_A__` tới `__AT_N__` | giây bắt đầu gõ dòng đó, lấy từ `words.txt` |
 | `__FOCUS__` | lịch tô sáng, các cặp `[số dòng, giây]` cách nhau dấu phẩy |
@@ -93,6 +103,18 @@ cp brands/ai-engineer/brand/code.html "$DIR/compositions/frames/05-code.html"
 Ví dụ lịch tô sáng: `[2,4.4],[5,7.2],[0,12]`. Từ giây 4,4 dòng 2 sáng, từ giây 7,2 dòng 5 sáng,
 từ giây 12 bỏ tô và mọi dòng sáng đều. Một mục kéo dài tới mục kế tiếp. Dòng chưa gõ tới thì
 lịch tô sáng không đụng vào nó.
+
+**Số dòng phải khớp file nguồn.** Người học mở file ra dò theo số trên khung, nên đừng đánh lại
+từ 1. Đoạn code có quãng bỏ qua thì cứ điền số thật, vd `38`, `39`, rồi `44`. Khung tự vẽ dấu ngắt
+khi số nhảy cóc: dòng `44` lùi xuống 26px, phía trên có dấu ba chấm mờ ở cột số cùng một vạch đứt.
+Không cần thêm thẻ nào, cũng không có chỗ chừa riêng cho dấu ngắt. Dấu ngắt hiện cùng lúc với dòng
+phía dưới nó.
+
+Mỗi dấu ngắt tốn thêm 26px. Đủ 14 dòng thì chỉ chứa được một dấu ngắt. Từ 13 dòng trở xuống thì
+chứa được hai. Nhiều quãng hơn thì tách thành hai khung code.
+
+**Dòng đầu luôn bắt đầu gõ trước giây 0,3**, kể cả khi `__AT_A__` muộn hơn. Lời đọc thường chạm tới
+code sau một nhịp, để thẻ trắng tới lúc đó thì nhìn như khung hỏng. Các dòng sau giữ đúng mốc đã điền.
 
 Chỗ chừa dùng chữ cái A tới N chứ không dùng số. `video:build` bắt chỗ chưa điền bằng mẫu
 `__[A-Z_]+__`, mẫu đó không khớp chữ số.

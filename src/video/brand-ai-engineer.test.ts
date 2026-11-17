@@ -60,7 +60,7 @@ describe("video:brand ai-engineer", () => {
     );
   });
 
-  test("không có voice.json: dùng giọng tiếng Việt mặc định trong .env.local, tốc độ đã đo 3,1 chữ/giây", () => {
+  test("không có voice.json: dùng giọng tiếng Việt mặc định trong .env.local", () => {
     plan(BRAND, "ai-engineer", dir).forEach((op) => op.run());
     expect(files()).not.toContain("brand/voice.json");
   });
@@ -126,9 +126,9 @@ describe("khung chiếu code brand/code.html", () => {
     expect(code).toContain('data-width="1920" data-height="1080"');
   });
 
-  test("đúng bộ chỗ chừa: 14 dòng code, 14 mốc hiện, lịch tô sáng", () => {
+  test("đúng bộ chỗ chừa: 14 dòng code, 14 số dòng, 14 mốc hiện, lịch tô sáng", () => {
     const want = ["__DURATION__", "__FILE__", "__FOCUS__", "__ID__"];
-    for (const r of ROWS) want.push(`__LINE_${r}__`, `__AT_${r}__`);
+    for (const r of ROWS) want.push(`__LINE_${r}__`, `__AT_${r}__`, `__NUM_${r}__`);
     expect(placeholders(code)).toEqual(want.sort());
     expect(code.match(/class="cf-row"/g)).toHaveLength(14);
     expect(code).not.toMatch(/__[A-Z_]*\d[A-Z_\d]*__/);
@@ -136,8 +136,37 @@ describe("khung chiếu code brand/code.html", () => {
 
   test("mỗi dòng code nằm trong một hàng có data-reveal riêng, xoá được trọn hàng", () => {
     for (const r of ROWS) {
-      expect(code).toMatch(new RegExp(`<div class="cf-row" data-reveal="__AT_${r}__">.*__LINE_${r}__.*</div>`));
+      expect(code).toMatch(
+        new RegExp(`<div class="cf-row" data-reveal="__AT_${r}__">.*<span class="cf-no">__NUM_${r}__</span>.*__LINE_${r}__.*</div>`),
+      );
     }
+  });
+
+  test("số dòng không còn đánh cứng 1 tới 14", () => {
+    expect(code).not.toMatch(/<span class="cf-no">\d+<\/span>/);
+  });
+
+  test("mọi chỗ chừa đều khớp mẫu build.ts và có trong README", () => {
+    const readme = read("README.md");
+    const all = code.match(/__[A-Za-z0-9_]+__/g) ?? [];
+    expect(all.length).toBeGreaterThan(0);
+    for (const p of all) expect(p).toMatch(/^__[A-Z_]+__$/);
+    // README gom dải bằng "__X_A__ tới __X_N__", nên dòng nào cũng phải thấy được ở dạng đó hoặc đứng riêng.
+    for (const p of placeholders(code)) {
+      const m = /^(__[A-Z]+_)([A-N])__$/.exec(p);
+      const documented = readme.includes(`\`${p}\``) || (m !== null && readme.includes(`\`${m[1]}A__\` tới \`${m[1]}N__\``));
+      expect(documented, `${p} chưa có trong README`).toBe(true);
+    }
+  });
+
+  test("dòng đầu bắt đầu gõ trước giây 0,3 để thẻ code không trắng lâu", () => {
+    expect(code).toMatch(/var FIRST_AT = 0\.3;/);
+    expect(code).toMatch(/i === 0 \? Math\.min\(at, FIRST_AT\) : at/);
+  });
+
+  test("số dòng nhảy cóc thì vẽ dấu ngắt, và dấu ngắt có kiểu riêng", () => {
+    expect(code).toMatch(/cur !== prev \+ 1\) row\.classList\.add\("cf-jump"\)/);
+    expect(code).toMatch(/\.cf-row\.cf-jump::before \{ content: "\\22EF"/);
   });
 
   test("tắt ligature để >= không bị vẽ thành một ký hiệu", () => {

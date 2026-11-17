@@ -34,6 +34,14 @@
       /* Tat ligature: JetBrains Mono mac dinh ve ">=" thanh mot dau lon-hon-hoac-bang,
          nguoi hoc go lai theo hinh se go sai. Code tren khung phai dung tung ky tu. */
       font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0; }
+    /* Dau ngat: so dong nhay coc thi script gan .cf-jump, hang lui xuong 26px va ve dau ba cham
+       mo o cot so cung mot vach dut. Dau ngat thuoc ve hang sau nen hien cung luc voi hang do. */
+    .cf-row.cf-jump { margin-top: 26px; }
+    .cf-row.cf-jump::before { content: "\22EF"; position: absolute; left: 0; top: -26px; width: 84px; height: 26px;
+      box-sizing: border-box; padding-right: 28px; text-align: right; font-family: "JetBrains Mono", monospace;
+      font-size: 26px; line-height: 26px; color: #9ca3af; }
+    .cf-row.cf-jump::after { content: ""; position: absolute; left: 84px; right: 28px; top: -13px;
+      border-top: 2px dashed #d6d6d1; }
     .cf-caret { position: absolute; left: 0; top: 6px; width: 14px; height: 29px; background: #2563eb; opacity: 0; }
   </style>
 
@@ -45,22 +53,24 @@
         <span class="cf-file">__FILE__</span>
       </div>
       <div class="cf-body">
-        <!-- MOI DONG: data-reveal = giay bat dau go dong do. Xoa han dong khong dung, KHONG de trong.
+        <!-- MOI DONG: data-reveal = giay bat dau go dong do, cf-no = so dong THAT trong file nguon.
+             Xoa han dong khong dung, KHONG de trong. So dong nhay coc (39 roi 44) thi khung tu ve
+             dau ngat "..." phia tren dong sau, khong can them the nao.
              Cho chua khong co chu so de build.ts bat duoc cho quen dien. -->
-        <div class="cf-row" data-reveal="__AT_A__"><span class="cf-tick"></span><span class="cf-no">1</span><span class="cf-line"><code class="cf-code">__LINE_A__</code><span class="cf-caret"></span></span></div>
-        <div class="cf-row" data-reveal="__AT_B__"><span class="cf-tick"></span><span class="cf-no">2</span><span class="cf-line"><code class="cf-code">__LINE_B__</code><span class="cf-caret"></span></span></div>
-        <div class="cf-row" data-reveal="__AT_C__"><span class="cf-tick"></span><span class="cf-no">3</span><span class="cf-line"><code class="cf-code">__LINE_C__</code><span class="cf-caret"></span></span></div>
-        <div class="cf-row" data-reveal="__AT_D__"><span class="cf-tick"></span><span class="cf-no">4</span><span class="cf-line"><code class="cf-code">__LINE_D__</code><span class="cf-caret"></span></span></div>
-        <div class="cf-row" data-reveal="__AT_E__"><span class="cf-tick"></span><span class="cf-no">5</span><span class="cf-line"><code class="cf-code">__LINE_E__</code><span class="cf-caret"></span></span></div>
-        <div class="cf-row" data-reveal="__AT_F__"><span class="cf-tick"></span><span class="cf-no">6</span><span class="cf-line"><code class="cf-code">__LINE_F__</code><span class="cf-caret"></span></span></div>
-        <div class="cf-row" data-reveal="__AT_G__"><span class="cf-tick"></span><span class="cf-no">7</span><span class="cf-line"><code class="cf-code">__LINE_G__</code><span class="cf-caret"></span></span></div>
-        <div class="cf-row" data-reveal="__AT_H__"><span class="cf-tick"></span><span class="cf-no">8</span><span class="cf-line"><code class="cf-code">__LINE_H__</code><span class="cf-caret"></span></span></div>
-        <div class="cf-row" data-reveal="__AT_I__"><span class="cf-tick"></span><span class="cf-no">9</span><span class="cf-line"><code class="cf-code">__LINE_I__</code><span class="cf-caret"></span></span></div>
-        <div class="cf-row" data-reveal="__AT_J__"><span class="cf-tick"></span><span class="cf-no">10</span><span class="cf-line"><code class="cf-code">__LINE_J__</code><span class="cf-caret"></span></span></div>
-        <div class="cf-row" data-reveal="__AT_K__"><span class="cf-tick"></span><span class="cf-no">11</span><span class="cf-line"><code class="cf-code">__LINE_K__</code><span class="cf-caret"></span></span></div>
-        <div class="cf-row" data-reveal="__AT_L__"><span class="cf-tick"></span><span class="cf-no">12</span><span class="cf-line"><code class="cf-code">__LINE_L__</code><span class="cf-caret"></span></span></div>
-        <div class="cf-row" data-reveal="__AT_M__"><span class="cf-tick"></span><span class="cf-no">13</span><span class="cf-line"><code class="cf-code">__LINE_M__</code><span class="cf-caret"></span></span></div>
-        <div class="cf-row" data-reveal="__AT_N__"><span class="cf-tick"></span><span class="cf-no">14</span><span class="cf-line"><code class="cf-code">__LINE_N__</code><span class="cf-caret"></span></span></div>
+        <div class="cf-row" data-reveal="__AT_A__"><span class="cf-tick"></span><span class="cf-no">__NUM_A__</span><span class="cf-line"><code class="cf-code">__LINE_A__</code><span class="cf-caret"></span></span></div>
+        <div class="cf-row" data-reveal="__AT_B__"><span class="cf-tick"></span><span class="cf-no">__NUM_B__</span><span class="cf-line"><code class="cf-code">__LINE_B__</code><span class="cf-caret"></span></span></div>
+        <div class="cf-row" data-reveal="__AT_C__"><span class="cf-tick"></span><span class="cf-no">__NUM_C__</span><span class="cf-line"><code class="cf-code">__LINE_C__</code><span class="cf-caret"></span></span></div>
+        <div class="cf-row" data-reveal="__AT_D__"><span class="cf-tick"></span><span class="cf-no">__NUM_D__</span><span class="cf-line"><code class="cf-code">__LINE_D__</code><span class="cf-caret"></span></span></div>
+        <div class="cf-row" data-reveal="__AT_E__"><span class="cf-tick"></span><span class="cf-no">__NUM_E__</span><span class="cf-line"><code class="cf-code">__LINE_E__</code><span class="cf-caret"></span></span></div>
+        <div class="cf-row" data-reveal="__AT_F__"><span class="cf-tick"></span><span class="cf-no">__NUM_F__</span><span class="cf-line"><code class="cf-code">__LINE_F__</code><span class="cf-caret"></span></span></div>
+        <div class="cf-row" data-reveal="__AT_G__"><span class="cf-tick"></span><span class="cf-no">__NUM_G__</span><span class="cf-line"><code class="cf-code">__LINE_G__</code><span class="cf-caret"></span></span></div>
+        <div class="cf-row" data-reveal="__AT_H__"><span class="cf-tick"></span><span class="cf-no">__NUM_H__</span><span class="cf-line"><code class="cf-code">__LINE_H__</code><span class="cf-caret"></span></span></div>
+        <div class="cf-row" data-reveal="__AT_I__"><span class="cf-tick"></span><span class="cf-no">__NUM_I__</span><span class="cf-line"><code class="cf-code">__LINE_I__</code><span class="cf-caret"></span></span></div>
+        <div class="cf-row" data-reveal="__AT_J__"><span class="cf-tick"></span><span class="cf-no">__NUM_J__</span><span class="cf-line"><code class="cf-code">__LINE_J__</code><span class="cf-caret"></span></span></div>
+        <div class="cf-row" data-reveal="__AT_K__"><span class="cf-tick"></span><span class="cf-no">__NUM_K__</span><span class="cf-line"><code class="cf-code">__LINE_K__</code><span class="cf-caret"></span></span></div>
+        <div class="cf-row" data-reveal="__AT_L__"><span class="cf-tick"></span><span class="cf-no">__NUM_L__</span><span class="cf-line"><code class="cf-code">__LINE_L__</code><span class="cf-caret"></span></span></div>
+        <div class="cf-row" data-reveal="__AT_M__"><span class="cf-tick"></span><span class="cf-no">__NUM_M__</span><span class="cf-line"><code class="cf-code">__LINE_M__</code><span class="cf-caret"></span></span></div>
+        <div class="cf-row" data-reveal="__AT_N__"><span class="cf-tick"></span><span class="cf-no">__NUM_N__</span><span class="cf-line"><code class="cf-code">__LINE_N__</code><span class="cf-caret"></span></span></div>
       </div>
     </div>
   </div>
@@ -77,6 +87,7 @@
       var PER_CHAR = 0.028;   // giay go moi ky tu
       var MAX_TYPE = 1.4;     // dong dai bao nhieu cung go xong trong 1.4 giay
       var DIM = 0.35;         // do mo cua dong khong duoc nhac toi
+      var FIRST_AT = 0.3;     // dong dau bat dau go muon nhat o giay nay, the code khong trang qua lau
 
       // Moi selector deu ga vao khung nay. Hai khung code trong cung mot video
       // dung chung ten class, selector tran se keo ca khung kia chay theo.
@@ -84,12 +95,25 @@
       var tl = gsap.timeline({ paused: true });
       var ease = "expo.out";
       var rows = Array.prototype.slice.call(document.querySelectorAll(S + ".cf-row"));
+      // Moc go that cua tung dong. Dong dau bi keo ve FIRST_AT: loi doc thuong toi code sau
+      // mot nhip, de the trang cho toi luc do nhin nhu khung hong.
+      var reveal = rows.map(function (row, i) {
+        var at = Number(row.getAttribute("data-reveal"));
+        return i === 0 ? Math.min(at, FIRST_AT) : at;
+      });
+      // So dong nhay coc so voi dong lien truoc thi ve dau ngat phia tren dong nay.
+      rows.forEach(function (row, i) {
+        if (i === 0) return;
+        var prev = parseInt(rows[i - 1].querySelector(".cf-no").textContent, 10);
+        var cur = parseInt(row.querySelector(".cf-no").textContent, 10);
+        if (!isNaN(prev) && !isNaN(cur) && cur !== prev + 1) row.classList.add("cf-jump");
+      });
 
       tl.fromTo(S + ".cf-card", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.6, ease: ease }, 0);
 
       // Dong chua toi luot thi an han, ke ca so dong, de khung khong lo truoc noi dung.
       rows.forEach(function (row, i) {
-        var at = Number(row.getAttribute("data-reveal"));
+        var at = reveal[i];
         var code = row.querySelector(".cf-code");
         var caret = row.querySelector(".cf-caret");
         // Dem ky tu tren chu da giai ma (&lt; la mot ky tu), khong dem tren HTML.
@@ -108,7 +132,7 @@
         var line = f[0], t = f[1];
         rows.forEach(function (row, i) {
           // Dong chua go toi thi de nguyen, khong de lich to sang lam no hien som.
-          if (Number(row.getAttribute("data-reveal")) > t) return;
+          if (reveal[i] > t) return;
           var on = line === 0 || i + 1 === line;
           tl.to(row, { opacity: on ? 1 : DIM, backgroundColor: (line !== 0 && on) ? "rgba(219,230,253,1)" : "rgba(219,230,253,0)",
             duration: 0.3, ease: "power2.out", immediateRender: false }, t);

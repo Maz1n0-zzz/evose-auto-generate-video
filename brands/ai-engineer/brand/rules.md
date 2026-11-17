@@ -63,8 +63,9 @@ nối các chương thành một tập 12 tới 18 phút.
 1. **Được dùng thuật ngữ**, nhưng lần đầu nhắc thì giải thích ngay bằng tiếng Việt đời thường.
    Ví dụ: "agent, tức là một chương trình tự quyết bước tiếp theo".
 2. **Mỗi khung 2 tới 3 câu.** Vẫn kể một mạch, nối bằng "vì", "nên", "còn", "mà".
-3. **Một chương dài 2 tới 3 phút**, tức khoảng 370 tới 560 chữ ở tốc độ đã đo của giọng tiếng Việt
-   (3,1 chữ mỗi giây), chia 8 tới 12 khung.
+3. **Một chương nhắm 2 phút 30 tới 3 phút**, tức khoảng 560 tới 670 chữ, chia 11 tới 14 khung,
+   mỗi khung khoảng 50 chữ. Tốc độ đo thật của giọng bài giảng ở speed 1.06 là 3,7 chữ mỗi
+   giây: chương 3 tập 6 có 494 chữ lời đọc ra 132,1 giây.
 4. **Số viết ra chữ** vì TTS đọc nghĩa đen: "tám mươi phần trăm", "GPT năm chấm năm".
    Không emoji, URL, ký hiệu `% $ & # + =` trong lời đọc. Tên hàm hay tên biến thì đọc
    thành lời: "hàm run agent", không đọc dấu gạch dưới.
@@ -77,10 +78,13 @@ nối các chương thành một tập 12 tới 18 phút.
 
 ### Kiểm sau khi viết khung
 
-- Viết file xong, tự chụp để kiểm: từ thư mục dự án chạy
-    npx hyperframes snapshot --at <3-4 mốc giây tuyệt đối trong khung> --no-end --timeout 15000 --describe false -o <thư mục tạm riêng>
-  rồi dùng Read xem ảnh. Sửa tới khi không có chữ đè nhau, không cắt chữ, không vùng trống lớn,
-  không thứ gì nằm dưới y 860 hay trong vùng logo góc trên phải.
+- Worker không chạy lệnh CLI nào, kể cả `hyperframes snapshot`. Lúc worker viết khung,
+  `index.html` chưa được ghép nên lệnh chụp không có gì đúng để chụp.
+- Viết file xong, đọc lại chính file HTML của mình và soát theo luật trong file này: toạ độ
+  mọi phần tử nằm trong y 120–860 và x 130–1790, không chạm vùng logo, chữ không đè nhau,
+  cỡ chữ không dưới mức tối thiểu, không vế nào trống khi lời đọc đã nói tới.
+- Chụp ảnh để kiểm là việc của Claude ở Bước 8 của skill `create-video`, chạy sau
+  `video:build --no-render`. Khung nào lỗi thì Claude giao lại kèm mô tả lỗi và mốc giây.
 
 ### Font
 

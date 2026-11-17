@@ -78,8 +78,10 @@ Khác quy trình tin tức ở bảy chỗ:
 2. **Frontmatter STORYBOARD** ghi `format: 1920x1080` và `lang: vi`. Thêm `title:` để
    `video:join` lấy làm tên chương. Vùng an toàn là y 120 tới 860, x 130 tới 1790.
    Dải phụ đề y 900 tới 1080, logo Evose góc trên phải.
-3. **Độ dài chương** khoảng 370 tới 560 chữ, 8 tới 12 khung, mỗi khung 2 tới 3 câu. Con số
-   tính từ tốc độ đã đo 3,1 chữ mỗi giây. Được dùng thuật ngữ, nhưng lần đầu nhắc phải giải
+3. **Độ dài chương** nhắm 2 phút 30 tới 3 phút, tức khoảng 560 tới 670 chữ, 11 tới 14 khung,
+   mỗi khung 2 tới 3 câu, khoảng 50 chữ. Con số tính từ tốc độ đo thật của giọng bài giảng ở
+   speed 1.06: 3,7 chữ mỗi giây. Đo trên chương 3 tập 6 ngày 17/11/2026, 494 chữ lời đọc ra
+   132,1 giây, 10 khung. Đổi giọng hay đổi speed thì đo lại. Được dùng thuật ngữ, nhưng lần đầu nhắc phải giải
    thích bằng tiếng Việt đời thường. Số vẫn viết ra chữ. Thẻ cảm xúc vẫn là bảy thẻ ở Bước 2.
 4. **Khung mở và kết** lấy từ `$DIR/brand/open.html` và `$DIR/brand/close.html` của hồ sơ.
    Khung mở có chỗ chừa `__EPISODE__ __CHAPTER__ __HEADLINE__ __SUB__`. Khung kết chỉ dùng ở
@@ -88,7 +90,9 @@ Khác quy trình tin tức ở bảy chỗ:
    chương cuối mỗi tập. Mục 6 của Bước 2 không áp cho các chương khác. Chương giữa kết bằng
    câu bắc cầu sang chương sau.
 6. **Chiếu code** bằng khung có sẵn `brands/ai-engineer/brand/code.html`, Claude tự điền, không
-   giao worker. Tối đa 14 dòng, code chép từ nguồn thật, phải escape `& < >`. Cách điền ở README
+   giao worker. Tối đa 14 dòng, code chép từ nguồn thật, phải escape `& < >`. Số dòng hiện
+   trên khung lấy đúng số dòng trong file nguồn, điền qua chỗ chừa ghi ở README của hồ sơ.
+   Cách điền ở README
    của hồ sơ. Output trên khung phải chép từ một lần chạy thật.
 7. **Không chạy `video:music` cho chương.** Chương không có nhạc thì `audio_meta.json` giữ
    `bgm: null` và `video:build` vẫn dựng bình thường. Nhạc nền trải một lần cho cả tập lúc nối.
@@ -263,7 +267,19 @@ npx hyperframes snapshot --at <3 mốc mỗi khung> --no-end --timeout 15000   #
 ```
 
 Xem contact sheet ở `$DIR/snapshots/`. Lỗi rõ (chữ bị cắt, đè nhau, ra ngoài vùng
-y 290–1520) thì sửa hoặc giao lại worker kèm mô tả lỗi. Rồi:
+y 290–1520) thì sửa hoặc giao lại worker kèm mô tả lỗi.
+
+Khổ ngang 16:9 (hồ sơ `ai-engineer`) dùng bộ số khác, lấy từ
+`brands/ai-engineer/brand/frame.md` và `rules.md`:
+
+| Vùng | Toạ độ |
+|---|---|
+| Nội dung | y 120–860, x 130–1790 |
+| Dải phụ đề | y 900–1080 |
+| Logo Evose góc trên phải | x 1711–1856, y 44–80 |
+
+Worker không tự chụp vì chưa có `index.html`. Bước chụp này là việc của Claude, chạy sau
+`video:build --no-render`. Rồi:
 
 ```bash
 npm run video:build -- $DIR
@@ -282,6 +298,23 @@ Video: <DIR>/renders/final.mp4. Frame boundaries (cumulative seconds): <liệt k
 Criteria in order: (1) picture changes a lot; (2) motion lands when the voice says it; (3) nothing broken: overlaps,
 clipped or edge-cut text, empty dead areas, clipped Vietnamese diacritics, content under the logo header (y<270) or
 social footer (y>1690); (4) opening/closing cards clean.
+Extract frames with ffmpeg at 2 fps into a scratch dir, tile into sheets, LOOK at every sheet with Read, zoom where odd.
+Output under 400 words: score 1-10 per criterion, then numbered defects with timestamp, frame, what is wrong,
+one-line fix, each marked BLOCKER or MINOR.
+```
+
+Chương bài giảng 16:9 (hồ sơ `ai-engineer`) dùng bản sau thay cho bản trên:
+
+```
+You are an independent, harsh critic of one chapter of a Vietnamese 16:9 YouTube lecture (series "AI Engineer", brand Evose). Judge ONLY what is visible and audible.
+Video: <DIR>/renders/final.mp4. Frame boundaries (cumulative seconds): <liệt kê>. Stillness: <số trong stillness.json>.
+Source code: <đường dẫn file nguồn>. Real run output: <đường dẫn file stdout>.
+Criteria in order: (1) code is legible on a phone held sideways: no line cut, font not tiny, highlighted line matches
+what the voice says; (2) every code line and line number on screen matches the source file exactly, every output line
+matches the real run output, no invented numbers; (3) captions (band y 900-1080) never overlap content, content stays
+inside y 120-860 and x 130-1790, nothing under the logo (x 1711-1856, y 44-80); (4) nothing broken: overlaps, clipped
+Vietnamese diacritics, half the frame empty while the voice is on it; (5) picture changes and motion lands on the voice;
+(6) opening card clean, closing card only if this is the last chapter.
 Extract frames with ffmpeg at 2 fps into a scratch dir, tile into sheets, LOOK at every sheet with Read, zoom where odd.
 Output under 400 words: score 1-10 per criterion, then numbered defects with timestamp, frame, what is wrong,
 one-line fix, each marked BLOCKER or MINOR.

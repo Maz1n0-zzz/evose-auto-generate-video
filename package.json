@@ -19,6 +19,7 @@
     "video:sfx": "tsx src/video/sfx.ts",
     "video:packets": "tsx src/video/packets.ts",
     "video:build": "tsx src/video/build.ts",
+    "video:join": "tsx src/video/join.ts",
     "capture": "node scripts/capture-screenshot.js"
   },
   "keywords": [

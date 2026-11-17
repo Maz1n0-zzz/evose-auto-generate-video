@@ -78,7 +78,7 @@ Khác quy trình tin tức ở bảy chỗ:
 2. **Frontmatter STORYBOARD** ghi `format: 1920x1080` và `lang: vi`. Thêm `title:` để
    `video:join` lấy làm tên chương. Vùng an toàn là y 120 tới 860, x 130 tới 1790.
    Dải phụ đề y 900 tới 1080, logo Evose góc trên phải.
-3. **Độ dài chương** nhắm 2 phút 30 tới 3 phút, tức khoảng 560 tới 670 chữ, 11 tới 14 khung,
+3. **Độ dài chương** nhắm 2 phút 30 tới 2 phút 50, tức khoảng 540 tới 620 chữ, 11 tới 13 khung,
    mỗi khung 2 tới 3 câu, khoảng 50 chữ. Con số tính từ tốc độ đo thật của giọng bài giảng ở
    speed 1.06: 3,7 chữ mỗi giây. Đo trên chương 3 tập 6 ngày 17/11/2026, 494 chữ lời đọc ra
    132,1 giây, 10 khung. Đổi giọng hay đổi speed thì đo lại. Được dùng thuật ngữ, nhưng lần đầu nhắc phải giải
@@ -285,7 +285,7 @@ Worker không tự chụp vì chưa có `index.html`. Bước chụp này là vi
 npm run video:build -- $DIR
 ```
 
-Ra `renders/final.mp4` (đã có logo Evose, phụ đề, nhạc, dưới 50 MB),
+Ra `renders/final.mp4` (đã có logo Evose, phụ đề, nhạc. Khổ dọc dưới 50 MB, khổ ngang không có trần),
 `renders/stillness.json`, `renders/contact-sheet.jpg`.
 
 ## Bước 9 — Chấm độc lập (bắt buộc, tối đa 2 vòng)

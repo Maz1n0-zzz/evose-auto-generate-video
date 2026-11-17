@@ -41,7 +41,7 @@ Tốc độ đọc đo trên chương thử ngày 17/11/2026:
 |---|---|---|
 | 494 chữ | 132 giây | 3,7 chữ mỗi giây |
 
-Một chương 2:30 tới 3:00 vì vậy cần khoảng 560 tới 670 chữ lời đọc, chia 11 tới 14 khung. Số cũ 3,1 chữ mỗi giây
+Một chương 2:30 tới 2:50 vì vậy cần khoảng 540 tới 620 chữ lời đọc, chia 11 tới 13 khung. Không vượt 630 chữ vì `video:voice` chỉ nhận tối đa 2900 ký tự. Số cũ 3,1 chữ mỗi giây
 làm chương thử ngắn hơn dự kiến.
 
 ## Lắp vào một chương
